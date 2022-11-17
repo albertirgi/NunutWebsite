@@ -5,6 +5,7 @@ import {
   IoIosNotifications,
   IoIosChatbubbles,
   IoMdCart,
+  IoIosCar,
   IoMdMail,
   IoMdBasket,
   IoMdMap,
@@ -51,8 +52,11 @@ import {
   IoMdAdd,
   IoMdClose,
   IoMdMic,
+  IoMdLogOut,
   IoIosSquare,
   IoMdCreate,
+  IoIosDisc,
+
 } from 'react-icons/io';
 
 // TopBar Icons
@@ -132,3 +136,9 @@ export const DeleteIcon = IoMdTrash; // Delete icon
 export const EditIcon = IoMdCreate; // Edit icon
 export const MenuIcon = IoMdMenu; // Edit icon
 export const FlameIcon = IoMdFlame; // Flame icon
+export const LogoutIcon = IoMdLogOut; // Logout icon
+export const DashboardIcon = IoIosApps; // Dashboard icon
+export const ProfileIcon = IoIosPerson; // Profile icon
+export const VoucherIcon = IoIosDisc; // Voucher icon
+export const NotificationIcon = IoIosNotifications; // Notification icon
+export const CarIcon = IoIosCar; // Car icon

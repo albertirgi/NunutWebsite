@@ -7,7 +7,7 @@ import DashboardLayout from '../../containers/DashboardLayout/DashboardLayout';
 export default withAuthSync(() => (
   <>
     <Head>
-      <title>Home page</title>
+      <title>Notification</title>
     </Head>
     <DashboardLayout>
      

@@ -22,6 +22,8 @@ const {
   changeCurrent,
   toggleCollapsed,
 } = appActions;
+import authAction from "../../authentication/actions";
+const { logout } = authAction;
 export default function Sidebar(props) {
   const {
     view,
@@ -102,11 +104,11 @@ export default function Sidebar(props) {
         onMouseLeave={onMouseLeave}
         style={styling}
       >
-        <Logo collapsed={isCollapsed} />
+        <Logo collapsed={isCollapsed} style={{height:"200px"}}/>
         <Scrollbars style={{ height: height - 70 }}>
           <Menu
             onClick={handleClick}
-            theme="dark"
+            //theme="dark"
             mode={mode}
             openKeys={isCollapsed ? [] : openKeys}
             selectedKeys={current}
@@ -120,10 +122,17 @@ export default function Sidebar(props) {
                 item={option}
                 submenuColor={submenuColor}
                 submenuStyle={submenuStyle}
+                path={option.path}
+                onClick={() => {
+                  if (option.key == "logout") {
+                    dispatch(logout());
+                    localStorage.clear();
+                  }
+                }}
               />
             ))}
 
-            <SubMenu
+            {/* <SubMenu
               key="sub1"
               title={
                 <span className="isoMenuHolder" style={submenuColor}>
@@ -156,7 +165,7 @@ export default function Sidebar(props) {
                   <IntlMessages id="sidebar.option4" />
                 </Menu.Item>
               </MenuItemGroup>
-            </SubMenu>
+            </SubMenu> */}
           </Menu>
         </Scrollbars>
       </Sider>
