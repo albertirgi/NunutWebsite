@@ -111,8 +111,8 @@ export default function Sidebar(props) {
             //theme="dark"
             mode={mode}
             openKeys={isCollapsed ? [] : openKeys}
-            selectedKeys={current}
-            onOpenChange={onOpenChange}
+            // selectedKeys={current}
+            // onOpenChange={onOpenChange}
             className="isoDashboardMenu"
             // inlineCollapsed={isCollapsed}
           >
@@ -126,7 +126,7 @@ export default function Sidebar(props) {
                 onClick={() => {
                   if (option.key == "logout") {
                     dispatch(logout());
-                    localStorage.clear();
+                    //localStorage.clear();
                   }
                 }}
               />

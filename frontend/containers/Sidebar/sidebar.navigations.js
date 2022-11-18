@@ -58,32 +58,32 @@ export default [
 	},
 	{
 		key: 'user',
-		path: '/dashboard/nunut_notif',
+		path: '/dashboard/user',
 		label: 'List User',
 		leftIcon: <ProfileIcon size={19} />,
 	},
 	{
 		key: 'transaction',
-		path: '/dashboard/nunut_notif',
+		path: '/dashboard/transaction',
 		label: 'List Transaction',
 		leftIcon: <EditIcon size={19} />,
 	},
 	{
 		key: 'driver',
-		path: '/dashboard/nunut_notif',
+		path: '/dashboard/driver',
 		label: 'List Driver',
 		leftIcon: <SidebarContactsIcon size={19} />,
 	},
 	{
 		key: 'emergency',
-		path: '/dashboard/nunut_notif',
+		path: '/dashboard/emergency',
 		label: 'Emergency Report',
 		leftIcon: <MailSpamReportIcon size={19} />,
 	},
 	
 	{
 		key: 'logout',
-		path: '/#',
+		path: '#',
 		label: 'Logout',
 		leftIcon: <LogoutIcon size={19} />,
 	},
