@@ -1,0 +1,329 @@
+/********** Add Your Global CSS Here **********/
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a,
+p,
+li,
+input,
+textarea,
+span,
+div,
+html,
+body,
+html a {
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+  margin-bottom: 0;
+}
+
+p {
+  margin-bottom: 0;
+}
+
+html ul {
+  -webkit-padding-start: 0px;
+  list-style: none;
+  margin-bottom: 0;
+}
+
+.scrollbar-track-y,
+.scrollbar-thumb-y {
+  width: 5px !important;
+}
+
+.scrollbar-track-x,
+.scrollbar-thumb-x {
+  height: 5px !important;
+}
+
+.scrollbar-thumb {
+  border-radius: 0 !important;
+}
+
+.ant-popover-placement-bottom > .ant-popover-content > .ant-popover-arrow:after,
+.ant-popover-placement-bottomLeft
+  > .ant-popover-content
+  > .ant-popover-arrow:after,
+.ant-popover-placement-bottomRight
+  > .ant-popover-content
+  > .ant-popover-arrow:after,
+.ant-popover-placement-top > .ant-popover-content > .ant-popover-arrow:after,
+.ant-popover-placement-topLeft
+  > .ant-popover-content
+  > .ant-popover-arrow:after,
+.ant-popover-placement-topRight
+  > .ant-popover-content
+  > .ant-popover-arrow:after {
+  left: 0;
+  margin-left: -4px;
+}
+
+/********** Add Your Global RTL CSS Here **********/
+/* Popover */
+html[dir='rtl'] .ant-popover {
+  text-align: right;
+}
+
+/* Ecommerce Card */
+html[dir='rtl'] .isoCardInfoForm .ant-input {
+  text-align: right;
+}
+
+/* Modal */
+html[dir='rtl'] .has-success.has-feedback:after,
+html[dir='rtl'] .has-warning.has-feedback:after,
+html[dir='rtl'] .has-error.has-feedback:after,
+html[dir='rtl'] .is-validating.has-feedback:after {
+  left: 0;
+  right: auto;
+}
+
+html[dir='rtl'] .ant-modal-close {
+  right: inherit;
+  left: 0;
+}
+
+html[dir='rtl'] .ant-modal-footer {
+  text-align: left;
+}
+
+html[dir='rtl'] .ant-modal-footer button + button {
+  margin-left: 0;
+  margin-right: 8px;
+}
+
+html[dir='rtl'] .ant-confirm-body .ant-confirm-content {
+  margin-right: 42px;
+}
+
+html[dir='rtl'] .ant-btn > .anticon + span,
+html[dir='rtl'] .ant-btn > span + .anticon {
+  margin-right: 0.5em;
+}
+
+html[dir='rtl'] .ant-btn-loading span {
+  margin-left: 0;
+  margin-right: 0.5em;
+}
+
+html[dir='rtl']
+  .ant-btn.ant-btn-loading:not(.ant-btn-circle):not(.ant-btn-circle-outline) {
+  padding-left: 25px;
+  padding-right: 29px;
+}
+
+html[dir='rtl']
+  .ant-btn.ant-btn-loading:not(.ant-btn-circle):not(.ant-btn-circle-outline)
+  .anticon {
+  margin-right: -14px;
+  margin-left: 0;
+}
+
+/* Confirm */
+html[dir='rtl'] .ant-modal.ant-confirm .ant-confirm-body > .anticon {
+  margin-left: 16px;
+  margin-right: 0;
+  float: right;
+}
+
+html[dir='rtl'] .ant-modal.ant-confirm .ant-confirm-btns {
+  float: left;
+}
+
+html[dir='rtl'] .ant-modal.ant-confirm .ant-confirm-btns button + button {
+  margin-right: 10px;
+  margin-left: 0;
+}
+
+/* Message */
+html[dir='rtl'] .ant-message .anticon {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+/* Pop Confirm */
+html[dir='rtl'] .ant-popover-message-title {
+  padding-right: 20px;
+  padding-left: 0;
+}
+
+html[dir='rtl'] .ant-popover-buttons {
+  text-align: left;
+}
+
+/* Notification */
+html[dir='rtl']
+  .ant-notification-notice-closable
+  .ant-notification-notice-message {
+  padding-left: 24px;
+  padding-right: 0;
+}
+
+html[dir='rtl']
+  .ant-notification-notice-with-icon
+  .ant-notification-notice-message,
+html[dir='rtl']
+  .ant-notification-notice-with-icon
+  .ant-notification-notice-description {
+  margin-right: 48px;
+}
+
+html[dir='rtl'] .ant-notification-notice-close {
+  right: auto;
+  left: 16px;
+}
+
+html[dir='rtl'] .ant-notification-notice-with-icon {
+  left: 0;
+}
+
+/* Dropzone */
+html[dir='rtl'] .dz-hidden-input {
+  display: none;
+}
+
+.ant-form-item-children-icon {
+  display: none;
+}
+
+/* Instagram Modal */
+
+.ant-modal-wrap.instagram-modal .ant-modal {
+  max-width: 935px;
+  width: 100% !important;
+}
+
+@media only screen and (max-width: 991px) {
+  .ant-modal-wrap.instagram-modal .ant-modal {
+    padding: 0 60px;
+  }
+}
+
+@media only screen and (max-width: 767px) {
+  .ant-modal-wrap.instagram-modal .ant-modal {
+    max-width: 580px;
+  }
+}
+
+.ant-modal-wrap.instagram-modal .ant-modal-content {
+  border-radius: 0;
+}
+
+.ant-modal-wrap.instagram-modal .ant-modal-content button.ant-modal-close {
+  position: fixed;
+  color: #fff;
+}
+
+.ant-modal-wrap.instagram-modal .ant-modal-content button.ant-modal-close i {
+  font-size: 24px;
+}
+
+.ant-modal-wrap.instagram-modal .ant-modal-content .ant-modal-body {
+  padding: 0;
+}
+
+/* instant search */
+.ais-MultiIndex__root {
+  width: 100%;
+}
+
+.title div {
+  width: 100%;
+  padding: 5px 10px;
+}
+
+.react-autosuggest__container {
+  position: relative;
+}
+
+.react-autosuggest__input {
+  width: 600px;
+  height: 30px;
+  padding: 10px 20px;
+  font-family: Helvetica, sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+}
+
+.react-autosuggest__input:focus {
+  outline: none;
+}
+
+.react-autosuggest__container--open .react-autosuggest__input {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.react-autosuggest__suggestions-container {
+  display: none;
+}
+
+.react-autosuggest__container--open .react-autosuggest__suggestions-container {
+  display: block;
+  position: absolute;
+  top: 51px;
+  width: 640px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  font-family: Helvetica, sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  z-index: 2;
+}
+
+.react-autosuggest__suggestions-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+
+.react-autosuggest__suggestion {
+  cursor: pointer;
+  padding: 10px 20px;
+}
+
+.react-autosuggest__suggestion--focused {
+  background-color: #ddd;
+}
+
+.react-autosuggest__section-title {
+  padding: 10px 0 0 10px;
+  font-size: 12px;
+  color: #777;
+  border-top: 1px dashed #ccc;
+}
+
+.react-autosuggest__section-container:first-child
+  .react-autosuggest__section-title {
+  border-top: 0;
+}
+
+/* Upload css */
+.avatar-uploader,
+.avatar-uploader-trigger,
+.avatar {
+  width: 150px;
+  height: 150px;
+}
+.avatar-uploader {
+  display: block;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.avatar-uploader-trigger {
+  display: table-cell;
+  vertical-align: middle;
+  font-size: 28px;
+  color: #999;
+}
