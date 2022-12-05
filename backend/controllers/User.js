@@ -25,7 +25,7 @@ export const storeUser = async (req, res) => {
     });
 
     // Save userModel in the database
-    firebase.auth().createUserWithEmailAndPassword(user.email, req.body.password)
+    db.auth().createUserWithEmailAndPassword(user.email, req.body.password)
     .then(async function(data) {
         await firestore.collection('users').doc(data.user.email).set(user);
         res.send(data);
