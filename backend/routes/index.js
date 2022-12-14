@@ -1,6 +1,6 @@
 import express from 'express';
 var router = express.Router();
-import { storeUser, getAllUsers, login, logout, getUserById, destroyUser } from '../controllers/User.js';
+import { storeUser, getAllUsers, login, logout, getUserById, resetPassword, destroyUser } from '../controllers/User.js';
 import { storeVehicleRegistration, getAllVehicleRegistrations, getVehicleRegistrationById, updateVehicleRegistration, destroyVehicleRegistration } from '../controllers/VehicleRegistration.js';
 import { storeRegisteredVehicle, getAllRegisteredVehicles, getRegisteredVehicleById, updateRegisteredVehicle, destroyRegisteredVehicle } from '../controllers/RegisteredVehicle.js';
 import { storeRideSchedule, getAllRideSchedules, getRideScheduleById, updateRideSchedule, destroyRideSchedule } from '../controllers/RideSchedule.js';
@@ -19,6 +19,7 @@ router.post('/logout', logout);
 router.post('/user', storeUser);
 router.get('/user', getAllUsers);
 router.get('/user/:id', getUserById);
+router.post('/reset', resetPassword);
 router.delete('/user/:id', destroyUser);
 router.post('/vehicle-registration', storeVehicleRegistration);
 router.get('/vehicle-registration', getAllVehicleRegistrations);

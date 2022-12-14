@@ -1,10 +1,12 @@
 import User from '../models/userModel.js'
 import jwt from 'jsonwebtoken'
-import { db } from '../config/db.js'
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth"
+import { initializeApp } from 'firebase/app'
+import { db, firebaseConfig } from '../config/db.js'
+import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 const firestore = db.firestore()
 let token = null
+const app = initializeApp(firebaseConfig)
 
 // Create and Save a new userModel
 export const storeUser = async (req, res) => {
@@ -25,9 +27,21 @@ export const storeUser = async (req, res) => {
     });
 
     // Save userModel in the database
-    db.auth().createUserWithEmailAndPassword(user.email, req.body.password)
+    db.auth().createUser({
+      email: req.body.email,
+      emailVerified: false,
+      password: req.body.password,
+      displayName: req.body.name,
+      disabled: false,
+      photoURL: "https://example.com/jane-q-user/profile.jpg",
+    })
     .then(async function(data) {
-        await firestore.collection('users').doc(data.user.email).set(user);
+        await firestore.collection('users').doc(data.uid).set({
+          email: req.body.email,
+          name: req.body.name,
+          nik: req.body.nik,
+          phone: req.body.phone,
+        });
         res.send(data);
     }).catch(err => {
         res.status(500).send({
@@ -40,9 +54,9 @@ export const storeUser = async (req, res) => {
 export const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
-    signInWithEmailAndPassword(getAuth(), email, password)
+    signInWithEmailAndPassword(getAuth(app), email, password)
     .then(async data => {
-        const userData = await firestore.collection('users').doc(email)
+        const userData = await firestore.collection('users').doc(data.user.uid)
         const datauser = await userData.get();
         if(!datauser.exists) {
           return res.status(404).json({
@@ -73,8 +87,7 @@ export const login = async (req, res) => {
 
 // Logout a user
 export const logout = async (req, res) => {
-    const auth = getAuth();
-    localStorage.
+    const auth = getAuth(app);
     signOut(auth).then(() => {  
         res.status(200).send({  
             message: "Logout Successful",
@@ -162,15 +175,15 @@ export const resetPassword = async (req, res) => {
 }
 
 export const destroyUser = async (req, res) => {
-    const email = req.params.id
-    const user = await firestore.collection('users').doc(email);
+    const uid = req.params.id
+    const user = await firestore.collection('users').doc(uid);
     const data = await user.get();
     if(!data.exists) {
         res.status(404).send('No user record found');
     }
     else{
-        await firestore.collection('users').doc(email).delete();
-        db.auth().getUserByEmail(email).then(function(userRecord) {
+        await firestore.collection('users').doc(uid).delete();
+        db.auth().getUser(uid).then(function(userRecord) {
           db.auth().deleteUser(userRecord.uid)
           .then(function() {
               res.status(200).send({

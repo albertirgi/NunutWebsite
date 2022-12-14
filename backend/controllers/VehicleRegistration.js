@@ -1,13 +1,26 @@
 import VehicleRegistration from '../models/vehicleRegistrationModel.js'
 import jwt from 'jsonwebtoken'
 import { db } from '../config/db.js'
+import admin from 'firebase-admin'
 const firestore = db.firestore()
 let token = null
 
 export const storeVehicleRegistration = async (req, res) => {
   try {
     const data = req.body
-    await firestore.collection('vehicle_registration').doc().set(data)
+    await firestore.collection('vehicle_registration').doc().set({
+      aggr_letter: data.aggr_letter,
+      color: data.color,
+      expired_at: admin.firestore.Timestamp.fromDate(new Date(data.expired_at)),
+      license: data.license,
+      license_plate: data.license_plate,
+      name: data.name,
+      note: data.note,
+      phone: data.phone,
+      student_id_card: data.student_id_card,
+      type: data.type,
+      user_id: firestore.collection('users').doc(data.user_id),
+    })
     res.send('Record saved successfuly')
   } catch (error) {
     res.status(400).send(error.message)
@@ -78,7 +91,19 @@ export const updateVehicleRegistration = async (req, res) => {
     const id = req.params.id
     const data = req.body
     const vehicleRegistration = await firestore.collection('vehicle_registration').doc(id)
-    await vehicleRegistration.update(data)
+    await vehicleRegistration.update({
+      aggr_letter: data.aggr_letter,
+      color: data.color,
+      expired_at: db.firestore.Timestamp.fromDate(new Date(data.expired_at)),
+      license: data.license,
+      license_plate: data.license_plate,
+      name: data.name,
+      note: data.note,
+      phone: data.phone,
+      student_id_card: data.student_id_card,
+      type: data.type,
+      user_id: db.doc(`users/${data.user_id}`),
+    })
     res.send('Vehicle registration record updated successfuly')
   }catch(error){
     res.status(400).send(error.message)
