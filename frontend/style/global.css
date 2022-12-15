@@ -342,3 +342,6 @@ html[dir='rtl'] .dz-hidden-input {
 ::-webkit-scrollbar-corner {
   background: rgba(255, 255, 255, 0);
 }
+.ant-table-thead{
+  background-color: #FAD14B !important;
+}

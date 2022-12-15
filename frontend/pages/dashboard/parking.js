@@ -3,6 +3,7 @@ import Head from 'next/head';
 
 import { withAuthSync } from '../../authentication/auth.utils';
 import DashboardLayout from '../../containers/DashboardLayout/DashboardLayout';
+import ParkingPage from '../../containers/ParkingPage';
 
 export default withAuthSync(() => (
   <>
@@ -10,7 +11,7 @@ export default withAuthSync(() => (
       <title>Parking</title>
     </Head>
     <DashboardLayout>
-     
+     <ParkingPage></ParkingPage>
     </DashboardLayout>
   </>
 ));
