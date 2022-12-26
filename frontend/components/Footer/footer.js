@@ -51,8 +51,8 @@ const NunutFooter = () => {
                             </a>
                         </div>
                     </Col>
-                    <Col md={9} sm={12} xs={24} style={{textAlign:"right"}} >
-                        <div className="contact" style={{marginRight:"35px"}}>
+                    <Col md={9} sm={12} xs={24} style={{textAlign:"left"}} >
+                        <div className="contact" >
                             <p>
                                 <b>Connect with us!</b>
                             </p>

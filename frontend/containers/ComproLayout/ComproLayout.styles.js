@@ -1,6 +1,13 @@
 import styled from 'styled-components';
-import { palette } from 'styled-theme';
 
-const ComproLayoutHolder = styled.div``;
+const ComproLayoutHolder = styled.div`
+@media screen and (max-width: 600px) {
+    
+    .title-home{
+        margin-top: 30px !important;
+    }
+}
+
+`;
 
 export default ComproLayoutHolder;
