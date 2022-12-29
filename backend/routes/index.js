@@ -13,6 +13,7 @@ import { storeNotification, getAllNotifications, getNotificationById, updateNoti
 import { storeParkingSlot, getAllParkingSlots, getParkingSlotById, updateParkingSlot, destroyParkingSlot } from '../controllers/ParkingSlot.js';
 import { storeParkingRequest, getAllParkingRequests, getParkingRequestById, updateParkingRequest, destroyParkingRequest } from '../controllers/ParkingRequest.js';
 import { storeBookmark, getAllBookmarks, getBookmarkById, updateBookmark, destroyBookmark } from '../controllers/Bookmark.js';
+import { getAllDrivers } from '../controllers/Driver.js'
 
 router.post('/login', login);
 router.post('/logout', logout);
@@ -20,6 +21,7 @@ router.post('/user', storeUser);
 router.get('/user', getAllUsers);
 router.get('/user/:id', getUserById);
 router.post('/reset', resetPassword);
+router.get('/driver', getAllDrivers);
 router.delete('/user/:id', destroyUser);
 router.post('/vehicle-registration', storeVehicleRegistration);
 router.get('/vehicle-registration', getAllVehicleRegistrations);
