@@ -1,7 +1,7 @@
 export default class UserVoucher {
-  constructor(id, userId, voucherId){
+  constructor(id, user_id, voucher_id){
     this.id = id;
-    this.userId = userId;
-    this.voucherId = voucherId;
+    this.user_id = user_id;
+    this.voucher_id = voucher_id;
   }
 }

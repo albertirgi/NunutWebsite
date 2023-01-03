@@ -1,13 +1,16 @@
 export default class RideSchedule {
-  constructor(id, date, isActive, location, note, price, time, userId, vehicleId) {
+  constructor(id, date, time, meeting_point, destination, note, price, driver, vehicle, name, capacity, is_active) {
     this.id = id;
     this.date = date;
-    this.isActive = isActive;
-    this.location = location;
+    this.time = time;
+    this.meeting_point = meeting_point;
+    this.destination = destination;
     this.note = note;
     this.price = price;
-    this.time = time;
-    this.userId = userId;
-    this.vehicleId = vehicleId;
+    this.driver = driver;
+    this.vehicle = vehicle;
+    this.name = name;
+    this.capacity = capacity;
+    this.is_active = is_active;
   }
 }

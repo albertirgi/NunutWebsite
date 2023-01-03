@@ -1,7 +1,7 @@
 export default class Bookmark {
-  constructor(id, rideScheduleId, userId){
+  constructor(id, ride_schedule, user){
     this.id = id 
-    this.rideScheduleId = rideScheduleId
-    this.userId = userId
+    this.ride_schedule = ride_schedule
+    this.user = user
   }
 }

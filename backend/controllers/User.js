@@ -4,49 +4,75 @@ import { initializeApp } from 'firebase/app'
 import { db, firebaseConfig } from '../config/db.js'
 import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
+import { uuid } from 'uuidv4'
 const firestore = db.firestore()
+const storage = db.storage().bucket()
 let token = null
 const app = initializeApp(firebaseConfig)
 
 // Create and Save a new userModel
 export const storeUser = async (req, res) => {
-    // Validate request
-    if(!req.body) {
-      return res.status(400).send({
-          message: "Input can not be empty"
-      });
-    }
-
-    // Create a userModel
-    const user = new User({
-      id: req.body.email,
-      email: req.body.email,
-      name: req.body.name,
-      nik: req.body.nik,
-      phone: req.body.phone,
+  // Validate request
+  if (!req.body) {
+    return res.status(400).send({
+      message: "Input can not be empty",
     });
+  }
 
-    // Save userModel in the database
-    db.auth().createUser({
+  // Upload image to storage
+  let publicUrl =
+    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/default-avatar.png?alt=media&token=215b4ac9-5b92-4ee1-a923-64941391a78d";
+  const image = req.file;
+  if (image) {
+    let status = true;
+    let message = "";
+    const fileName = uuid() + ".png";
+    const blob = storage.file(fileName);
+    const blobStream = blob.createWriteStream({
+      resumable: false,
+    });
+    blobStream.on("error", function (err) {
+      status = false;
+      message = "Error occured while uploading image: " + err;
+    });
+    blobStream.on("finish", async function () {
+      publicUrl = `https://storage.googleapis.com/${storage.name}/${blob.name}`;
+    });
+    blobStream.end(image.buffer);
+    if (!status) {
+      res.status(500).json({
+        message: message,
+        status: 500,
+      });
+      return;
+    }
+  }
+
+  // Save userModel in the database
+  db.auth()
+    .createUser({
       email: req.body.email,
       emailVerified: false,
       password: req.body.password,
       displayName: req.body.name,
       disabled: false,
-      photoURL: "https://example.com/jane-q-user/profile.jpg",
+      photoURL: publicUrl,
     })
-    .then(async function(data) {
-        await firestore.collection('users').doc(data.uid).set({
-          email: req.body.email,
-          name: req.body.name,
-          nik: req.body.nik,
-          phone: req.body.phone,
-        });
-        res.send(data);
-    }).catch(err => {
-        res.status(500).send({
-            message: err.message || "Some error occurred while creating the user."
-        });
+    .then(async function (data) {
+      await firestore.collection("users").doc(data.uid).set({
+        email: req.body.email,
+        name: req.body.name,
+        nik: req.body.nik,
+        phone: req.body.phone,
+        image: publicUrl,
+        role: req.body.role,
+      });
+      res.send(data);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || "Some error occurred while creating the user.",
+      });
     });
 }
 
@@ -111,6 +137,8 @@ export const getAllUsers = async (req, res) => {
             name: doc.data().name,
             nik: doc.data().nik,
             phone: doc.data().phone,
+            image: doc.data().image,
+            role: doc.data().role
           });
         });
         res.status(200).json({

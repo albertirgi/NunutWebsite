@@ -18,6 +18,20 @@ export const getAllRideOrders = async (req, res) => {
   try {
     const data = await firestore.collection('ride_order').get();
     const rideOrderArray = [];
+    const rideRequest = await firestore.collection('ride_request').get();
+    const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      }
+    }) : null;
+    const voucher = await firestore.collection('voucher').get();
+    const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      }
+    }) : null;
     if (data.empty) {
       res.status(404).send('No ride order record found');
     } else {
@@ -26,13 +40,18 @@ export const getAllRideOrders = async (req, res) => {
           doc.id,
           doc.data().description,
           doc.data().discount,
-          doc.data().method,
-          doc.data().order_id,
+          doc.data().type,
+          doc.data().from,
+          doc.data().to,
           doc.data().price_after,
           doc.data().price_before,
-          doc.data().ride_request_id,
-          doc.data().token,
-          doc.data().voucher_id,
+          req.query.ride_request !== undefined ? rideRequestArray.find((rideRequest) => {
+            return rideRequest.id == doc.data().ride_request_id;
+            }) : doc.data().ride_request_id,
+          req.query.voucher !== undefined ? voucherArray.find((voucher) => {
+            return voucher.id == doc.data().voucher_id;
+          }) : doc.data().voucher_id,
+          doc.data().status_payment,
         );
         rideOrderArray.push(rideOrder);
       });
@@ -54,13 +73,43 @@ export const getRideOrderById = async (req, res) => {
   try{
     const id = req.params.id
     const data = await firestore.collection('ride_order').doc(id).get();
+    const rideRequest = await firestore.collection('ride_request').get();
+    const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      }
+    }) : null;
+    const voucher = await firestore.collection('voucher').get();
+    const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
+      return {
+        id: doc.id,
+        ...doc.data()
+      }
+    }) : null;
     if(!data.exists){
       res.status(404).send('Ride order with the given ID not found');
     }
     else{
       res.status(200).send({
         message: 'Ride order data retrieved successfuly',
-        data: data.data(),
+        data: {
+          id: data.id,
+          description: data.data().description,
+          discount: data.data().discount,
+          type: data.data().type,
+          from: data.data().from,
+          to: data.data().to,
+          price_after: data.data().price_after,
+          price_before: data.data().price_before,
+          ride_request_id: req.query.ride_request !== undefined ? rideRequestArray.find((rideRequest) => {
+            return rideRequest.id == data.data().ride_request_id;
+          }) : data.data().ride_request_id,
+          voucher_id: req.query.voucher !== undefined ? voucherArray.find((voucher) => {
+            return voucher.id == data.data().voucher_id;
+          }) : data.data().voucher_id,
+          status_payment: data.data().status_payment,
+        },
         status: 200
       });
     }
@@ -76,7 +125,7 @@ export const updateRideOrder = async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    const rideOrder = await firestore.collection('ride_order').doc(id);
+    const rideOrder = firestore.collection('ride_order').doc(id);
     await rideOrder.update(data);
     res.status(200).send('Ride order record updated successfuly');
   } catch (error) {

@@ -1,9 +1,8 @@
 export default class RideRequest {
-  constructor(id, rideScheduleId, statusPayment, statusRide, userId){
+  constructor(id, ride_schedule, status_ride, user){
     this.id = id;
-    this.rideScheduleId = rideScheduleId;
-    this.statusPayment = statusPayment;
-    this.statusRide = statusRide;
-    this.userId = userId;
+    this.ride_schedule = ride_schedule;
+    this.status_ride = status_ride;
+    this.user = user;
   }
 }

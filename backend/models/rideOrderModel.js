@@ -1,14 +1,15 @@
 export default class RideOrder {
-  constructor(id, description, discount, method, orderId, priceAfter, priceBefore, rideRequestId, token, voucherId){
+  constructor(id, description, discount, type, from, to, price_after, price_before, ride_request_id, voucher_id, status_payment){
     this.id = id;
     this.description = description;
     this.discount = discount;
-    this.method = method;
-    this.orderId = orderId;
-    this.priceAfter = priceAfter;
-    this.priceBefore = priceBefore;
-    this.rideRequestId = rideRequestId;
-    this.token = token;
-    this.voucherId = voucherId;
+    this.type = type;
+    this.from = from;
+    this.to = to;
+    this.price_after = price_after;
+    this.price_before = price_before;
+    this.ride_request_id = ride_request_id;
+    this.voucher_id = voucher_id;
+    this.status_payment = status_payment;
   }
 }
