@@ -14,7 +14,7 @@ export default function SidebarMenu({
 	...rest
 }) {
 	const router = useRouter();
-	const { key, label, leftIcon, children } = item;
+	const { key, label, leftIcon, children, path } = item;
 
 	const url = siteConfig.dashboard;
 	const handleClick = (event, linkTo) => {
@@ -40,14 +40,13 @@ export default function SidebarMenu({
 					const linkTo = withoutDashboard ? `/${key}` : `${url}/${key}`;
 					return (
 						<Menu.Item style={submenuStyle} key={key}>
-							<a
-								href={linkTo}
-								onClick={(even) => handleClick(event, linkTo)}
-								className='isoMenuHolder'
-								style={submenuColor}
-							>
-								<IntlMessages id={label} />
-							</a>
+							<Link href={path}>
+								<a className="isoMenuHolder" style={submenuColor}>
+								<span className="nav-text">
+									<IntlMessages id={label} />
+								</span>
+								</a>
+							</Link>
 						</Menu.Item>
 					);
 				})}
@@ -56,12 +55,12 @@ export default function SidebarMenu({
 	}
 	return (
 		<Menu.Item key={key} {...rest}>
-			<Link href={`${url}/${key}`}>
-				<a className='isoMenuHolder' style={submenuColor}>
-					{leftIcon}
-					<span className='nav-text'>
-						<IntlMessages id={label} />
-					</span>
+			<Link href={path}>
+				<a className="isoMenuHolder" style={submenuColor}>
+				{leftIcon}
+				<span className="nav-text">
+					<IntlMessages id={label} />
+				</span>
 				</a>
 			</Link>
 		</Menu.Item>

@@ -1,7 +1,7 @@
 export default {
   siteName: 'ISOMORPHIC',
   siteIcon: 'ion-flash',
-  footerText: `Isomorphic @ ${new Date().getFullYear()} Created by RedQ, Inc`,
+  footerText: `NUNUT AD© ${new Date().getFullYear()} Created by NUNUT`,
   enableAnimatedRoute: false,
   apiUrl: 'http://yoursite.com/api/',
   google: {

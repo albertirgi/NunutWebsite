@@ -46,7 +46,7 @@ export default function DashboardLayout({ children }) {
             >
               {children}
             </Content>
-            <Footer
+            {/* <Footer
               style={{
                 background: '#ffffff',
                 textAlign: 'center',
@@ -54,10 +54,9 @@ export default function DashboardLayout({ children }) {
               }}
             >
               {siteConfig.footerText}
-            </Footer>
+            </Footer> */}
           </Layout>
         </Layout>
-        <ThemeSwitcher />
       </Layout>
     </AppHolder>
   );

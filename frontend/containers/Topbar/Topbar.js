@@ -18,7 +18,7 @@ class Topbar extends Component {
     const { toggleCollapsed, url, customizedTheme, locale } = this.props;
     const collapsed = this.props.collapsed && !this.props.openDrawer;
     const styling = {
-      background: customizedTheme.backgroundColor,
+      backgroundColor:"#FAD14B",
       position: 'fixed',
       width: '100%',
       height: 70,
@@ -43,7 +43,7 @@ class Topbar extends Component {
             </button>
           </div>
 
-          <ul className="isoRight">
+          {/* <ul className="isoRight">
             <li className="isoSearch">
               <TopbarSearch locale={locale} />
             </li>
@@ -74,7 +74,7 @@ class Topbar extends Component {
             >
               <TopbarUser locale={locale} />
             </li>
-          </ul>
+          </ul> */}
         </Header>
       </TopbarWrapper>
     );

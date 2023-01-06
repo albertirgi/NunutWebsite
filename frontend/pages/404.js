@@ -4,6 +4,8 @@ import Link from 'next/link';
 import IntlMessages from '@iso/components/utility/intlMessages';
 import FourZeroFourStyleWrapper from '../styled/404.styles';
 import Image from '@iso/assets/images/rob.png';
+import nunutLogoPlain from '@iso/assets/images/nunut/nunut-logo-plain.png';
+
 function FourZeroFour() {
   return (
     <FourZeroFourStyleWrapper className="iso404Page">
@@ -18,10 +20,12 @@ function FourZeroFour() {
           <IntlMessages id="page404.description" />
         </p>
         <button type="button">
-          <Link href="/dashboard">
+          <Link href="/home">
             <a className="isoMenuHolder">
               <span className="nav-text">
-                <IntlMessages id="page404.backButton" />
+                <IntlMessages id="page404.backButton" style={{
+                  color:"#FAD14B"
+                }}/>
               </span>
             </a>
           </Link>
@@ -29,7 +33,7 @@ function FourZeroFour() {
       </div>
 
       <div className="iso404Artwork">
-        <img alt="#" src={Image} />
+        <img alt="/home" src={nunutLogoPlain} height={200} />
       </div>
     </FourZeroFourStyleWrapper>
   );
