@@ -9,9 +9,15 @@ export const storeTransaction = async (req, res) => {
   try {
     const data = req.body;
     await firestore.collection('transaction').doc().set(data);
-    res.send('Record saved successfuly');
+    res.status(200).json({
+      message: 'Transaction data saved successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500,
+    })
   }
 }
 
@@ -30,7 +36,10 @@ export const getAllTransactions = async (req, res) => {
           })
         : null;
     if (data.empty) {
-      res.status(404).send('No transaction record found');
+      res.status(404).json({
+        message: 'No transaction record found',
+        status: 404,
+      })
     } else {
       data.forEach(doc => {
         const transaction = new Transaction(
@@ -45,14 +54,14 @@ export const getAllTransactions = async (req, res) => {
         );
         transactionArray.push(transaction);
       });
-      res.status(200).send({
+      res.status(200).json({
         message: 'Transaction data retrieved successfuly',
         data: transactionArray,
         status: 200
       });
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     });
@@ -72,9 +81,12 @@ export const getTransactionById = async (req, res) => {
     }) : null;
 
     if (!transaction.exists) {
-      res.status(404).send('Transaction with the given ID not found');
+      res.status(404).json({
+        message: 'Transaction with the given ID not found',
+        status: 404
+      });
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Transaction data retrieved successfuly',
         data: {
           id: transaction.data().id,
@@ -90,7 +102,7 @@ export const getTransactionById = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     });
@@ -103,12 +115,15 @@ export const updateTransaction = async (req, res) => {
     const data = req.body;
     const transaction = firestore.collection('transaction').doc(id);
     await transaction.update(data);
-    res.status(200).send({
+    res.status(200).json({
       message: 'Transaction record updated successfuly',
       status: 200
     });
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -116,11 +131,14 @@ export const destroyTransaction = async (req, res) => {
   try {
     const id = req.params.id;
     await firestore.collection('transaction').doc(id).delete();
-    res.status(200).send({
+    res.status(200).json({
       message: 'Transaction record deleted successfuly',
       status: 200
     });
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 500
+    })
   }
 }

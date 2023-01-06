@@ -8,9 +8,15 @@ export const storeBookmark = async (req, res) => {
   try {
     const data = req.body
     await firestore.collection('bookmark').doc().set(data)
-    res.send('Record saved successfuly')
+    res.status(200).json({
+      message: 'Bookmark data saved successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(400).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 400,
+    })
   }
 }
 
@@ -39,7 +45,10 @@ export const getAllBookmarks = async (req, res) => {
           })
         : null
     if (data.empty) {
-      res.status(404).send('No bookmark record found')
+      res.status(404).json({
+        message: 'No bookmark record found',
+        status: 404,
+      })
     } else {
       data.forEach(doc => {
         const bookmark = new Bookmark(
@@ -49,14 +58,14 @@ export const getAllBookmarks = async (req, res) => {
         )
         bookmarkArray.push(bookmark)
       })
-      res.status(200).send({
+      res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
         data: bookmarkArray,
         status: 200
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -88,9 +97,12 @@ export const getBookmarkById = async (req, res) => {
           })
         : null
     if (!data.exists) {
-      res.status(404).send('Bookmark with the given ID not found')
+      res.status(404).json({
+        message: 'Bookmark with the given ID not found',
+        status: 404,
+      })
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
         data: {
           id: data.id,
@@ -101,7 +113,7 @@ export const getBookmarkById = async (req, res) => {
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -132,7 +144,10 @@ export const getBookmarkByUserId = async (req, res) => {
           })
         : null
     if (data.empty) {
-      res.status(404).send('No bookmark record found')
+      res.status(404).json({
+        message: 'No bookmark record found',
+        status: 404,
+      })
     } else {
       data.forEach(doc => {
         const bookmark = new Bookmark(
@@ -146,14 +161,14 @@ export const getBookmarkByUserId = async (req, res) => {
         );
         bookmarkArray.push(bookmark)
       })
-      res.status(200).send({
+      res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
         data: bookmarkArray,
         status: 200
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -166,12 +181,15 @@ export const updateBookmark = async (req, res) => {
     const data = req.body
     const bookmark = firestore.collection('bookmark').doc(id)
     await bookmark.update(data)
-    res.status(200).send({
+    res.status(200).json({
       message: 'Bookmark updated successfuly',
       status: 200
     })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(400).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 400
+    })
   }
 }
 
@@ -179,11 +197,14 @@ export const destroyBookmark = async (req, res) => {
   try {
     const id = req.params.id
     await firestore.collection('bookmark').doc(id).delete()
-    res.status(200).send({
+    res.status(200).json({
       message: 'Bookmark deleted successfuly',
       status: 200
     })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(400).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 400
+    })
   }
 }

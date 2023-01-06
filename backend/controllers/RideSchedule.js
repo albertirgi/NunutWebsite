@@ -21,9 +21,15 @@ export const storeRideSchedule = async (req, res) => {
       capacity: data.capacity,
       is_active: data.is_active
     })
-    res.send('Record saved successfuly')
+    res.status(200).json({
+      message: 'Ride schedule data saved successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -53,7 +59,10 @@ export const getAllRideSchedules = async (req, res) => {
       }
     }) : null
     if(data.empty){
-      res.status(404).send('No ride schedule record found')
+      res.status(404).json({
+        message: 'No ride schedule record found',
+        status: 404
+      })
     }else{
       data.forEach(doc => {
         const rideSchedule = new RideSchedule(
@@ -91,14 +100,14 @@ export const getAllRideSchedules = async (req, res) => {
         }
       })
 
-      res.status(200).send({
+      res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray,
         status: 200 
       })
     }
   }catch(error) {
-    res.status(500).send({
+    res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500
     })
@@ -110,7 +119,10 @@ export const getRideScheduleById = async (req, res) => {
     const id = req.params.id
     const data = await firestore.collection('ride_schedule').doc(id).get()
     if(!data.exists){
-      res.status(404).send('Ride schedule with the given ID not found')
+      res.status(404).json({
+        message: 'Ride schedule with the given ID not found',
+        status: 404
+      })
     }else{
       const driver = await firestore.collection('driver').get()
       const driverArray = req.query.driver !== undefined ? driver.docs.map((doc) => {
@@ -126,7 +138,7 @@ export const getRideScheduleById = async (req, res) => {
           ...doc.data()
         }
       }) : null
-      res.status(200).send({
+      res.status(200).json({
         message: "Ride schedule data retrieved successfuly",
         data: new RideSchedule(
           data.id,
@@ -154,7 +166,7 @@ export const getRideScheduleById = async (req, res) => {
       });
     }
   }catch(error){
-    res.status(500).send({
+    res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500
     })
@@ -167,9 +179,15 @@ export const updateRideSchedule = async (req, res) => {
     const data = req.body
     const rideSchedule = firestore.collection('ride_schedule').doc(id)
     await rideSchedule.update(data)
-    res.send('Ride schedule record updated successfuly')
+    res.status(200).json({
+      message: 'Ride schedule record updated successfuly',
+      status: 200
+    })
   }catch(error){
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: "Something went wrong while updating data: " + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -177,8 +195,14 @@ export const destroyRideSchedule = async (req, res) => {
   try{
     const id = req.params.id
     await firestore.collection('ride_schedule').doc(id).delete()
-    res.send('Ride schedule record deleted successfuly')
+    res.status(200).json({
+      message: 'Ride schedule record deleted successfuly',
+      status: 200
+    })
   }catch(error){
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: "Something went wrong while deleting data: " + error.toString(),
+      status: 500
+    })
   }
 }

@@ -8,9 +8,15 @@ export const storeRideRequest = async (req, res) => {
   try {
     const data = req.body;
     await firestore.collection('ride_request').doc().set(data);
-    res.send('Record saved successfuly');
+    res.status(200).json({
+      message: 'Ride request data saved successfuly',
+      status: 200,
+    });
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500,
+    })
   }
 }
 
@@ -33,7 +39,10 @@ export const getAllRideRequests = async (req, res) => {
     const data = await firestore.collection('ride_request').get();
     const rideRequestArray = [];
     if (data.empty) {
-      res.status(404).send('No ride request record found');
+      res.status(404).json({
+        message: 'No ride request record found',
+        status: 404,
+      });
     } else {
       data.forEach(doc => {
         const rideRequest = new RideRequest(
@@ -48,14 +57,14 @@ export const getAllRideRequests = async (req, res) => {
         );
         rideRequestArray.push(rideRequest);
       });
-      res.status(200).send({
+      res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: rideRequestArray,
         status: 200
       });
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     });
@@ -81,9 +90,12 @@ export const getRideRequestById = async (req, res) => {
       }
     }) : null;
     if (!data.exists) {
-      res.status(404).send('Ride request with the given ID not found');
+      res.status(404).json({
+        message: 'Ride request with the given ID not found',
+        status: 404,
+      })
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: {
           id: data.id,
@@ -99,7 +111,7 @@ export const getRideRequestById = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     });
@@ -112,9 +124,15 @@ export const updateRideRequest = async (req, res) => {
     const data = req.body;
     const rideRequest = firestore.collection('ride_request').doc(id);
     await rideRequest.update(data);
-    res.status(200).send('Ride request record updated successfuly');
+    res.status(200).json({
+      message: 'Ride request data updated successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -122,9 +140,15 @@ export const destroyRideRequest = async (req, res) => {
   try {
     const id = req.params.id;
     await firestore.collection('ride_request').doc(id).delete();
-    res.status(200).send('Ride request record deleted successfuly');
+    res.status(200).json({
+      message: 'Ride request record deleted successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 

@@ -77,7 +77,6 @@ export const storeDriver = async (req, res, err) => {
       })
       await Promise.all([aggrLetterPromise, studentCardPromise, drivingLicensePromise, imagePromise]).then(
         (values) => {
-          console.log(values)
           // Store driver registration data to firestore
           firestore
             .collection("driver")
@@ -109,10 +108,16 @@ export const storeDriver = async (req, res, err) => {
             });
         })
     }else{
-      res.status(400).send('Please upload all required files')
+      res.status(400).json({
+        message: "Please upload all required files",
+        status: 400,
+      })
     }
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(400).json({
+      message: "Error occured while storing driver registration data: " + error.message,
+      status: 400,
+    })
   }
 }
 
@@ -195,7 +200,10 @@ export const getDriverById = async (req, res) => {
     const id = req.params.id
     const data = await firestore.collection('driver').doc(id).get()
     if(!data.exists){
-      res.status(404).send('Driver with the given ID not found')
+      res.status(404).json({
+        message: "Driver with the given ID not found",
+        status: 404,
+      })
     }else{
       const driver = {
         id: data.id,
@@ -242,7 +250,10 @@ export const updateDriver = async (req, res) => {
     const id = req.params.id
     const driver = await firestore.collection('driver').doc(id).get()
     if(!driver.exists){
-      res.status(404).send('Driver with the given ID not found')
+      res.status(404).json({
+        message: "Driver with the given ID not found",
+        status: 404,
+      })
       return
     }
     const driverData = driver.data()
@@ -340,7 +351,6 @@ export const updateDriver = async (req, res) => {
         drivingLicensePromise,
         imagePromise,
       ]).then((values) => {
-        console.log(values);
         // Store driver registration data to firestore
         firestore
           .collection("driver")
@@ -372,10 +382,16 @@ export const updateDriver = async (req, res) => {
           });
       });
     } else {
-      res.status(400).send("Please upload all required files");
+      res.status(400).json({
+        message: "Please upload all required files",
+        status: 400,
+      })
     }
   }catch(error){
-    res.status(400).send(error.message)
+    res.status(400).json({
+      message: "Error occured while updating driver data: " + error.message,
+      status: 400,
+    })
   }
 }
 
@@ -385,6 +401,9 @@ export const destroyDriver = async (req, res) => {
     await firestore.collection('driver').doc(id).delete()
     res.send('Record deleted successfuly')
   }catch(error){
-    res.status(400).send(error.message)
+    res.status(400).json({
+      message: "Error occured while deleting driver data: " + error.message,
+      status: 400,
+    })
   }
 }

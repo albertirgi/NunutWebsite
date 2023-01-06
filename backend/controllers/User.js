@@ -14,7 +14,7 @@ const app = initializeApp(firebaseConfig)
 export const storeUser = async (req, res) => {
   // Validate request
   if (!req.body) {
-    return res.status(400).send({
+    return res.status(400).json({
       message: "Input can not be empty",
     });
   }
@@ -67,11 +67,16 @@ export const storeUser = async (req, res) => {
         image: publicUrl,
         role: req.body.role,
       });
-      res.send(data);
+      res.status(200).json({
+        message: "User created successfully",
+        data: data,
+        status: 200,
+      });
     })
     .catch((err) => {
-      res.status(500).send({
+      res.status(500).json({
         message: err.message || "Some error occurred while creating the user.",
+        status: 500,
       });
     });
 }
@@ -96,15 +101,18 @@ export const login = async (req, res) => {
           },
           "RANDOM-TOKEN",
           { expiresIn: "24h" });
-          res.status(200).send({
-            message: "Login Successful",
-            email: data.user.email,
+          const sendData = {
             token: token,
+            email: data.user.email,
+          }
+          res.status(200).json({
+            message: "Login Successful",
+            data: sendData,
             status: 200
           });
         }
     }).catch(err => {
-        res.status(500).send({
+        res.status(500).json({
             message: err.message || "Some error occurred while logging in the user.",
             status: 500
         });
@@ -115,7 +123,7 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
     const auth = getAuth(app);
     signOut(auth).then(() => {  
-        res.status(200).send({  
+        res.status(200).json({  
             message: "Logout Successful",
         });
     });
@@ -127,7 +135,10 @@ export const getAllUsers = async (req, res) => {
     const data = await users.get();
     const usersArray = [];
     if(data.empty) {
-        res.status(404).send('No user record found');
+      res.status(404).json({
+        message: 'No user record found',
+        status: 404
+      })
     }
     else{
         data.forEach(doc => {
@@ -153,7 +164,10 @@ export const getUserById = async (req, res) => {
     const user = await firestore.collection('users').doc(req.params.id);
     const data = await user.get();
     if(data.empty){
-      res.status(404).send('No user record found');
+      res.status(404).json({
+        message: 'No user record found',
+        status: 404
+      })
     }else{
       res.status(200).json({
         message: "User retrieved successfully",
@@ -168,7 +182,7 @@ export const resetPassword = async (req, res) => {
     const auth = db.auth()
     // Check password and confirm password
     if(req.body.password != req.body.confirmPassword){
-        res.status(400).send({
+        res.status(400).json({
             message: "Password and confirm password do not match",
             status: 400
         });
@@ -181,20 +195,20 @@ export const resetPassword = async (req, res) => {
               password: req.body.password 
           })
           .then(function(userRecord) {
-              res.status(200).send({
+              res.status(200).json({
                   message: "Password reset successfully",
                   status: 200
               });
           })
           .catch(function(error) {
-              res.status(500).send({
+              res.status(500).json({
                   message: error.message || "Some error occurred while resetting the password.",
                   status: 500
               });
           });
       })
       .catch(function(error) {
-          res.status(500).send({
+          res.status(500).json({
               message: error.message || "Some error occurred while resetting the password.",
               status: 500
           });
@@ -207,20 +221,23 @@ export const destroyUser = async (req, res) => {
     const user = await firestore.collection('users').doc(uid);
     const data = await user.get();
     if(!data.exists) {
-        res.status(404).send('No user record found');
+      res.status(404).json({
+        message: 'No user record found',
+        status: 404
+      })
     }
     else{
         await firestore.collection('users').doc(uid).delete();
         db.auth().getUser(uid).then(function(userRecord) {
           db.auth().deleteUser(userRecord.uid)
           .then(function() {
-              res.status(200).send({
+              res.status(200).json({
                   message: "User deleted successfully",
                   status: 200
               });
           })
           .catch(function(error) {
-              res.status(500).send({
+              res.status(500).json({
                   message: error.message || "Some error occurred while deleting the user.",
                   status: 500
               });

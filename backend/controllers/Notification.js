@@ -36,7 +36,10 @@ export const storeNotification = async (req, res) => {
       status: 200
     })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 400
+    })
   }
 }
 
@@ -45,7 +48,10 @@ export const getAllNotifications = async (req, res) => {
     const data = await firestore.collection('notification').get();
     const notificationArray = [];
     if (data.empty) {
-      res.status(404).send('No notification record found');
+      res.status(404).json({
+        message: 'No notification record found',
+        status: 404
+      })
     } else {
       data.forEach(doc => {
         const notification = new Notification(
@@ -77,7 +83,10 @@ export const getNotificationById = async (req, res) => {
     const id = req.params.id;
     const data = await firestore.collection('notification').doc(id).get();
     if (!data.exists) {
-      res.status(404).send('Notification with the given ID not found');
+      res.status(404).json({
+        message: 'No notification record found',
+        status: 404
+      })
     } else {
       res.status(200).send({
         message: 'Notification data retrieved successfuly',
@@ -98,7 +107,6 @@ export const updateNotification = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
     const image = req.file;
-    console.log(image)
     const imagePromise = new Promise((resolve, reject) => {
       const fileNameImage = uuid() + image.originalname;
       const file = storage.file(fileNameImage);
@@ -128,7 +136,10 @@ export const updateNotification = async (req, res) => {
       status: 200
     });
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 400
+    })
   }
 }
 
@@ -141,6 +152,9 @@ export const destroyNotification = async (req, res) => {
       status: 200
     });
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 400
+    })
   }
 }

@@ -32,9 +32,15 @@ export const storeParkingSlot = async (req, res) => {
       subtitle: data.subtitle,
       title: data.title
     })
-    res.send('Record saved successfuly')
+    res.status(200).json({
+      message: 'Record saved successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -50,7 +56,10 @@ export const getAllParkingSlots = async (req, res) => {
       }
     }) : null
     if (data.empty) {
-      res.status(404).send('No parking slot record found')
+      res.status(404).json({
+        message: 'No parking slot record found',
+        status: 404
+      })
     } else {
       data.forEach(doc => {
         const parkingSlot = new ParkingSlot(
@@ -66,14 +75,14 @@ export const getAllParkingSlots = async (req, res) => {
         )
         parkingSlotArray.push(parkingSlot)
       })
-      res.status(200).send({
+      res.status(200).json({
         message: 'Parking slot data retrieved successfuly',
         data: parkingSlotArray,
         status: 200
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -92,9 +101,12 @@ export const getParkingSlotById = async (req, res) => {
       }
     }) : null
     if (!data.exists) {
-      res.status(404).send('Parking slot with the given ID not found')
+      res.status(404).json({
+        message: 'Parking slot with the given ID not found',
+        status: 404
+      })
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Parking slot data retrieved successfuly',
         data: {
           id: data.id,
@@ -111,7 +123,7 @@ export const getParkingSlotById = async (req, res) => {
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -120,7 +132,6 @@ export const getParkingSlotById = async (req, res) => {
 
 export const updateParkingSlot = async (req, res) => {
   try {
-    console.log(req.file)
     const id = req.params.id
     const data = req.body
     const parkingSlot = await firestore.collection('parking_slot').doc(id).get()
@@ -148,9 +159,15 @@ export const updateParkingSlot = async (req, res) => {
       subtitle: data.subtitle ? data.subtitle : parkingSlotData.subtitle,
       title: data.title ? data.title : parkingSlotData.title,
     });
-    res.status(200).send('Parking slot record updated successfuly')
+    res.status(200).json({
+      message: "Parking slot record updated successfuly",
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: "Something went wrong while updating data: " + error.toString(),
+      status: 500,
+    });
   }
 }
 
@@ -158,8 +175,14 @@ export const destroyParkingSlot = async (req, res) => {
   try {
     const id = req.params.id
     await firestore.collection('parking_slot').doc(id).delete()
-    res.status(200).send('Parking slot record deleted successfuly')
+    res.status(200).json({
+      message: 'Parking slot record deleted successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 500
+    })
   }
 }

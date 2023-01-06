@@ -8,9 +8,15 @@ export const storeReport = async (req, res) => {
   try {
     const data = req.body
     await firestore.collection('report').doc().set(data)
-    res.send('Record saved successfuly')
+    res.status(200).json({
+      message: 'Report data saved successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -33,7 +39,10 @@ export const getAllReports = async (req, res) => {
       }
     }) : null
     if (data.empty) {
-      res.status(404).send('No report record found')
+      res.status(404).json({
+        message: 'No report record found',
+        status: 404
+      })
     } else {
       data.forEach(doc => {
         const report = new Report(
@@ -45,14 +54,14 @@ export const getAllReports = async (req, res) => {
         )
         reportArray.push(report)
       })
-      res.status(200).send({
+      res.status(200).json({
         message: 'Report data retrieved successfuly',
         data: reportArray,
         status: 200
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -78,9 +87,12 @@ export const getReportById = async (req, res) => {
       }
     }) : null
     if (!data.exists) {
-      res.status(404).send('Report with the given ID not found')
+      res.status(404).json({
+        message: 'Report with the given ID not found',
+        status: 404
+      })
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Report data retrieved successfuly',
         data: {
           id: data.id,
@@ -93,7 +105,7 @@ export const getReportById = async (req, res) => {
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -106,9 +118,15 @@ export const updateReport = async (req, res) => {
     const data = req.body
     const report = firestore.collection('report').doc(id)
     await report.update(data)
-    res.send('Report updated successfuly')
+    res.status(200).json({
+      message: 'Report data updated successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 
@@ -116,9 +134,15 @@ export const destroyReport = async (req, res) => {
   try {
     const id = req.params.id
     await firestore.collection('report').doc(id).delete()
-    res.send('Report deleted successfuly')
+    res.status(200).json({
+      message: 'Report data deleted successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 

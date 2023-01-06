@@ -35,9 +35,15 @@ export const storeVoucher = async (req, res) => {
       type: data.type,
       discount: data.discount
     })
-    res.send('Record saved successfuly')
+    res.status(200).json({
+      message: 'Voucher created successfully',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: error.message || 'Something went wrong while creating voucher',
+      status: 500
+    })
   }
 }
 
@@ -46,7 +52,10 @@ export const getAllVouchers = async (req, res) => {
     const data = await firestore.collection('voucher').get()
     const voucherArray = []
     if (data.empty) {
-      res.status(404).send('No voucher record found')
+      res.status(404).json({
+        message: 'No voucher record found',
+        status: 404
+      })
     } else {
       data.forEach(doc => {
         const voucher = new Voucher(
@@ -62,14 +71,14 @@ export const getAllVouchers = async (req, res) => {
         )
         voucherArray.push(voucher)
       })
-      res.status(200).send({
+      res.status(200).json({
         message: 'Voucher data retrieved successfuly',
         data: voucherArray,
         status: 200
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -81,9 +90,12 @@ export const getVoucherById = async (req, res) => {
     const id = req.params.id
     const data = await firestore.collection('voucher').doc(id).get()
     if (!data.exists) {
-      res.status(404).send('Voucher with the given ID not found')
+      res.status(404).json({
+        message: 'Voucher with the given ID not found',
+        status: 404
+      })
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Voucher data retrieved successfuly',
         data: {
           id: data.id,
@@ -93,7 +105,7 @@ export const getVoucherById = async (req, res) => {
       })
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     })
@@ -135,9 +147,15 @@ export const updateVoucher = async (req, res) => {
         type: data.type ? data.type : voucherData.data().type,
         discount: data.discount ? data.discount : voucherData.data().discount,
       });
-    res.send("Record saved successfuly");
+    res.status(200).json({
+      message: "Voucher updated successfully",
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: error.message || "Something went wrong while updating voucher",
+      status: 500,
+    })
   }
 }
 
@@ -145,9 +163,15 @@ export const destroyVoucher = async (req, res) => {
   try {
     const id = req.params.id
     await firestore.collection('voucher').doc(id).delete()
-    res.status(200).send('Voucher record deleted successfuly')
+    res.status(200).json({
+      message: 'Voucher record deleted successfuly',
+      status: 200
+    })
   } catch (error) {
-    res.status(400).send(error.message)
+    res.status(500).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 500
+    })
   }
 }
 

@@ -8,9 +8,15 @@ export const storeVehicle = async (req, res) => {
   try {
     const data = req.body;
     await firestore.collection('vehicle').doc().set(data);
-    res.send('Record saved successfuly');
+    res.status(200).json({
+      message: 'Vehicle data saved successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500,
+    })
   }
 }
 
@@ -26,7 +32,10 @@ export const getAllVehicles = async (req, res) => {
       }
     });
     if (data.empty) {
-      res.status(404).send('No registered vehicle record found');
+      res.status(404).json({
+        message: 'No registered vehicle record found',
+        status: 404,
+      })
     } else {
       data.forEach(doc => {
         const vehicle = new Vehicle(
@@ -45,14 +54,14 @@ export const getAllVehicles = async (req, res) => {
         );
         vehicleArray.push(vehicle);
       });
-      res.status(200).send({
+      res.status(200).json({
         message: 'Vehicle data retrieved successfuly',
         data: vehicleArray,
         status: 200
       });
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     });
@@ -71,9 +80,12 @@ export const getVehicleById = async (req, res) => {
       }
     });
     if (!data.exists) {
-      res.status(404).send('Vehicle with the given ID not found');
+      res.status(404).json({
+        message: 'Vehicle with the given ID not found',
+        status: 404,
+      })
     } else {
-      res.status(200).send({
+      res.status(200).json({
         message: 'Vehicle data retrieved successfuly',
         data: {
           id: data.id,
@@ -93,7 +105,7 @@ export const getVehicleById = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).send({
+    res.status(500).json({
       message: 'Something went wrong while fetching data: ' + error.toString(),
       status: 500
     });
@@ -106,9 +118,15 @@ export const updateVehicle = async (req, res) => {
     const data = req.body;
     const vehicle = firestore.collection('vehicle').doc(id);
     await vehicle.update(data);
-    res.send('Vehicle updated successfuly');
+    res.status(200).json({
+      message: 'Vehicle data updated successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 500,
+    })
   }
 }
 
@@ -116,9 +134,15 @@ export const destroyVehicle = async (req, res) => {
   try {
     const id = req.params.id;
     await firestore.collection('vehicle').doc(id).delete();
-    res.send('Vehicle deleted successfuly');
+    res.status(200).json({
+      message: 'Vehicle data deleted successfuly',
+      status: 200,
+    })
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(500).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 500,
+    })
   }
 }
 
