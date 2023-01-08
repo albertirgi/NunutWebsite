@@ -27,16 +27,16 @@ export const getAllRideOrders = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get();
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const voucher = await firestore.collection('voucher').get();
     const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        voucher_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     if (data.empty) {
       res.status(404).json({
@@ -55,10 +55,10 @@ export const getAllRideOrders = async (req, res) => {
           doc.data().price_after,
           doc.data().price_before,
           req.query.ride_request !== undefined ? rideRequestArray.find((rideRequest) => {
-            return rideRequest.id == doc.data().ride_request_id;
+            return rideRequest.ride_request_id == doc.data().ride_request_id;
             }) : doc.data().ride_request_id,
           req.query.voucher !== undefined ? voucherArray.find((voucher) => {
-            return voucher.id == doc.data().voucher_id;
+            return voucher.voucher_id == doc.data().voucher_id;
           }) : doc.data().voucher_id,
           doc.data().status_payment,
         );
@@ -85,16 +85,16 @@ export const getRideOrderById = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get();
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const voucher = await firestore.collection('voucher').get();
     const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        voucher_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     if(!data.exists){
       res.status(404).json({
@@ -106,7 +106,7 @@ export const getRideOrderById = async (req, res) => {
       res.status(200).json({
         message: 'Ride order data retrieved successfuly',
         data: {
-          id: data.id,
+          ride_order_id: data.id,
           description: data.data().description,
           discount: data.data().discount,
           type: data.data().type,

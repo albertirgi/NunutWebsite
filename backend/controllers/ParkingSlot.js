@@ -51,7 +51,7 @@ export const getAllParkingSlots = async (req, res) => {
     const parkingBuilding = await firestore.collection('parking_building').get()
     const parkingBuildingArray = req.query.parking_building !== undefined ? parkingBuilding.docs.map(doc => {
       return {
-        id: doc.id,
+        parking_building_id: doc.id,
         ...doc.data()
       }
     }) : null
@@ -64,15 +64,18 @@ export const getAllParkingSlots = async (req, res) => {
       data.forEach(doc => {
         const parkingSlot = new ParkingSlot(
           doc.id,
-          req.query.parking_building !== undefined ? parkingBuildingArray.find(
-            (parkingBuilding) =>
-              parkingBuilding.id === doc.data().parking_building_id 
-          ) : doc.data().parking_building_id,
+          req.query.parking_building !== undefined
+            ? parkingBuildingArray.find(
+                (parkingBuilding) =>
+                  parkingBuilding.parking_building_id ===
+                  doc.data().parking_building_id
+              )
+            : doc.data().parking_building_id,
           doc.data().instruction,
           doc.data().image,
           doc.data().subtitle,
-          doc.data().title,
-        )
+          doc.data().title
+        );
         parkingSlotArray.push(parkingSlot)
       })
       res.status(200).json({
@@ -96,9 +99,9 @@ export const getParkingSlotById = async (req, res) => {
     const parkingBuilding = await firestore.collection('parking_building').get()
     const parkingBuildingArray = req.query.parking_building !== undefined ? parkingBuilding.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        parking_building_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     if (!data.exists) {
       res.status(404).json({
@@ -107,20 +110,24 @@ export const getParkingSlotById = async (req, res) => {
       })
     } else {
       res.status(200).json({
-        message: 'Parking slot data retrieved successfuly',
+        message: "Parking slot data retrieved successfuly",
         data: {
           id: data.id,
-          parking_building: req.query.parking_building !== undefined ? parkingBuildingArray.find(
-            (parkingBuilding) =>
-              parkingBuilding.id === data.data().parking_building_id
-          ) : data.data().parking_building_id,
+          parking_building_id:
+            req.query.parking_building !== undefined
+              ? parkingBuildingArray.find(
+                  (parkingBuilding) =>
+                    parkingBuilding.parking_building_id ===
+                    data.data().parking_building_id
+                )
+              : data.data().parking_building_id,
           instruction: data.data().instruction,
           image: data.data().image,
           subtitle: data.data().subtitle,
           title: data.data().title,
         },
-        status: 200
-      })
+        status: 200,
+      });
     }
   } catch (error) {
     res.status(500).json({

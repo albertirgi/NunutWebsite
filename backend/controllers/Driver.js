@@ -11,12 +11,26 @@ let token = null
 export const storeDriver = async (req, res, err) => {
   try {
     const data = req.body
-    if(data.fullname && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0] && req.files.image[0]){
+    if(data.name && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0] && req.files.image[0]){
       //Upload files to firebase storage
       const aggrLetter = req.files.aggrement_letter[0]
       const studentCard = req.files.student_card[0]
       const drivingLicense = req.files.driving_license[0]
       const image = req.files.image[0]
+      //Get user data
+      const userPromise = new Promise((resolve, reject) => {
+        firestore.collection('users').doc(data.user_id).get()
+        .then(doc => {
+          if(doc.exists){
+            resolve(doc.data())
+          }else{
+            reject("User not found")
+          }
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
       //Upload aggrement letter
       const aggrLetterPromise = new Promise((resolve, reject) => {
         const fileNameAggrLetter = uuid() + aggrLetter.originalname
@@ -75,20 +89,21 @@ export const storeDriver = async (req, res, err) => {
           }
         })
       })
-      await Promise.all([aggrLetterPromise, studentCardPromise, drivingLicensePromise, imagePromise]).then(
+      await Promise.all([aggrLetterPromise, studentCardPromise, drivingLicensePromise, imagePromise, userPromise]).then(
         (values) => {
           // Store driver registration data to firestore
           firestore
             .collection("driver")
             .doc()
             .set({
-              fullname: data.fullname,
+              name: data.name,
               nik: data.nik,
               phone: data.phone,
               student_card: values[1],
               aggrement_letter: values[0],
               driving_license: values[2],
               user_id: data.user_id,
+              email: values[4].email,
               status: "pending",
               image: values[3],
             })
@@ -128,14 +143,14 @@ export const getAllDrivers = async (req, res) => {
       .get();
     const vehicleArray = vehicle.docs.map((doc) => {
       return {
-        id: doc.id,
+        vehicle_id: doc.id,
         ...doc.data(),
       };
     });
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data(),
       };
     });
@@ -143,22 +158,22 @@ export const getAllDrivers = async (req, res) => {
     const driverArray = driver.docs
       .map((doc) => {
         return {
-          id: doc.id,
-          fullname: doc.data().fullname,
+          driver_id: doc.id,
+          name: doc.data().name,
           nik: doc.data().nik,
           phone: doc.data().phone,
           studentCard: doc.data().student_card,
           drivingLicense: doc.data().driving_license,
           aggrementLetter: doc.data().aggrement_letter,
-          user: req.query.user !== undefined ? userArray.filter((user) => {
-            if (doc.data().user_id == user.id) {
+          user_id: req.query.user !== undefined ? userArray.filter((user) => {
+            if (doc.data().user_id == user.user_id) {
               return user;
             }
           }) : doc.data().user_id,
           status: doc.data().status,
           message: doc.data().message ? doc.data().message : "",
           image: doc.data().image,
-          vehicle: vehicleArray.filter(
+          vehicle_id: vehicleArray.filter(
             (vehicle) => {
               if (doc.id == vehicle.driver_id) {
                 return vehicle;
@@ -186,14 +201,14 @@ export const getDriverById = async (req, res) => {
     const vehicle = await firestore.collection("vehicle").get();
     const vehicleArray = vehicle.docs.map((doc) => {
       return {
-        id: doc.id,
+        vehicle_id: doc.id,
         ...doc.data(),
       };
     });
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data(),
       };
     });
@@ -206,17 +221,17 @@ export const getDriverById = async (req, res) => {
       })
     }else{
       const driver = {
-        id: data.id,
-        fullname: data.data().fullname,
+        driver_id: id,
+        name: data.data().name,
         nik: data.data().nik,
         phone: data.data().phone,
         studentCard: data.data().student_card,
         drivingLicense: data.data().driving_license,
         aggrementLetter: data.data().aggrement_letter,
-        user:
+        user_id:
           req.query.user !== undefined
             ? userArray.filter((user) => {
-                if (data.data().user_id == user.id) {
+                if (data.data().user_id == user.user_id) {
                   return user;
                 }
               })
@@ -224,8 +239,8 @@ export const getDriverById = async (req, res) => {
         status: data.data().status,
         message: data.data().message ? data.data().message : "",
         image: data.data().image,
-        vehicle: vehicleArray.filter((vehicle) => {
-          if (data.id == vehicle.driver_id) {
+        vehicle_id: vehicleArray.filter((vehicle) => {
+          if (id == vehicle.driver_id) {
             return vehicle;
           }
         }),
@@ -259,7 +274,7 @@ export const updateDriver = async (req, res) => {
     const driverData = driver.data()
     const data = req.body
     if (
-      data.fullname &&
+      data.name &&
       data.nik &&
       data.phone
     ) {
@@ -356,7 +371,8 @@ export const updateDriver = async (req, res) => {
           .collection("driver")
           .doc(id)
           .set({
-            fullname: data.fullname ? data.fullname : driverData.fullname,
+            name: data.name ? data.name : driverData.name,
+            email: driverData.email,
             nik: data.nik ? data.nik : driverData.nik,
             phone: data.phone ? data.phone : driverData.phone,
             student_card: studentCard ? values[1] : driverData.student_card,

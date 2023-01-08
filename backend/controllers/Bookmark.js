@@ -29,7 +29,7 @@ export const getAllBookmarks = async (req, res) => {
       req.query.ride_schedule !== undefined
         ? rideSchedule.docs.map(doc => {
             return {
-              id: doc.id,
+              ride_schedule_id: doc.id,
               ...doc.data(),
             }
           })
@@ -39,7 +39,7 @@ export const getAllBookmarks = async (req, res) => {
       req.query.user !== undefined
         ? user.docs.map(doc => {
             return {
-              id: doc.id,
+              user_id: doc.id,
               ...doc.data(),
             }
           })
@@ -53,8 +53,8 @@ export const getAllBookmarks = async (req, res) => {
       data.forEach(doc => {
         const bookmark = new Bookmark(
           doc.id,
-          req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.id === doc.data().ride_schedule_id) : doc.data().ride_schedule_id,
-          req.query.user !== undefined ? userArray.find(user => user.id === doc.data().user_id) : doc.data().user_id,
+          req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.ride_schedule_id === doc.data().ride_schedule_id) : doc.data().ride_schedule_id,
+          req.query.user !== undefined ? userArray.find(user => user.user_id === doc.data().user_id) : doc.data().user_id,
         )
         bookmarkArray.push(bookmark)
       })
@@ -81,7 +81,7 @@ export const getBookmarkById = async (req, res) => {
       req.query.ride_schedule !== undefined
         ? rideSchedule.docs.map(doc => {
             return {
-              id: doc.id,
+              ride_schedule_id: doc.id,
               ...doc.data(),
             }
           })
@@ -91,7 +91,7 @@ export const getBookmarkById = async (req, res) => {
       req.query.user !== undefined
         ? user.docs.map(doc => {
             return {
-              id: doc.id,
+              user_id: doc.id,
               ...doc.data(),
             }
           })
@@ -105,9 +105,9 @@ export const getBookmarkById = async (req, res) => {
       res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
         data: {
-          id: data.id,
-          ride_schedule: req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.id === data.data().ride_schedule_id) : data.data().ride_schedule_id,
-          user: req.query.user !== undefined ? userArray.find(user => user.id === data.data().user_id) : data.data().user_id,
+          bookmark_id: data.id,
+          ride_schedule: req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.ride_schedule_id === data.data().ride_schedule_id) : data.data().ride_schedule_id,
+          user: req.query.user !== undefined ? userArray.find(user => user.user_id === data.data().user_id) : data.data().user_id,
         },
         status: 200
       })
@@ -129,7 +129,7 @@ export const getBookmarkByUserId = async (req, res) => {
     const userArray =
       req.query.user !== undefined
         ? {
-            id: user.id,
+            user_id: user.user_id,
             ...user.data(),
         }
         : null
@@ -138,7 +138,7 @@ export const getBookmarkByUserId = async (req, res) => {
       req.query.ride_schedule !== undefined
         ? rideSchedule.docs.map(doc => {
             return {
-              id: doc.id,
+              ride_schedule_id: doc.id,
               ...doc.data(),
             }
           })
@@ -154,7 +154,7 @@ export const getBookmarkByUserId = async (req, res) => {
           doc.id,
           req.query.ride_schedule !== undefined
             ? rideScheduleArray.find((rideSchedule) => {
-                return rideSchedule.id == doc.data().ride_schedule_id;
+                return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
               })
             : doc.data().ride_schedule_id,
           req.query.user !== undefined ? userArray : doc.data().user_id

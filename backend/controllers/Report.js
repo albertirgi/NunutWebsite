@@ -27,16 +27,16 @@ export const getAllReports = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get()
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     const user = await firestore.collection('users').get()
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        user_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     if (data.empty) {
       res.status(404).json({
@@ -49,9 +49,16 @@ export const getAllReports = async (req, res) => {
           doc.id,
           doc.data().title,
           doc.data().description,
-          req.query.ride_request !== undefined ? rideRequestArray.find(rideRequest => rideRequest.id === doc.data().ride_request_id) : doc.data().ride_request_id,
-          req.query.user !== undefined ? userArray.find(user => user.id === doc.data().user_id) : doc.data().user_id,
-        )
+          req.query.ride_request !== undefined
+            ? rideRequestArray.find(
+                (rideRequest) =>
+                  rideRequest.ride_request_id === doc.data().ride_request_id
+              )
+            : doc.data().ride_request_id,
+          req.query.user !== undefined
+            ? userArray.find((user) => user.user_id === doc.data().user_id)
+            : doc.data().user_id
+        );
         reportArray.push(report)
       })
       res.status(200).json({
@@ -75,14 +82,14 @@ export const getReportById = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get()
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     const user = await firestore.collection('users').get()
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data()
       }
     }) : null
@@ -93,16 +100,25 @@ export const getReportById = async (req, res) => {
       })
     } else {
       res.status(200).json({
-        message: 'Report data retrieved successfuly',
+        message: "Report data retrieved successfuly",
         data: {
-          id: data.id,
+          report_id: data.id,
           title: data.data().title,
           description: data.data().description,
-          ride_request: req.query.ride_request !== undefined ? rideRequestArray.find(rideRequest => rideRequest.id === data.data().ride_request_id) : data.data().ride_request_id,
-          user: req.query.user !== undefined ? userArray.find(user => user.id === data.data().user_id) : data.data().user_id,
+          ride_request_id:
+            req.query.ride_request !== undefined
+              ? rideRequestArray.find(
+                  (rideRequest) =>
+                    rideRequest.ride_request_id === data.data().ride_request_id
+                )
+              : data.data().ride_request_id,
+          user_id:
+            req.query.user !== undefined
+              ? userArray.find((user) => user.user_id === data.data().user_id)
+              : data.data().user_id,
         },
-        status: 200
-      })
+        status: 200,
+      });
     }
   } catch (error) {
     res.status(500).json({

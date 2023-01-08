@@ -1,6 +1,6 @@
 export default class Notification {
-  constructor(id, description, image, is_read, title, user_id){
-    this.id = id;
+  constructor(notification_id, description, image, is_read, title, user_id){
+    this.notification_id = notification_id;
     this.description = description;
     this.image = image;
     this.is_read = is_read;

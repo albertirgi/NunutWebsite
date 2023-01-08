@@ -27,7 +27,7 @@ export const getAllVehicles = async (req, res) => {
     const driver = await firestore.collection('driver').get();
     const driverArray = driver.docs.map(doc => {
       return {
-        id: doc.id,
+        driver_id: doc.id,
         ...doc.data()
       }
     });
@@ -47,8 +47,8 @@ export const getAllVehicles = async (req, res) => {
           doc.data().note,
           doc.data().is_main,
           req.query.driver !== undefined ? driverArray.filter((driver) => {
-            if (driver.id == doc.data().driver_id) {
-              return driver
+            if (driver.driver_id == doc.data().driver_id) {
+              return driver;
             }
           }) : doc.data().driver_id
         );
@@ -75,7 +75,7 @@ export const getVehicleById = async (req, res) => {
     const driver = await firestore.collection('driver').get();
     const driverArray = driver.docs.map(doc => {
       return {
-        id: doc.id,
+        driver_id: doc.id,
         ...doc.data()
       }
     });
@@ -95,9 +95,9 @@ export const getVehicleById = async (req, res) => {
           color: data.data().color,
           note: data.data().note,
           is_main: data.data().is_main,
-          driver: req.query.driver !== undefined ? driverArray.filter((driver) => {
-            if (driver.id == data.data().driver_id) {
-              return driver
+          driver_id: req.query.driver !== undefined ? driverArray.filter((driver) => {
+            if (driver.driver_id == data.data().driver_id) {
+              return driver;
             }
           }) : data.data().driver_id
         },

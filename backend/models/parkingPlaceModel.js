@@ -1,6 +1,6 @@
 export default class ParkingPlace {
-  constructor(id, name){
-    this.id = id;
+  constructor(parking_place_id, name){
+    this.parking_place_id = parking_place_id;
     this.name = name;
   }
 }

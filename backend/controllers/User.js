@@ -161,7 +161,7 @@ export const getAllUsers = async (req, res) => {
 }
 
 export const getUserById = async (req, res) => {
-    const user = await firestore.collection('users').doc(req.params.id);
+    const user = firestore.collection('users').doc(req.params.id);
     const data = await user.get();
     if(data.empty){
       res.status(404).json({
@@ -218,7 +218,7 @@ export const resetPassword = async (req, res) => {
 
 export const destroyUser = async (req, res) => {
     const uid = req.params.id
-    const user = await firestore.collection('users').doc(uid);
+    const user = firestore.collection('users').doc(uid);
     const data = await user.get();
     if(!data.exists) {
       res.status(404).json({
