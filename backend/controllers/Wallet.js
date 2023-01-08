@@ -29,7 +29,7 @@ export const getAllWallets = async (req, res) => {
       req.query.user !== undefined
         ? user.docs.map(doc => {
             return {
-              id: doc.id,
+              user_id: doc.id,
               ...doc.data(),
             };
           })
@@ -43,8 +43,10 @@ export const getAllWallets = async (req, res) => {
       data.forEach(doc => {
         const wallet = new Wallet(
           doc.id,
-          req.query.user !== undefined ? userArray.find(user => user.id === doc.data().user_id) : doc.data().user_id,
-          doc.data().balance,
+          req.query.user !== undefined
+            ? userArray.find((user) => user.user_id === doc.data().user_id)
+            : doc.data().user_id,
+          doc.data().balance
         );
         walletArray.push(wallet);
       });
@@ -65,7 +67,7 @@ export const getAllWallets = async (req, res) => {
 export const getWalletById = async (req, res) => {
   try {
     const id = req.params.id;
-    const wallet = await firestore.collection('wallet').doc(id);
+    const wallet = firestore.collection('wallet').doc(id);
     const data = await wallet.get();
     if (!data.exists) {
       res.status(404).json({

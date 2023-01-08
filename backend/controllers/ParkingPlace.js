@@ -54,7 +54,7 @@ export const getAllParkingPlaces = async (req, res) => {
 export const getParkingPlaceById = async (req, res) => {
   try {
     const id = req.params.id;
-    const parkingPlace = await firestore.collection("parking_place").doc(id);
+    const parkingPlace = firestore.collection("parking_place").doc(id);
     const data = await parkingPlace.get();
     if (!data.exists) {
       res.status(404).json({
@@ -80,7 +80,7 @@ export const updateParkingPlace = async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    const parkingPlace = await firestore.collection("parking_place").doc(id);
+    const parkingPlace = firestore.collection("parking_place").doc(id);
     await parkingPlace.update(data);
     res.status(200).json({
       message: "Parking place updated successfuly",

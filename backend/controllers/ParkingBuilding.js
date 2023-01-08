@@ -27,7 +27,7 @@ export const getAllParkingBuildings = async (req, res) => {
     const parkingPlace = await firestore.collection("parking_place").get();
     const parkingPlaceArray = req.query.parkingPlace !== undefined ? parkingPlace.docs.map(doc => {
       return {
-        id: doc.id,
+        parking_place_id: doc.id,
         name: doc.data().name
       }
     }) : null;
@@ -44,7 +44,7 @@ export const getAllParkingBuildings = async (req, res) => {
           req.query.parking_place !== undefined
             ? parkingPlaceArray.find(
                 (parkingPlace) =>
-                  parkingPlace.id === doc.data().parking_place_id
+                  parkingPlace.parking_place_id === doc.data().parking_place_id
               )
             : doc.data().parking_place_id
         );
@@ -72,7 +72,7 @@ export const getParkingBuildingById = async (req, res) => {
     const parkingPlace = await firestore.collection("parking_place").get();
     const parkingPlaceArray = req.query.parkingPlace !== undefined ? parkingPlace.docs.map(doc => {
       return {
-        id: doc.id,
+        parking_place_id: doc.id,
         name: doc.data().name
       }
     }) : null;
@@ -87,12 +87,16 @@ export const getParkingBuildingById = async (req, res) => {
         data: {
           id: data.id,
           name: data.data().name,
-          parking_place: req.query.parking_place !== undefined ? parkingPlaceArray.find(
-            (parkingPlace) =>
-              parkingPlace.id === data.data().parking_place_id
-          ) : data.data().parking_place_id
+          parking_place_id:
+            req.query.parking_place !== undefined
+              ? parkingPlaceArray.find(
+                  (parkingPlace) =>
+                    parkingPlace.parking_place_id ===
+                    data.data().parking_place_id
+                )
+              : data.data().parking_place_id,
         },
-        status: 200
+        status: 200,
       });
     }
   } catch (error) {

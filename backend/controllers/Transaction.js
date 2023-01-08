@@ -30,7 +30,7 @@ export const getAllTransactions = async (req, res) => {
       req.query.wallet !== undefined
         ? wallet.docs.map(doc => {
             return {
-              id: doc.id,
+              wallet_id: doc.id,
               ...doc.data(),
             };
           })
@@ -75,7 +75,7 @@ export const getTransactionById = async (req, res) => {
     const wallet = await firestore.collection('wallet').get();
     const walletData = req.query.wallet !== undefined ? wallet.docs.map(doc => {
       return {
-        id: doc.id,
+        wallet_id: doc.id,
         ...doc.data(),
       };
     }) : null;
@@ -89,8 +89,8 @@ export const getTransactionById = async (req, res) => {
       res.status(200).json({
         message: 'Transaction data retrieved successfuly',
         data: {
-          id: transaction.data().id,
-          wallet: req.query.wallet !== undefined ? walletData.find(wallet => wallet.id === transaction.data().wallet_id) : transaction.data().wallet_id,
+          transaction_id: transaction.data().id,
+          wallet_id: req.query.wallet !== undefined ? walletData.find(wallet => wallet.wallet_id === transaction.data().wallet_id) : transaction.data().wallet_id,
           order_id: transaction.data().order_id,
           token: transaction.data().token,
           amount: transaction.data().amount,

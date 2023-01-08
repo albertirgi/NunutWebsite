@@ -40,21 +40,21 @@ export const getAllRideSchedules = async (req, res) => {
     const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmarks').where('user_id', '==', req.query.user).get() : null) : null
     const bookmarkArray = bookmark != null ? bookmark.docs.map(doc => {
       return {
-        id: doc.id,
+        bookmark_id: doc.id,
         ...doc.data()
       }
     }) : null
     const driver = await firestore.collection('driver').get()
     const driverArray = req.query.driver !== undefined ? driver.docs.map((doc) => {
       return {
-        id: doc.id,
+        driver_id: doc.id,
         ...doc.data()
       }
     }) : null
     const vehicle = await firestore.collection('vehicle').get()
     const vehicleArray = req.query.vehicle !== undefined ? vehicle.docs.map(doc => {
       return {
-        id: doc.id,
+        vehicle_id: doc.id,
         ...doc.data()
       }
     }) : null
@@ -75,12 +75,12 @@ export const getAllRideSchedules = async (req, res) => {
           doc.data().price,
           req.query.driver !== undefined
             ? driverArray.find((driver) => {
-                return driver.id == doc.data().driver_id;
+                return driver.driver_id == doc.data().driver_id;
               })
             : doc.data().driver_id,
           req.query.vehicle !== undefined
             ? vehicleArray.find((vehicle) => {
-                return vehicle.id == doc.data().vehicle_id;
+                return vehicle.vehicle_id == doc.data().vehicle_id;
               })
             : doc.data().vehicle_id,
           doc.data().name,
@@ -127,14 +127,14 @@ export const getRideScheduleById = async (req, res) => {
       const driver = await firestore.collection('driver').get()
       const driverArray = req.query.driver !== undefined ? driver.docs.map((doc) => {
         return {
-          id: doc.id,
+          driver_id: doc.id,
           ...doc.data()
         }
       }) : null
       const vehicle = await firestore.collection('vehicle').get()
       const vehicleArray = req.query.vehicle !== undefined ? vehicle.docs.map(doc => {
         return {
-          id: doc.id,
+          vehicle_id: doc.id,
           ...doc.data()
         }
       }) : null
@@ -150,12 +150,12 @@ export const getRideScheduleById = async (req, res) => {
           data.data().price,
           req.query.driver !== undefined
             ? driverArray.find((driver) => {
-                return driver.id == data.data().driver_id;
+                return driver.driver_id == data.data().driver_id;
               })
             : data.data().driver_id,
           req.query.vehicle !== undefined
             ? vehicleArray.find((vehicle) => {
-                return vehicle.id == data.data().vehicle_id;
+                return vehicle.vehicle_id == data.data().vehicle_id;
               })
             : data.data().vehicle_id,
           data.data().name,

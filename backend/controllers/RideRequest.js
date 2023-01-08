@@ -25,16 +25,16 @@ export const getAllRideRequests = async (req, res) => {
     const rideSchedule = await firestore.collection('ride_schedule').get();
     const rideScheduleArray = req.query.ride_schedule !== undefined ? rideSchedule.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_schedule_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const user = await firestore.collection('users').get();
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        user_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const data = await firestore.collection('ride_request').get();
     const rideRequestArray = [];
@@ -48,11 +48,11 @@ export const getAllRideRequests = async (req, res) => {
         const rideRequest = new RideRequest(
           doc.id,
           req.query.ride_schedule !== undefined ? rideScheduleArray.find((rideSchedule) => {
-            return rideSchedule.id == doc.data().ride_schedule_id;
+            return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
           }) : doc.data().ride_schedule_id,
           doc.data().status_payment,
           req.query.user !== undefined ? userArray.find((user) => {
-            return user.id == doc.data().user_id;
+            return user.user_id == doc.data().user_id;
           }) : doc.data().user_id,
         );
         rideRequestArray.push(rideRequest);
@@ -78,14 +78,14 @@ export const getRideRequestById = async (req, res) => {
     const rideSchedule = await firestore.collection('ride_schedule').get();
     const rideScheduleArray = req.query.ride_schedule !== undefined ? rideSchedule.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_schedule_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const user = await firestore.collection('users').get();
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data()
       }
     }) : null;
@@ -98,13 +98,13 @@ export const getRideRequestById = async (req, res) => {
       res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: {
-          id: data.id,
-          ride_schedule: req.query.ride_schedule !== undefined ? rideScheduleArray.find((rideSchedule) => {
+          ride_request_id: data.id,
+          ride_schedule_id: req.query.ride_schedule !== undefined ? rideScheduleArray.find((rideSchedule) => {
             return rideSchedule.id == data.data().ride_schedule_id;
             }) : data.data().ride_schedule_id,
           status_payment: data.data().status_payment,
-          user: req.query.user !== undefined ? userArray.find((user) => {
-            return user.id == data.data().user_id;
+          user_id: req.query.user !== undefined ? userArray.find((user) => {
+            return user.user_id == data.data().user_id;
             }) : data.data().user_id,
         },
         status: 200
