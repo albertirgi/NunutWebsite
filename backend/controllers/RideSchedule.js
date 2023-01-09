@@ -8,19 +8,7 @@ const firestore = db.firestore()
 export const storeRideSchedule = async (req, res) => {
   try {
     const data = req.body
-    await firestore.collection('ride_schedule').doc().set({
-      date: data.date,
-      time: data.time,
-      meeting_point: data.meeting_point,
-      destination: data.destination,
-      note: data.note,
-      price: data.price,
-      driver_id: data.driver_id,
-      vehicle_id: data.vehicle_id,
-      name: data.name,
-      capacity: data.capacity,
-      is_active: data.is_active
-    })
+    await firestore.collection('ride_schedule').doc().set(data)
     res.status(200).json({
       message: 'Ride schedule data saved successfuly',
       status: 200
@@ -83,7 +71,6 @@ export const getAllRideSchedules = async (req, res) => {
                 return vehicle.vehicle_id == doc.data().vehicle_id;
               })
             : doc.data().vehicle_id,
-          doc.data().name,
           doc.data().capacity,
           doc.data().is_active
         );
@@ -158,7 +145,6 @@ export const getRideScheduleById = async (req, res) => {
                 return vehicle.vehicle_id == data.data().vehicle_id;
               })
             : data.data().vehicle_id,
-          data.data().name,
           data.data().capacity,
           data.data().is_active
         ),
