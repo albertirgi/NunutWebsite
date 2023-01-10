@@ -30,7 +30,15 @@ export const getAllBookmarks = async (req, res) => {
         ? rideSchedule.docs.map(doc => {
             return {
               ride_schedule_id: doc.id,
-              ...doc.data(),
+              date: doc.data().date,
+              time: doc.data().time,
+              capacity: doc.data().capacity,
+              destination: doc.data().destination,
+              meeting_point: doc.data().meeting_point,
+              vehicle_id: doc.data().vehicle_id,
+              price: doc.data().price,
+              is_active: doc.data().is_active,
+              note: doc.data().note
             }
           })
         : null
@@ -50,6 +58,7 @@ export const getAllBookmarks = async (req, res) => {
         status: 404,
       })
     } else {
+      const driver = await firestore.collection("driver").get();
       data.forEach(doc => {
         if(req.query.user != "" && req.query.user != undefined && doc.data().user_id != req.query.user){
           return
@@ -66,7 +75,29 @@ export const getAllBookmarks = async (req, res) => {
             ? userArray.find((user) => user.user_id === doc.data().user_id)
             : doc.data().user_id
         );
-        bookmarkArray.push(bookmark)
+        if (req.query.ride_schedule !== undefined) {
+          const driverData = driver.docs.find(
+            (driver) => driver.driver_id === doc.data().driver_id
+          );
+          bookmarkArray.push({
+            id: doc.id,
+          ride_schedule_id: req.query.ride_schedule !== undefined
+            ? rideScheduleArray.find(
+                (rideSchedule) =>
+                  rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
+              )
+            : doc.data().ride_schedule_id,
+          user_id: req.query.user !== undefined
+            ? userArray.find((user) => user.user_id === doc.data().user_id)
+            : doc.data().user_id,
+            driver_id: {
+              driver_id: driverData.id,
+              ...driverData.data(),
+            },
+          });
+        } else {
+          bookmarkArray.push(bookmark);
+        }
       })
       res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
