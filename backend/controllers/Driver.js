@@ -160,6 +160,7 @@ export const getAllDrivers = async (req, res) => {
         return {
           driver_id: doc.id,
           name: doc.data().name,
+          email: doc.data().email,
           nik: doc.data().nik,
           phone: doc.data().phone,
           student_card: doc.data().student_card,
@@ -223,6 +224,7 @@ export const getDriverById = async (req, res) => {
       const driver = {
         driver_id: id,
         name: data.data().name,
+        email: data.data().email,
         nik: data.data().nik,
         phone: data.data().phone,
         student_card: data.data().student_card,
