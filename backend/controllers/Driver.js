@@ -162,9 +162,9 @@ export const getAllDrivers = async (req, res) => {
           name: doc.data().name,
           nik: doc.data().nik,
           phone: doc.data().phone,
-          studentCard: doc.data().student_card,
-          drivingLicense: doc.data().driving_license,
-          aggrementLetter: doc.data().aggrement_letter,
+          student_card: doc.data().student_card,
+          driving_license: doc.data().driving_license,
+          aggrement_letter: doc.data().aggrement_letter,
           user_id: req.query.user !== undefined ? userArray.filter((user) => {
             if (doc.data().user_id == user.user_id) {
               return user;
@@ -225,9 +225,9 @@ export const getDriverById = async (req, res) => {
         name: data.data().name,
         nik: data.data().nik,
         phone: data.data().phone,
-        studentCard: data.data().student_card,
-        drivingLicense: data.data().driving_license,
-        aggrementLetter: data.data().aggrement_letter,
+        student_card: data.data().student_card,
+        driving_license: data.data().driving_license,
+        aggrement_letter: data.data().aggrement_letter,
         user_id:
           req.query.user !== undefined
             ? userArray.filter((user) => {

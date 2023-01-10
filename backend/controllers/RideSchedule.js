@@ -25,7 +25,7 @@ export const getAllRideSchedules = async (req, res) => {
   try{
     const data = await firestore.collection('ride_schedule').get()
     const rideScheduleArray = []
-    const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmarks').where('user_id', '==', req.query.user).get() : null) : null
+    const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmark').where('user_id', '==', req.query.user).get() : null) : null
     const bookmarkArray = bookmark != null ? bookmark.docs.map(doc => {
       return {
         bookmark_id: doc.id,
@@ -75,10 +75,11 @@ export const getAllRideSchedules = async (req, res) => {
           doc.data().is_active
         );
         if(bookmark != null){
+          console.log(bookmarkArray)
           const modifiedRideSchedule = {
             ...rideSchedule,
             is_bookmarked: bookmarkArray.find(bookmark => {
-              return bookmark.ride_schedule_id == rideSchedule.id
+              return bookmark.ride_schedule_id == rideSchedule.ride_schedule_id
             }) != undefined ? true : false
           }
           rideScheduleArray.push(modifiedRideSchedule)
@@ -111,6 +112,24 @@ export const getRideScheduleById = async (req, res) => {
         status: 404
       })
     }else{
+      const bookmark =
+        req.query.user !== undefined
+          ? req.query.user != ""
+            ? await firestore
+                .collection("bookmark")
+                .where("user_id", "==", req.query.user)
+                .get()
+            : null
+          : null;
+      const bookmarkArray =
+        bookmark != null
+          ? bookmark.docs.map((doc) => {
+              return {
+                bookmark_id: doc.id,
+                ...doc.data(),
+              };
+            })
+          : null;
       const driver = await firestore.collection('driver').get()
       const driverArray = req.query.driver !== undefined ? driver.docs.map((doc) => {
         return {
@@ -125,29 +144,43 @@ export const getRideScheduleById = async (req, res) => {
           ...doc.data()
         }
       }) : null
+      var rideSchedule = new RideSchedule(
+        data.id,
+        data.data().date,
+        data.data().time,
+        data.data().meeting_point,
+        data.data().destination,
+        data.data().note,
+        data.data().price,
+        req.query.driver !== undefined
+          ? driverArray.find((driver) => {
+              return driver.driver_id == data.data().driver_id;
+            })
+          : data.data().driver_id,
+        req.query.vehicle !== undefined
+          ? vehicleArray.find((vehicle) => {
+              return vehicle.vehicle_id == data.data().vehicle_id;
+            })
+          : data.data().vehicle_id,
+        data.data().capacity,
+        data.data().is_active
+      );
+
+      if (bookmark != null) {
+        const modifiedRideSchedule = {
+          ...rideSchedule,
+          is_bookmarked:
+            bookmarkArray.find((bookmark) => {
+              return bookmark.ride_schedule_id == rideSchedule.ride_schedule_id;
+            }) != undefined
+              ? true
+              : false,
+        };
+        rideSchedule = modifiedRideSchedule;
+      }
       res.status(200).json({
         message: "Ride schedule data retrieved successfuly",
-        data: new RideSchedule(
-          data.id,
-          data.data().date,
-          data.data().time,
-          data.data().meeting_point,
-          data.data().destination,
-          data.data().note,
-          data.data().price,
-          req.query.driver !== undefined
-            ? driverArray.find((driver) => {
-                return driver.driver_id == data.data().driver_id;
-              })
-            : data.data().driver_id,
-          req.query.vehicle !== undefined
-            ? vehicleArray.find((vehicle) => {
-                return vehicle.vehicle_id == data.data().vehicle_id;
-              })
-            : data.data().vehicle_id,
-          data.data().capacity,
-          data.data().is_active
-        ),
+        data: rideSchedule,
         status: 200,
       });
     }

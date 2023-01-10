@@ -25,7 +25,7 @@ export const getAllParkingBuildings = async (req, res) => {
     const data = await firestore.collection("parking_building").get();
     const parkingBuildingArray = [];
     const parkingPlace = await firestore.collection("parking_place").get();
-    const parkingPlaceArray = req.query.parkingPlace !== undefined ? parkingPlace.docs.map(doc => {
+    const parkingPlaceArray = req.query.parking_place !== undefined ? parkingPlace.docs.map(doc => {
       return {
         parking_place_id: doc.id,
         name: doc.data().name
@@ -41,7 +41,7 @@ export const getAllParkingBuildings = async (req, res) => {
         const parkingBuilding = new ParkingBuilding(
           doc.id,
           doc.data().name,
-          req.query.parking_place !== undefined
+          parkingPlaceArray != null
             ? parkingPlaceArray.find(
                 (parkingPlace) =>
                   parkingPlace.parking_place_id === doc.data().parking_place_id
@@ -67,10 +67,10 @@ export const getAllParkingBuildings = async (req, res) => {
 export const getParkingBuildingById = async (req, res) => {
   try {
     const id = req.params.id;
-    const parkingBuilding = await firestore.collection("parking_building").doc(id);
+    const parkingBuilding = firestore.collection("parking_building").doc(id);
     const data = await parkingBuilding.get();
     const parkingPlace = await firestore.collection("parking_place").get();
-    const parkingPlaceArray = req.query.parkingPlace !== undefined ? parkingPlace.docs.map(doc => {
+    const parkingPlaceArray = req.query.parking_place !== undefined ? parkingPlace.docs.map(doc => {
       return {
         parking_place_id: doc.id,
         name: doc.data().name
@@ -88,12 +88,10 @@ export const getParkingBuildingById = async (req, res) => {
           id: data.id,
           name: data.data().name,
           parking_place_id:
-            req.query.parking_place !== undefined
-              ? parkingPlaceArray.find(
-                  (parkingPlace) =>
-                    parkingPlace.parking_place_id ===
-                    data.data().parking_place_id
-                )
+            parkingPlaceArray != null ? parkingPlaceArray.find(
+              (parkingPlace) =>
+                parkingPlace.parking_place_id === data.data().parking_place_id
+            )
               : data.data().parking_place_id,
         },
         status: 200,
