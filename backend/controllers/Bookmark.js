@@ -23,7 +23,7 @@ export const storeBookmark = async (req, res) => {
 export const getAllBookmarks = async (req, res) => {
   try {
     const data = await firestore.collection('bookmark').get()
-    const bookmarkArray = []
+    var bookmarkArray = []
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
@@ -51,11 +51,21 @@ export const getAllBookmarks = async (req, res) => {
       })
     } else {
       data.forEach(doc => {
-        const bookmark = new Bookmark(
+        if(req.query.user != "" && req.query.user != undefined && doc.data().user_id != req.query.user){
+          return
+        }
+        var bookmark = new Bookmark(
           doc.id,
-          req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.ride_schedule_id === doc.data().ride_schedule_id) : doc.data().ride_schedule_id,
-          req.query.user !== undefined ? userArray.find(user => user.user_id === doc.data().user_id) : doc.data().user_id,
-        )
+          req.query.ride_schedule !== undefined
+            ? rideScheduleArray.find(
+                (rideSchedule) =>
+                  rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
+              )
+            : doc.data().ride_schedule_id,
+          req.query.user !== undefined
+            ? userArray.find((user) => user.user_id === doc.data().user_id)
+            : doc.data().user_id
+        );
         bookmarkArray.push(bookmark)
       })
       res.status(200).json({
