@@ -22,6 +22,7 @@ import { storeParkingPlace, getAllParkingPlaces, getParkingPlaceById, updatePark
 import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, updateParkingBuilding, destroyParkingBuilding } from '../controllers/ParkingBuilding.js';
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
+import { topup, handleTopup } from '../controllers/Midtrans.js';
 //import { getAllDrivers } from '../controllers/Driver2.js'
 
 router.post('/login', login);
@@ -126,5 +127,7 @@ router.get('/transaction', getAllTransactions);
 router.get('/transaction/:id', getTransactionById);
 router.put('/transaction/:id', updateTransaction);
 router.delete('/transaction/:id', destroyTransaction);
+router.post('/topup', topup);
+router.post('/handle-topup', handleTopup);
 
 export default router;

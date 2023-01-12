@@ -1,45 +1,123 @@
-import midtransClient from 'midtrans-client'
-import { v4 as uuid } from 'uuid'
+import { db } from "../config/db.js";
+import midtransClient from "midtrans-client";
+import { v4 as uuid } from "uuid";
+const firestore = db.firestore();
 
-export const getSnapToken = async (req, res) => {
- try{
-  const data = req.body
-  let snap = new midtransClient.Snap({
-   isProduction: false,
-   serverKey: 'SB-Mid-server-6Q9Z2ZQ4Q2Z2ZQ4Q2Z2ZQ4Q2',
-  })
+export const topup = async (req, res) => {
+  try {
+    const data = req.body;
+    console.log(`data: ${data.toString()}`)
+    const wallet = await firestore.collection("wallet").where("user_id", "==", data.user_id).get();
+    const walletData =
+      wallet.empty == false
+        ? wallet.docs[0]
+        : await firestore
+            .collection("wallet")
+            .add({
+              balance: 0,
+              user_id: data.user_id,
+            })
+            .then((wallet) => {
+              return wallet
+            })
+            .catch((error) => {
+              res.status(500).json({
+                message: `Error while create wallet: ${error.toString()}`,
+                status: 500,
+              });
+              return null;
+            });
+    
+    let snap = new midtransClient.Snap({
+      isProduction: false,
+      serverKey: "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR",
+    });
+    const order_id = uuid();
 
-  let parameter = {
-    transaction_details: {
-      order_id: uuid(),
-      gross_amount: data.gross_amount,
-    },
-    credit_card: {
-      secure: true,
-    },
-    customer_details: {
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: data.email,
-      phone: data.phone,
-    },
-  };
+    let parameter = {
+      transaction_details: {
+        order_id: order_id,
+        gross_amount: data.gross_amount,
+      },
+      credit_card: {
+        secure: true,
+      },
+      customer_details: {
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        phone: data.phone,
+      },
+    };
 
-  snap.createTransaction(parameter).then((transaction) => {
-    // transaction token
-    let transactionToken = transaction.token;
+    snap.createTransaction(parameter).then((transaction) => {
+      // transaction token
+      let transactionToken = transaction.token;
+      firestore.collection("transaction").doc().set({
+        amount: data.gross_amount,
+        method: "",
+        order_id: order_id,
+        status: "pending",
+        token: transactionToken,
+        type: "topup",
+        wallet_id: walletData.id,
+      }).then(() => {
+        res.status(200).json({
+          message: "Snap token generated successfuly",
+          status: 200,
+          token: transactionToken,
+          redirect_url:
+            "https://app.sandbox.midtrans.com/snap/v2/vtweb/" + transactionToken,
+        });
+      }).catch((error) => {
+        res.status(500).json({
+          message: `Error while save transaction: ${error.toString()}`,
+          status: 500,
+        });
+      })
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: `Error while fetch snap token: ${error.toString()}`,
+      status: 500,
+    });
+  }
+};
+
+export const handleTopup = async (req, res) => {
+  try {
+    console.log(`data: ${req.body.toString()}`)
+    const data = req.body;
+    const transaction = await firestore.collection("transaction").where("order_id", "==", data.order_id).get();
+    if (transaction.empty) {
+      res.status(404).json({
+        message: "No transaction record found",
+        status: 404,
+      })
+    }
+    const transactionData = transaction.docs[0]
+    const wallet = await firestore.collection("wallet").doc(transactionData.data().wallet_id).get();
+    if (wallet.empty) {
+      res.status(404).json({
+        message: "No wallet record found",
+        status: 404,
+      })
+    }
+    const walletData = wallet.data()
+    const balance = walletData.data().balance + transactionData.data().amount;
+    await transactionData.ref.update({
+      status: "success",
+      method: data.payment_type,
+      balance: balance,
+    });
     res.status(200).json({
-      message: 'Snap token generated successfuly',
+      message: "Topup successfuly",
       status: 200,
-      token: transactionToken,
-      redirect_url: "https://app.sandbox.midtrans.com/snap/v2/vtweb/" + transactionToken
-    })
-    console.log("transactionToken:", transactionToken);
-  }); 
- }catch(error){
-  res.status(500).json({
-   message: `Error while fetch snap token: ${error.toString()}`,
-   status: 500
-  })
- }
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: `Error while topup: ${error.toString()}`,
+      status: 500,
+    });
+  }
 }
