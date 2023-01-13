@@ -124,6 +124,7 @@ export const handleTopup = async (req, res) => {
       status: 200,
     });
   } catch (error) {
+    console.log(error.toString())
     res.status(500).json({
       message: `Error while topup: ${error.toString()}`,
       status: 500,
