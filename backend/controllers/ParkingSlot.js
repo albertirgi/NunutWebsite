@@ -48,7 +48,17 @@ export const getAllParkingSlots = async (req, res) => {
   try {
     const data = await firestore.collection('parking_slot').get()
     const parkingSlotArray = []
-    const parkingBuilding = await firestore.collection('parking_building').get()
+    var parkingBuilding = await firestore.collection('parking_building').get()
+    if(req.query.parking_place !== undefined && req.query.parking_place !== ""){
+      parkingBuilding = await firestore.collection('parking_building').where('parking_place_id', '==', req.query.parking_place).get()
+      if(parkingBuilding.empty){
+        res.status(404).json({
+          message: 'No parking slot record found',
+          status: 404
+        })
+        return
+      }
+    } 
     const parkingBuildingArray = req.query.parking_building !== undefined ? parkingBuilding.docs.map(doc => {
       return {
         parking_building_id: doc.id,
@@ -62,21 +72,41 @@ export const getAllParkingSlots = async (req, res) => {
       })
     } else {
       data.forEach(doc => {
-        const parkingSlot = new ParkingSlot(
-          doc.id,
-          req.query.parking_building !== undefined
-            ? parkingBuildingArray.find(
-                (parkingBuilding) =>
-                  parkingBuilding.parking_building_id ===
-                  doc.data().parking_building_id
-              )
-            : doc.data().parking_building_id,
-          doc.data().instruction,
-          doc.data().image,
-          doc.data().subtitle,
-          doc.data().title
-        );
-        parkingSlotArray.push(parkingSlot)
+        if(req.query.parking_place !== undefined && req.query.parking_place != ""){
+          if(doc.data().parking_building_id == parkingBuildingArray.find(parkingBuilding => parkingBuilding.parking_building_id === doc.data().parking_building_id).parking_building_id){
+            const parkingSlot = new ParkingSlot(
+              doc.id,
+              req.query.parking_building !== undefined
+                ? parkingBuildingArray.find(
+                    (parkingBuilding) =>
+                      parkingBuilding.parking_building_id ===
+                      doc.data().parking_building_id
+                  )
+                : doc.data().parking_building_id,
+              doc.data().instruction,
+              doc.data().image,
+              doc.data().subtitle,
+              doc.data().title
+            );
+            parkingSlotArray.push(parkingSlot);
+          }
+        }else{
+          const parkingSlot = new ParkingSlot(
+            doc.id,
+            req.query.parking_building !== undefined
+              ? parkingBuildingArray.find(
+                  (parkingBuilding) =>
+                    parkingBuilding.parking_building_id ===
+                    doc.data().parking_building_id
+                )
+              : doc.data().parking_building_id,
+            doc.data().instruction,
+            doc.data().image,
+            doc.data().subtitle,
+            doc.data().title
+          );
+          parkingSlotArray.push(parkingSlot);
+        }
       })
       res.status(200).json({
         message: 'Parking slot data retrieved successfuly',
