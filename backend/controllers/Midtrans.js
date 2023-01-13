@@ -53,7 +53,7 @@ export const topup = async (req, res) => {
     snap.createTransaction(parameter).then((transaction) => {
       // transaction token
       let transactionToken = transaction.token;
-      firestore.collection("transaction").doc().set({
+      firestore.collection("transaction").doc(order_id).set({
         amount: data.gross_amount,
         method: "",
         order_id: order_id,
@@ -86,28 +86,37 @@ export const topup = async (req, res) => {
 
 export const handleTopup = async (req, res) => {
   try {
-    console.log(`data: ${req.body.toString()}`)
+    console.log(`data: ${JSON.stringify(req.body)}`)
     const data = req.body;
-    const transaction = await firestore.collection("transaction").where("order_id", "==", data.order_id).get();
+    const transaction = await firestore.collection("transaction").doc(data.order_id).get();
     if (transaction.empty) {
       res.status(404).json({
         message: "No transaction record found",
         status: 404,
       })
+      return
+    }else if(transaction.data().status == "success"){
+      res.status(403).json({
+        message: "Transaction already success",
+        status: 403,
+      });
+      return
     }
-    const transactionData = transaction.docs[0]
-    const wallet = await firestore.collection("wallet").doc(transactionData.data().wallet_id).get();
+    const wallet = await firestore.collection("wallet").doc(transaction.data().wallet_id).get();
     if (wallet.empty) {
       res.status(404).json({
         message: "No wallet record found",
         status: 404,
       })
+      return
     }
     const walletData = wallet.data()
-    const balance = walletData.balance + transactionData.data().amount;
-    await transactionData.ref.update({
+    const balance = walletData.balance + transaction.data().amount;
+    await transaction.ref.update({
       status: "success",
       method: data.payment_type,
+    });
+    await wallet.ref.update({
       balance: balance,
     });
     res.status(200).json({
