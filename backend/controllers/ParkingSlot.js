@@ -59,12 +59,12 @@ export const getAllParkingSlots = async (req, res) => {
         return
       }
     } 
-    const parkingBuildingArray = req.query.parking_building !== undefined ? parkingBuilding.docs.map(doc => {
+    const parkingBuildingArray = parkingBuilding.docs.map(doc => {
       return {
         parking_building_id: doc.id,
         ...doc.data()
       }
-    }) : null
+    })
     if (data.empty) {
       res.status(404).json({
         message: 'No parking slot record found',
