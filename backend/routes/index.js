@@ -22,7 +22,7 @@ import { storeParkingPlace, getAllParkingPlaces, getParkingPlaceById, updatePark
 import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, updateParkingBuilding, destroyParkingBuilding } from '../controllers/ParkingBuilding.js';
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
-import { topup, handleTopup } from '../controllers/Midtrans.js';
+import { topup, handleTopup, topup2 } from '../controllers/Midtrans.js';
 //import { getAllDrivers } from '../controllers/Driver2.js'
 
 router.post('/login', login);

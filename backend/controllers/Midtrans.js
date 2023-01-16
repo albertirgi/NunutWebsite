@@ -1,7 +1,77 @@
 import { db } from "../config/db.js";
 import midtransClient from "midtrans-client";
 import { v4 as uuid } from "uuid";
+import https from 'https'
 const firestore = db.firestore();
+
+export const topup2 = async(req, res) => {
+  try{
+    const data = req.body
+    const url = "https://api.sandbox.midtrans.com/v2/charge/"
+    const payload = {
+      "payment_type" : "bank_transfer",
+      "transaction_details" : {
+        "order_id" : uuid(),
+        "gross_amount" : 150000
+      },
+      "bank_transfer" : {
+        "bank" : "bca"
+      }
+    }
+    const options = {
+      method: "POST",
+      headers: {
+        "Accept" : "application/json",
+        "Content-Type": "application/json",
+        "Content-Length": JSON.stringify(payload).length,
+        "Authorization" : btoa("SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR" + ":")
+      },
+      timeout: 10000,
+    }
+    const post = new Promise ((resolve, reject) => {
+      const request = https.request(url, options, (res) => {
+        if(res.statusCode < 200 || res.statusCode > 299){
+          return reject(new Error('HTTP status code' + res.statusCode))
+        }
+        const body = []
+        res.on('data', (chunk) => body.push(chunk))
+        res.on('end', () => {
+          const resString = Buffer.concat(body).toString()
+          resolve(resString)
+        })
+      })
+      request.on('error', (err) => {
+        reject(err)
+      })
+      request.on('timeout', () => {
+        request.destroy()
+        reject(new Error("Request timeout"))
+      })
+      request.write(JSON.stringify(payload))
+      request.end()
+    })
+    post.then(
+      function(value){
+        res.status(200).json({
+          message: "Transaction created",
+          data: JSON.parse(value),
+          status: 200
+        })
+      },
+      function(error){
+        res.status(500).json({
+          message: "Transaction failed: ",
+          status: 400
+        })
+      }
+    )
+  } catch(err) {
+    res.status(500).json({
+      message: "Error while creating transaction: " + err.toString(),
+      status: 500
+    })
+  }
+}
 
 export const topup = async (req, res) => {
   try {
