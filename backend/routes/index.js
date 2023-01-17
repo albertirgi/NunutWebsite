@@ -23,6 +23,7 @@ import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, u
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
 import { topup, handleTopup, topup2 } from '../controllers/Midtrans.js';
+import { storeMap, getAllMaps, getMapById, updateMap, destroyMap } from '../controllers/Map.js';
 //import { getAllDrivers } from '../controllers/Driver2.js'
 
 router.post('/login', login);
@@ -129,5 +130,10 @@ router.put('/transaction/:id', updateTransaction);
 router.delete('/transaction/:id', destroyTransaction);
 router.post('/topup', topup);
 router.post('/handle-topup', handleTopup);
+router.get('/map', getAllMaps);
+router.get('/map/:id', getMapById);
+router.post('/map', storeMap);
+router.put('/map/:id', updateMap);
+router.delete('/map/:id', destroyMap);
 
 export default router;
