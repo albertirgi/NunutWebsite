@@ -7,7 +7,11 @@ export const storeMap = async (req, res) => {
   try {
     const data = req.body
     const map = new Map(uuid(), data.name, data.latitude, data.longitude)
-    await firestore.collection('map').doc(map.map_id).set(map)
+    await firestore.collection('map').doc(map.map_id).set({
+      name: map.name,
+      latitude: map.latitude,
+      longitude: map.longitude
+    })
     res.status(200).json({
       message: 'Map successfully added',
       data: map,
@@ -27,7 +31,11 @@ export const updateMap = async (req, res) => {
     const data = req.body
     const id = req.params.id
     const map = new Map(id, data.name, data.latitude, data.longitude)
-    await firestore.collection('map').doc(map.map_id).update(map)
+    await firestore.collection('map').doc(map.map_id).update({
+      name: map.name,
+      latitude: map.latitude,
+      longitude: map.longitude
+    })
     res.status(200).json({
       message: 'Map successfully updated',
       data: map,
