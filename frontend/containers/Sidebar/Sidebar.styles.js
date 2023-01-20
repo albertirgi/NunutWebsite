@@ -6,7 +6,7 @@ import WithDirection from '@iso/lib/helpers/rtl';
 const SidebarWrapper = styled.div`
   .isomorphicSidebar {
     z-index: 1000;
-    background: ${palette('secondary', 0)};
+    background-color: #FAD14B;
     width: 280px;
     flex: 0 0 280px;
 
@@ -44,7 +44,7 @@ const SidebarWrapper = styled.div`
           line-height: 70px;
           letter-spacing: 3px;
           text-transform: uppercase;
-          color: ${palette('grayscale', 6)};
+          color: #000000;
           display: block;
           text-decoration: none;
         }
@@ -103,7 +103,7 @@ const SidebarWrapper = styled.div`
         align-items: center;
 
         svg {
-          color: inherit;
+          color: #000000;
           margin: ${(props) =>
             props['data-rtl'] === 'rtl' ? '0 0 0 30px' : '0 30px 0 0'};
           ${transition()};
@@ -113,13 +113,13 @@ const SidebarWrapper = styled.div`
       .anticon {
         font-size: 18px;
         margin-right: 30px;
-        color: inherit;
+        color: #000000;
         ${transition()};
       }
 
       .nav-text {
         font-size: 14px;
-        color: inherit;
+        color: #000000;
         font-weight: 400;
         ${transition()};
       }
@@ -127,15 +127,15 @@ const SidebarWrapper = styled.div`
       .ant-menu-item-selected {
         background-color: rgba(0, 0, 0, 0.4) !important;
         .anticon {
-          color: #fff;
+          color: #000000;
         }
 
         svg {
-          color: #fff;
+          color: #000000;
         }
 
         .nav-text {
-          color: #fff;
+          color: #000000;
         }
       }
 
@@ -143,14 +143,14 @@ const SidebarWrapper = styled.div`
         &:hover {
           svg,
           .nav-text {
-            color: #ffffff;
+            color: #000000;
           }
         }
       }
     }
 
     .ant-menu-dark .ant-menu-inline.ant-menu-sub {
-      background: ${palette('secondary', 5)};
+      background: #000000;
     }
 
     .ant-menu-submenu-inline,
@@ -188,7 +188,7 @@ const SidebarWrapper = styled.div`
             content: '\f123';
             font-family: 'Ionicons' !important;
             font-size: 16px;
-            color: inherit;
+            color: #000000;
             left: ${props => (props['data-rtl'] === 'rtl' ? '16px' : 'auto')};
             right: ${props => (props['data-rtl'] === 'rtl' ? 'auto' : '16px')};
             ${transition()};
@@ -215,7 +215,7 @@ const SidebarWrapper = styled.div`
           font-size: 13px;
           font-weight: 400;
           margin: 0;
-          color: inherit;
+          color: #000000;
           ${transition()};
 
           &:hover {

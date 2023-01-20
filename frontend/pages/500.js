@@ -4,7 +4,7 @@ import Link from 'next/link';
 import IntlMessages from '@iso/components/utility/intlMessages';
 import FiveZeroZeroStyleWrapper from '../styled/500.styles';
 import Image from '@iso/assets/images/rob.png';
-
+import nunutLogoPlain from '@iso/assets/images/nunut/nunut-logo-plain.png';
 function FiveHundred() {
   return (
     <FiveZeroZeroStyleWrapper className="iso500Page">
@@ -19,7 +19,7 @@ function FiveHundred() {
           <IntlMessages id="page500.description" />
         </p>
         <button type="button">
-          <Link href="/dashboard">
+          <Link href="/home">
             <a className="isoMenuHolder">
               <span className="nav-text">
                 <IntlMessages id="page500.backButton" />
@@ -30,7 +30,7 @@ function FiveHundred() {
       </div>
 
       <div className="iso500Artwork">
-        <img alt="#" src={Image} />
+        <img alt="/home" src={nunutLogoPlain} />
       </div>
     </FiveZeroZeroStyleWrapper>
   );

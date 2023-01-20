@@ -31,7 +31,14 @@ const nextConfig = {
 // if (typeof require !== 'undefined') {
 //   require.extensions['.css'] = file => {};
 // }
-
+module.exports = {
+	rewrites: [
+	  {
+		source: '/',
+		destination: '/home',
+	  },
+	],
+  };
 module.exports = withPlugins(
 	[
 		withTM,
@@ -56,6 +63,10 @@ module.exports = withPlugins(
 				},
 			},
 		],
+		
 	],
+	
+
 	nextConfig,
 );
+

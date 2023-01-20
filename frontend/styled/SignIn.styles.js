@@ -2,25 +2,26 @@ import styled from 'styled-components';
 import { palette } from 'styled-theme';
 import WithDirection from '@iso/lib/helpers/rtl';
 
-import bgImage from '@iso/assets/images/sign.jpg';
+import bgImage from '@iso/assets/images/nunut/bg.png';
 
 const SignInStyleWrapper = styled.div`
   width: 100%;
   min-height: 100vh;
   height: 100vh;
   display: flex;
-  justify-content: flex-end;
+  justify-content: center;
   align-items: center;
   position: relative;
   background: url(${bgImage}) no-repeat center center;
   background-size: cover;
-
+  backgrond-color: #FAD14B !important;
   &:before {
     content: '';
     width: 100%;
     height: 100%;
     display: flex;
-    background-color: rgba(0, 0, 0, 0.6);
+    //background-color: rgba(0, 0, 0, 0.6);
+    //backgrond-color: #FAD14B !important;
     position: absolute;
     z-index: 1;
     top: 0;
@@ -32,10 +33,18 @@ const SignInStyleWrapper = styled.div`
   }
   .isoLoginContentWrapper {
     width: 500px;
-    height: 100%;
+    height: auto;
     overflow-y: auto;
     z-index: 10;
     position: relative;
+    border-radius: 25px;
+  }
+  .isoCenter{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+
   }
 
   .isoLoginContent {

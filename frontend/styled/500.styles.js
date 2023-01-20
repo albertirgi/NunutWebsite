@@ -11,7 +11,7 @@ const FiveZeroZeroStyleWrapper = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-
+  background-color: #FAD14B;
   @media only screen and (max-width: 767px) {
     flex-direction: column;
     flex-wrap: nowrap;
@@ -34,7 +34,7 @@ const FiveZeroZeroStyleWrapper = styled.div`
     h1 {
       font-size: 84px;
       font-weight: 700;
-      color: ${palette('secondary', 2)};
+      color: #000000;
       line-height: 1;
       margin: 0 0 25px;
     }
@@ -42,7 +42,7 @@ const FiveZeroZeroStyleWrapper = styled.div`
     h3 {
       font-size: 24px;
       font-weight: 400;
-      color: ${palette('text', 1)};
+      color: #000000;
       margin: 0 0 10px;
       line-height: 1.2;
     }
@@ -50,7 +50,7 @@ const FiveZeroZeroStyleWrapper = styled.div`
     p {
       font-size: 14px;
       font-weight: 400;
-      color: ${palette('text', 3)};
+      color: #000000;
       margin: 0 0 10px;
     }
 
@@ -75,12 +75,12 @@ const FiveZeroZeroStyleWrapper = styled.div`
       -ms-user-select: none;
       user-select: none;
       position: relative;
-      color: #ffffff;
-      background-color: ${palette('primary', 0)};
+      color: #FAD14B !important;
+      background-color: #000000;
       ${transition()};
       ${borderRadius('18px')};
       .isoMenuHolder {
-        color: ${palette('primary', 0)};
+        color: #FAD14B !important;
         .nav-text {
           color: #fff;
         }
@@ -89,12 +89,12 @@ const FiveZeroZeroStyleWrapper = styled.div`
       a {
         width: 100%;
         height: 100%;
-        color: #ffffff;
+        color: #FAD14B !important;
         text-decoration: none;
       }
 
       &:hover {
-        background-color: ${palette('primary', 2)};
+        background-color: #000000;
 
         a {
           text-decoration: none;

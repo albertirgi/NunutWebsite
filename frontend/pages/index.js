@@ -11,6 +11,10 @@ import FirebaseLogin from '@iso/containers/FirebaseForm/FirebaseForm';
 import Auth0 from '../authentication/Auth0';
 import authActions from '../authentication/actions';
 import SignInStyleWrapper from '../styled/SignIn.styles';
+import IconNunut from '@iso/assets/images/nunut/nunut-icon.png';
+import LogoNunut from '@iso/assets/images/nunut/nunut-logo.png';
+import Head from 'next/head';
+
 const { login } = authActions;
 export default function SignInPage(props) {
   const dispatch = useDispatch();
@@ -34,15 +38,22 @@ export default function SignInPage(props) {
   };
 
   return (
-    <SignInStyleWrapper className="isoSignInPage">
+    
+    <SignInStyleWrapper  className="isoSignInPage">
+      
+      <Head>
+        <title>Login</title>
+      </Head>
       <div className="isoLoginContentWrapper">
         <div className="isoLoginContent">
           <div className="isoLogoWrapper">
-            <Link href="/dashboard">
+            {/* <Link href="/dashboard">
               <a>
-                <IntlMessages id="page.signInTitle" />
+                {/* <IntlMessages id="page.signInTitle" />
+                
               </a>
-            </Link>
+            </Link> */}
+            <img src={LogoNunut} alt="Nunut" height={140}/>
           </div>
 
           <div className="isoSignInForm">
@@ -51,7 +62,8 @@ export default function SignInPage(props) {
                 id="inputUserName"
                 size="large"
                 placeholder="Username"
-                defaultValue="demo@gmail.com"
+                
+                style={{borderRadius: '15px', border: '1px solid #efefef'}}
               />
             </div>
 
@@ -61,67 +73,28 @@ export default function SignInPage(props) {
                 size="large"
                 type="password"
                 placeholder="Password"
-                defaultValue="demodemo"
+                style={{borderRadius: '15px', border: '1px solid #efefef'}}
               />
             </div>
 
-            <div className="isoInputWrapper isoLeftRightComponent">
-              <Checkbox>
-                <IntlMessages id="page.signInRememberMe" />
-              </Checkbox>
+            <div className="isoInputWrapper isoCenter">
+              
               <Button
+                style={{
+                  backgroundColor: '#FAD14B',
+                  border:"1px solid #000000",
+                  borderRadius: "5px",
+
+                }}
                 type="primary"
                 onClick={jwtConfig.enabled ? handleJWTLogin : handleLogin}
               >
-                <IntlMessages id="page.signInButton" />
+                <p style={{
+                  color: '#000000',
+                }}>Login</p>
               </Button>
             </div>
 
-            <p className="isoHelperText">
-              <IntlMessages id="page.signInPreview" />
-            </p>
-
-            <div className="isoInputWrapper isoOtherLogin">
-              <Button
-                onClick={handleLogin}
-                type="primary"
-                className="btnFacebook"
-              >
-                <IntlMessages id="page.signInFacebook" />
-              </Button>
-              <Button
-                onClick={handleLogin}
-                type="primary"
-                className="btnGooglePlus"
-              >
-                <IntlMessages id="page.signInGooglePlus" />
-              </Button>
-
-              <Button
-                onClick={() => Auth0.login(handleLogin)}
-                type="primary"
-                className="btnAuthZero"
-              >
-                <IntlMessages id="page.signInAuth0" />
-              </Button>
-
-              <FirebaseLogin
-                history={router}
-                login={token => dispatch(login(token))}
-              />
-            </div>
-            <div className="isoCenterComponent isoHelperWrapper">
-              <Link href="/forgotpassword">
-                <div className="isoForgotPass">
-                  <IntlMessages id="page.signInForgotPass" />
-                </div>
-              </Link>
-              <Link href="/signup">
-                <a>
-                  <IntlMessages id="page.signInCreateAccount" />
-                </a>
-              </Link>
-            </div>
           </div>
         </div>
       </div>
