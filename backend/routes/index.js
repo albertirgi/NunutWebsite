@@ -24,6 +24,10 @@ import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet 
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
 import { topup, handleTopup, topup2 } from '../controllers/Midtrans.js';
 import { storeMap, getAllMaps, getMapById, updateMap, destroyMap } from '../controllers/Map.js';
+import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
+import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
+import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
+
 //import { getAllDrivers } from '../controllers/Driver2.js'
 
 router.post('/login', login);
@@ -135,5 +139,20 @@ router.get('/map/:id', getMapById);
 router.post('/map', storeMap);
 router.put('/map/:id', updateMap);
 router.delete('/map/:id', destroyMap);
+router.post('/cancel-user', storeCancellationUser);
+router.get('/cancel-user', getAllCancellationUsers);
+router.get('/cancel-user/:id', getCancellationUser);
+router.put('/cancel-user/:id', updateCancellationUser);
+router.delete('/cancel-user/:id', deleteCancellationUser);
+router.post('/cancel-driver', storeCancellationDriver);
+router.get('/cancel-driver', getAllCancellationDrivers);
+router.get('/cancel-driver/:id', getCancellationDriver);
+router.put('/cancel-driver/:id', updateCancellationDriver);
+router.delete('/cancel-driver/:id', deleteCancellationDriver);
+router.get('/vehicle-type', getAllVehicleTypes);
+router.get('/vehicle-type/:id', getVehicleType);
+router.post('/vehicle-type', storeVehicleType);
+router.put('/vehicle-type/:id', updateVehicleType);
+router.delete('/vehicle-type/:id', deleteVehicleType);
 
 export default router;
