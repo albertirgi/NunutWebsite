@@ -29,7 +29,11 @@ const columns = [
     key: 'description',
   },
   
-
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
 ];
 export default function NotificationPage() {
   const [DataRetrivied, setDataRetrivied] = useState();
@@ -46,7 +50,13 @@ export default function NotificationPage() {
             title: data.title,
             picture:data.image,
             description: data.description,
+            action:
+                <a href="">
+                    <Button>
+                        Delete
+                    </Button>
 
+                </a>
 
           };
         });

@@ -31,7 +31,11 @@ const columns = [
     dataIndex:'id_user',
     key:'id_user',
   },
-  
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
 
 ];
 
@@ -52,7 +56,7 @@ export default function EmergencyPage() {
             description: data.description,
             id_ride_share:data.ride_request,
             id_user:data.user,
-
+            action: <Button>Delete</Button>
 
           };
         });

@@ -14,10 +14,15 @@ const columnsParkingplace = [
     key: 'id_parkir_place',
   },
   {
-    title: 'Parking place Name',
+    title: 'Parking Place Name',
     dataIndex: 'parking_place_name',
     key: 'parking_place_name',
   },
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
 ];
 
 const columsParkingBuilding = [
@@ -27,7 +32,7 @@ const columsParkingBuilding = [
     key: 'id_parkir_building',
   },
   {
-    title: 'Parking place Name',
+    title: 'Parking Place Name',
     dataIndex: 'parking_place_name',
     key: 'parking_place_name',
   },
@@ -36,6 +41,11 @@ const columsParkingBuilding = [
     dataIndex: 'parking_building_name',
     key: 'parking_building_name',
   },
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
 ];
 
 const columns = [
@@ -71,7 +81,11 @@ const columns = [
     dataIndex: 'description',
     key: 'description',
   },
-  
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
 
 ];
 
@@ -83,22 +97,13 @@ export default function ParkingPage() {
   const apiUrlParkingplace = `${envConfig.URL_API_REST}/parking-place`;
   let ParkingplaceAll;
 
-  const apiUrlParkingBuilding = `${envConfig.URL_API_REST}/parking-building`;
+  const apiUrlParkingBuilding = `${envConfig.URL_API_REST}/parking-building?parking_place`;
   let ParkingBuildingAll;
 
-  const apiUrlParking = `${envConfig.URL_API_REST}/parking-slot`;
+  const apiUrlParking = `${envConfig.URL_API_REST}/parking-slot?parking_building`;
   let ParkingAll;
 
-  function getParkingPalaceById(id){
-    let parkingplaceData;
-    const apiUrlParkingplace = `${envConfig.URL_API_REST}/parking-place/${id}`;
-    fetch(apiUrlParkingplace)
-      .then((respone) => respone.json())
-      .then((responData) => {
-        parkingplaceData = responData.data;
-        //console.log(parkingplaceData);
-      });
-  }
+  
 
   function pullParkingplace(){
     fetch(apiUrlParkingplace)
@@ -106,9 +111,16 @@ export default function ParkingPage() {
       .then((responData) => {
         ParkingplaceAll = responData.data?.map(function (data) {
           return {
-            key: data.id,
-            id_parkir_place: data.id,
+            key: data.parking_place_id,
+            id_parkir_place: data.parking_place_id,
             parking_place_name: data.name,
+            action:
+                <a href="">
+                    <Button>
+                        Delete
+                    </Button>
+
+                </a>
           };
         });
         setDataRetrivied2(ParkingplaceAll);
@@ -123,10 +135,17 @@ export default function ParkingPage() {
       .then((responData) => {
         ParkingBuildingAll = responData.data?.map(function (data) {
           return {
-            key: data.id,
-            id_parkir_building: data.id,
-            parking_place_name: data.parking_place,
+            key: data.parking_building_id,
+            id_parkir_building: data.parking_building_id,
+            parking_place_name: data.parking_place_id.name,
             parking_building_name: data.name,
+            action:
+                <a href="">
+                    <Button>
+                        Delete
+                    </Button>
+
+                </a>
             
           };
         });
@@ -144,18 +163,24 @@ export default function ParkingPage() {
       .then((responData) => {
         ParkingAll = responData.data?.map(function (data) {
           return {
-            key: data.id,
-            id_parkir: data.id,
-            parking_building: data.parking_building,
+            key: data.parking_slot_id,
+            id_parkir: data.parking_slot_id,
+            parking_building: data.parking_building_id.name,
             title: data.title,
             picture: <a href={data.image.toString()} target="_blank">
-            <Button>
-              Click to Open
-            </Button>
-
-          </a>,
+              <Button>
+                Click to Open
+              </Button>
+            </a>,
             subtitle: data.subtitle,
             description: data.instruction,
+            action:
+                <a href="">
+                    <Button>
+                        Delete
+                    </Button>
+
+                </a>
           };
         });
         setDataRetrivied(ParkingAll);

@@ -42,7 +42,11 @@ const columns = [
     dataIndex:'image',
     key:'image',
   },
-  
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
   
 
 ];
@@ -62,24 +66,35 @@ export default function ListDriverPage() {
             full_name: data.fullname,
             nik:data.nik,
             phone_number: data.phone,
-            driver_license:<a href={data.drivingLicense.toString()} target="_blank">
+            driver_license:
+            <a href={data.drivingLicense.toString()} target="_blank">
               <Button>
                 Click to Open
               </Button>
 
             </a>,
-            agreement:<a href={data.aggrementLetter.toString()} target="_blank">
-            <Button>
-              Click to Open
-            </Button>
+            agreement:
+            <a href={data.aggrementLetter.toString()} target="_blank">
+              <Button>
+                Click to Open
+              </Button>
 
-          </a>,
-            image:<a href={data.image.toString()} target="_blank">
-            <Button>
-              Click to Open
-            </Button>
+            </a>,
+            image:
+            <a href={data.image.toString()} target="_blank">
+              <Button>
+                Click to Open
+              </Button>
 
-          </a>,
+            </a>,
+            action:
+            <a href="">
+                <Button>
+                    Delete
+                </Button>
+
+            </a>
+          ,
 
           };
         });

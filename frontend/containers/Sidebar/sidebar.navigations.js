@@ -80,7 +80,12 @@ export default [
 		label: 'Emergency Report',
 		leftIcon: <MailSpamReportIcon size={19} />,
 	},
-	
+	{
+		key: 'maps',
+		path: '/dashboard/maps',
+		label: 'Maps',
+		leftIcon: <SidebarMapsIcon size={19} />,
+	},
 	{
 		key: 'logout',
 		path: '#',
