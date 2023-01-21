@@ -39,6 +39,11 @@ export default function VoucherPage() {
       dataIndex: 'tnc',
       key: 'tnc',
     },
+    {
+      title:'Action',
+      dataIndex:'action',
+      key:'action',
+  },
   
   ];
   const [DataRetrivied, setDataRetrivied] = useState();
@@ -58,6 +63,13 @@ export default function VoucherPage() {
             expired_at: data.expiredAt,
             minimum: data.minimum,
             tnc: data.tnc,
+            action:
+                <a href="">
+                    <Button>
+                        Delete
+                    </Button>
+
+                </a>
           };
         });
         setDataRetrivied(voucherAll);

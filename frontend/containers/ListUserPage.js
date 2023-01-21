@@ -54,7 +54,11 @@ const dataSource = [
     phone: '08123456789',
     email: 'email@gmail.com',
   },
-
+  {
+    title:'Action',
+    dataIndex:'action',
+    key:'action',
+},
 ];
 export default function ListUserPage() {
   const [DataRetrivied, setDataRetrivied] = useState();
@@ -73,6 +77,13 @@ export default function ListUserPage() {
             nik: data.nik,
             phone: data.phone,
             email: data.email,
+            action:
+                <a href="">
+                    <Button>
+                        Delete
+                    </Button>
+
+                </a>
           };
         });
         setDataRetrivied(userAll);
