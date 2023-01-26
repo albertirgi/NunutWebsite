@@ -7,7 +7,26 @@ const firestore = db.firestore();
 export const storeParkingPlace = async (req, res) => {
   try {
     const data = req.body;
-    await firestore.collection("parking_place").doc().set(data);
+    // Upload image to firebase storage
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + req.file.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(file.buffer, { contentType: file.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          resolve(file.publicUrl());
+        }
+      });
+    });
+    const imageUrl = await imagePromise;
+    await firestore.collection("parking_place").doc().set({
+      name: data.name,
+      image: imageUrl,
+      sub_name: data.sub_name,
+    });
     res.status(200).json({
       message: "Parking place data saved successfuly",
       status: 200,
@@ -34,6 +53,8 @@ export const getAllParkingPlaces = async (req, res) => {
         const parkingPlace = new ParkingPlace(
           doc.id,
           doc.data().name,
+          doc.data().image,
+          doc.data().sub_name
         );
         parkingPlaceArray.push(parkingPlace);
       });
@@ -79,9 +100,36 @@ export const getParkingPlaceById = async (req, res) => {
 export const updateParkingPlace = async (req, res) => {
   try {
     const id = req.params.id;
+    const imageFile = req.file;
+    // Upload image to firebase storage
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + req.file.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(file.buffer, { contentType: file.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          resolve(file.publicUrl());
+        }
+      });
+    });
+    const imageUrl = await imagePromise;
     const data = req.body;
     const parkingPlace = firestore.collection("parking_place").doc(id);
-    await parkingPlace.update(data);
+    if(!imageFile){
+      await parkingPlace.update({
+        name: data.name,
+        sub_name: data.sub_name,
+      }, { merge: true });
+    }else{   
+      await parkingPlace.update({
+        name: data.name,
+        image: imageUrl,
+        sub_name: data.sub_name,
+      });
+    }
     res.status(200).json({
       message: "Parking place updated successfuly",
       status: 200

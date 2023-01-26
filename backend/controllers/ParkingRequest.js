@@ -8,6 +8,9 @@ export const storeParkingRequest = async (req, res) => {
   try {
     const data = req.body
     await firestore.collection('parking_requests').doc().set(data)
+    await firestore.collection('parking_slot').doc(data.parking_slot_id).update({
+      status: true
+    })
     res.status(200).json({
       message: 'Parking request data saved successfuly',
       status: 200
@@ -99,6 +102,9 @@ export const updateParkingRequest = async (req, res) => {
     const data = req.body
     const parkingRequest = firestore.collection('parking_request').doc(id)
     await parkingRequest.update(data)
+    await firestore.collection('parking_slot').doc(data.parking_slot_id).update({
+      status: data.status === 'finished' ? true : false
+    })
     res.status(200).json({
       message: 'Parking request record updated successfuly',
       status: 200
