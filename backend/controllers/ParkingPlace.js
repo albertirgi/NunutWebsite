@@ -1,17 +1,20 @@
 import ParkingPlace from "../models/parkingPlaceModel.js";
 import jwt from "jsonwebtoken";
 import { db } from "../config/db.js";
+import { v4 as uuid } from "uuid";
+const storage = db.storage().bucket();
 let token = null;
 const firestore = db.firestore();
 
 export const storeParkingPlace = async (req, res) => {
   try {
     const data = req.body;
+    const image = req.file;
     // Upload image to firebase storage
     const imagePromise = new Promise((resolve, reject) => {
-      const fileNameImage = uuid() + req.file.originalname;
+      const fileNameImage = uuid() + image.originalname;
       const file = storage.file(fileNameImage);
-      file.save(file.buffer, { contentType: file.mimetype }, function (err) {
+      file.save(image.buffer, { contentType: file.mimetype }, function (err) {
         if (err) {
           let imageMessage = "Error occured while uploading image: " + err;
           reject(imageMessage);
@@ -103,9 +106,9 @@ export const updateParkingPlace = async (req, res) => {
     const imageFile = req.file;
     // Upload image to firebase storage
     const imagePromise = new Promise((resolve, reject) => {
-      const fileNameImage = uuid() + req.file.originalname;
+      const fileNameImage = uuid() + imageFile.originalname;
       const file = storage.file(fileNameImage);
-      file.save(file.buffer, { contentType: file.mimetype }, function (err) {
+      file.save(imageFile.buffer, { contentType: file.mimetype }, function (err) {
         if (err) {
           let imageMessage = "Error occured while uploading image: " + err;
           reject(imageMessage);
