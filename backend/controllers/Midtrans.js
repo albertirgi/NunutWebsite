@@ -8,16 +8,38 @@ export const topup2 = async(req, res) => {
   try{
     const data = req.body
     const url = "https://api.sandbox.midtrans.com/v2/charge/"
-    const payload = {
-      "payment_type" : "bank_transfer",
-      "transaction_details" : {
-        "order_id" : uuid(),
-        "gross_amount" : 150000
-      },
-      "bank_transfer" : {
-        "bank" : "bca"
+    var payload;
+    if(data.payment_type == "bank_transfer"){
+      payload = {
+        "payment_type" : "bank_transfer",
+        "transaction_details" : {
+          "order_id" : uuid(),
+          "gross_amount" : 150000
+        },
+        "bank_transfer" : {
+          "bank" : data.bank
+        }
       }
+    }else if(data.payment_type == "gopay"){
+      payload = {
+        "payment_type": "gopay",
+        "transaction_details": {
+          "order_id": uuid(),
+          "gross_amount": 150000,
+        },
+        "gopay": {
+          "enable_callback" : true,
+          "callback_url": "https://ayonunut.com/api/v1/handle-topup"
+        }
+      };
+    }else{
+      res.status(400).json({
+        message: "Payment type not supported",
+        status: 400
+      })
+      return
     }
+    
     const options = {
       method: "POST",
       headers: {
