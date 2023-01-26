@@ -31,7 +31,7 @@ export const storeParkingSlot = async (req, res) => {
       image: imageUrl,
       subtitle: data.subtitle,
       title: data.title,
-      status: data.status
+      status: data.status == "true" ? true : false
     })
     res.status(200).json({
       message: 'Record saved successfuly',
@@ -199,7 +199,7 @@ export const updateParkingSlot = async (req, res) => {
       image: image ? imageUrl : parkingSlotData.image,
       subtitle: data.subtitle ? data.subtitle : parkingSlotData.subtitle,
       title: data.title ? data.title : parkingSlotData.title,
-      status: data.status ? data.status : parkingSlotData.status,
+      status: data.status ? (data.status == "true" ? true : false) : parkingSlotData.status,
     });
     res.status(200).json({
       message: "Parking slot record updated successfuly",
