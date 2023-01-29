@@ -7,20 +7,32 @@ const firestore = db.firestore();
 export const topup2 = async(req, res) => {
   try{
     const data = req.body
-    const url = "https://api.sandbox.midtrans.com/v2/charge/"
+    const wallet = await firestore
+      .collection("wallet")
+      .where("user_id", "==", data.user_id)
+      .get();
+    const walletData =
+      wallet.empty == false
+        ? wallet.docs[0]
+        : await firestore
+            .collection("wallet")
+            .add({
+              balance: 0,
+              user_id: data.user_id,
+            })
+            .then((wallet) => {
+              return wallet;
+            })
+            .catch((error) => {
+              res.status(500).json({
+                message: `Error while create wallet: ${error.toString()}`,
+                status: 500,
+              });
+              return null;
+            });
+    const url = "https://api.sandbox.midtrans.com/v2/charge"
     var payload;
-    if(data.payment_type == "bank_transfer"){
-      payload = {
-        "payment_type" : "bank_transfer",
-        "transaction_details" : {
-          "order_id" : uuid(),
-          "gross_amount" : 150000
-        },
-        "bank_transfer" : {
-          "bank" : data.bank
-        }
-      }
-    }else if(data.payment_type == "gopay"){
+    if(data.payment_type == "gopay"){
       payload = {
         "payment_type": "gopay",
         "transaction_details": {
@@ -28,10 +40,44 @@ export const topup2 = async(req, res) => {
           "gross_amount": 150000,
         },
         "gopay": {
-          "enable_callback" : true,
-          "callback_url": "https://ayonunut.com/api/v1/handle-topup"
+          "enable_callback": true,
+          "callback_url": "https://ayonunut.com/api/v1/handle-topup",
+        },
+      };
+    }else if(data.payment_type == "bank_transfer"){
+      payload = {
+        "payment_type": data.payment_type,
+        "transaction_details": {
+          "order_id": uuid(),
+          "gross_amount": data.gross_amount,
+        },
+        "bank_transfer": {
+          "bank": data.bank,
+        },
+      };
+      console.debug(JSON.stringify(payload));
+    }else if(data.payment_type == "echannel"){
+      payload = {
+        "payment_type": data.payment_type,
+        "transaction_details": {
+          "order_id": uuid(),
+          "gross_amount": data.gross_amount,
+        },
+        "echannel": {
+          "bill_info1": "AYONUNUT",
+          "bill_info2": "Topup",
+        },
+      };
+    }
+    else if(data.payment_type == "permata"){
+      payload = {
+        "payment_type": data.payment_type,
+        "transaction_details": {
+          "order_id": uuid(),
+          "gross_amount": data.gross_amount,
         }
       };
+      console.debug(JSON.stringify(payload));
     }else{
       res.status(400).json({
         message: "Payment type not supported",
@@ -43,13 +89,12 @@ export const topup2 = async(req, res) => {
     const options = {
       method: "POST",
       headers: {
-        "Accept" : "application/json",
+        "Accept": "application/json",
         "Content-Type": "application/json",
-        "Content-Length": JSON.stringify(payload).length,
-        "Authorization" : btoa("SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR" + ":")
+        "Authorization": "Basic " + Buffer.from("SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:", "utf8").toString("base64"),
       },
       timeout: 10000,
-    }
+    };
     const post = new Promise ((resolve, reject) => {
       const request = https.request(url, options, (res) => {
         if(res.statusCode < 200 || res.statusCode > 299){
@@ -74,15 +119,31 @@ export const topup2 = async(req, res) => {
     })
     post.then(
       function(value){
-        res.status(200).json({
-          message: "Transaction created",
-          data: JSON.parse(value),
-          status: 200
+        firestore.collection("transaction").doc(JSON.parse(value).order_id).set({
+          amount: parseInt(JSON.parse(value).gross_amount),
+          status: JSON.parse(value).transaction_status,
+          method: JSON.parse(value).payment_type,
+          order_id: JSON.parse(value).order_id,
+          transaction_id: JSON.parse(value).transaction_id,
+          type: "topup",
+          wallet_id: walletData.id,
+          transaction_time: new Date(JSON.parse(value).transaction_time),
+        }).then(() => {   
+          res.status(200).json({
+            message: "Transaction created",
+            data: JSON.parse(value),
+            status: 200,
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            message: "Transaction failed: " + error.toString(),
+            status: 400,
+          })
         })
       },
       function(error){
         res.status(500).json({
-          message: "Transaction failed: ",
+          message: "Transaction failed: " + error.toString(),
           status: 400
         })
       }
@@ -187,36 +248,50 @@ export const handleTopup = async (req, res) => {
         status: 404,
       })
       return
-    }else if(transaction.data().status == "success"){
+    }else if(transaction.data().status == "settlement"){
       res.status(403).json({
-        message: "Transaction already success",
+        message: "Transaction already settlement",
         status: 403,
       });
       return
     }
-    const wallet = await firestore.collection("wallet").doc(transaction.data().wallet_id).get();
-    if (wallet.empty) {
-      res.status(404).json({
-        message: "No wallet record found",
-        status: 404,
-      })
-      return
+
+    if(data.transaction_status == "settlement"){
+      const wallet = await firestore
+        .collection("wallet")
+        .doc(transaction.data().wallet_id)
+        .get();
+      if (wallet.empty) {
+        res.status(404).json({
+          message: "No wallet record found",
+          status: 404,
+        });
+        return;
+      }
+      const walletData = wallet.data();
+      const balance = walletData.balance + transaction.data().amount;
+      await transaction.ref.update({
+        status: "settlement",
+        method: data.payment_type,
+      });
+      await wallet.ref.update({
+        balance: balance,
+      });
+      res.status(200).json({
+        message: "Topup successfuly",
+        status: 200,
+      });
+    }else{
+      await transaction.ref.update({
+        status: data.transaction_status,
+        method: data.payment_type,
+      });
+      res.status(200).json({
+        message: "Topup is on " + data.transaction_status,
+        status: 200,
+      });
     }
-    const walletData = wallet.data()
-    const balance = walletData.balance + transaction.data().amount;
-    await transaction.ref.update({
-      status: "success",
-      method: data.payment_type,
-    });
-    await wallet.ref.update({
-      balance: balance,
-    });
-    res.status(200).json({
-      message: "Topup successfuly",
-      status: 200,
-    });
   } catch (error) {
-    console.log(error.toString())
     res.status(500).json({
       message: `Error while topup: ${error.toString()}`,
       status: 500,
