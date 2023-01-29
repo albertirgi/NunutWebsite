@@ -44,7 +44,7 @@ export const topup2 = async(req, res) => {
           "callback_url": "https://ayonunut.com/api/v1/handle-topup",
         },
       };
-    }else if(data.payment_type == "bank_transfer"){
+    }else if(data.payment_type == "bank_transfer" && (data.bank == "bca" || data.bank == "bni" || data.bank == "bri" || data.bank == "mandiri")){
       payload = {
         "payment_type": data.payment_type,
         "transaction_details": {
@@ -55,7 +55,6 @@ export const topup2 = async(req, res) => {
           "bank": data.bank,
         },
       };
-      console.debug(JSON.stringify(payload));
     }else if(data.payment_type == "echannel"){
       payload = {
         "payment_type": data.payment_type,
@@ -77,7 +76,6 @@ export const topup2 = async(req, res) => {
           "gross_amount": data.gross_amount,
         }
       };
-      console.debug(JSON.stringify(payload));
     }else{
       res.status(400).json({
         message: "Payment type not supported",
@@ -119,27 +117,39 @@ export const topup2 = async(req, res) => {
     })
     post.then(
       function(value){
-        firestore.collection("transaction").doc(JSON.parse(value).order_id).set({
-          amount: parseInt(JSON.parse(value).gross_amount),
-          status: JSON.parse(value).transaction_status,
-          method: JSON.parse(value).payment_type,
-          order_id: JSON.parse(value).order_id,
-          transaction_id: JSON.parse(value).transaction_id,
-          type: "topup",
-          wallet_id: walletData.id,
-          transaction_time: new Date(JSON.parse(value).transaction_time),
-        }).then(() => {   
-          res.status(200).json({
-            message: "Transaction created",
-            data: JSON.parse(value),
-            status: 200,
-          });
-        }).catch((error) => {
+        if(JSON.parse(value).status_code != "201"){
           res.status(500).json({
-            message: "Transaction failed: " + error.toString(),
-            status: 400,
+            message: "Transaction failed: " + JSON.parse(value).status_message,
+            status: 400
           })
-        })
+          return
+        }
+        firestore
+          .collection("transaction")
+          .doc(payload.transaction_details.order_id)
+          .set({
+            amount: parseInt(payload.transaction_details.gross_amount),
+            status: JSON.parse(value).transaction_status,
+            method: payload.payment_type,
+            order_id: JSON.parse(value).order_id,
+            transaction_id: JSON.parse(value).transaction_id,
+            type: "topup",
+            wallet_id: walletData.id,
+            transaction_time: new Date(JSON.parse(value).transaction_time),
+          })
+          .then(() => {
+            res.status(200).json({
+              message: "Transaction created",
+              data: JSON.parse(value),
+              status: 200,
+            });
+          })
+          .catch((error) => {
+            res.status(500).json({
+              message: "Transaction failed: " + error.toString(),
+              status: 400,
+            });
+          });
       },
       function(error){
         res.status(500).json({
@@ -159,7 +169,6 @@ export const topup2 = async(req, res) => {
 export const topup = async (req, res) => {
   try {
     const data = req.body;
-    console.log(`data: ${data.toString()}`)
     const wallet = await firestore.collection("wallet").where("user_id", "==", data.user_id).get();
     const walletData =
       wallet.empty == false
@@ -239,7 +248,6 @@ export const topup = async (req, res) => {
 
 export const handleTopup = async (req, res) => {
   try {
-    console.log(`data: ${JSON.stringify(req.body)}`)
     const data = req.body;
     const transaction = await firestore.collection("transaction").doc(data.order_id).get();
     if (transaction.empty) {
