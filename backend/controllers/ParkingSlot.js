@@ -90,7 +90,13 @@ export const getAllParkingSlots = async (req, res) => {
               doc.data().title,
               doc.data().status
             );
-            parkingSlotArray.push(parkingSlot);
+            if(req.query.parking_building !== undefined && req.query.parking_building != ""){
+              if(parkingSlot.parking_building_id.parking_building_id == req.query.parking_building){
+                parkingSlotArray.push(parkingSlot);
+              }
+            }else{  
+              parkingSlotArray.push(parkingSlot);
+            }
           }
         }else{
           const parkingSlot = new ParkingSlot(
@@ -108,7 +114,19 @@ export const getAllParkingSlots = async (req, res) => {
             doc.data().title,
             doc.data().status
           );
-          parkingSlotArray.push(parkingSlot);
+          if (
+            req.query.parking_building !== undefined &&
+            req.query.parking_building != ""
+          ) {
+            if (
+              parkingSlot.parking_building_id.parking_building_id ==
+              req.query.parking_building
+            ) {
+              parkingSlotArray.push(parkingSlot);
+            }
+          } else {
+            parkingSlotArray.push(parkingSlot);
+          }
         }
       })
       res.status(200).json({
