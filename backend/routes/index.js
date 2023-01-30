@@ -17,7 +17,15 @@ import { storeReport, getAllReports, getReportById, updateReport, destroyReport 
 import { storeNotification, getAllNotifications, getNotificationById, updateNotification, destroyNotification } from '../controllers/Notification.js';
 import { storeParkingSlot, getAllParkingSlots, getParkingSlotById, updateParkingSlot, destroyParkingSlot } from '../controllers/ParkingSlot.js';
 import { storeParkingRequest, getAllParkingRequests, getParkingRequestById, updateParkingRequest, destroyParkingRequest } from '../controllers/ParkingRequest.js';
-import { storeBookmark, getAllBookmarks, getBookmarkById, getBookmarkByUserId, updateBookmark, destroyBookmark } from '../controllers/Bookmark.js';
+import {
+  storeBookmark,
+  getAllBookmarks,
+  getBookmarkById,
+  getBookmarkByUserId,
+  updateBookmark,
+  destroyBookmark,
+  destroyBookmarkByRideScheduleIdandUserId,
+} from "../controllers/Bookmark.js";
 import { storeParkingPlace, getAllParkingPlaces, getParkingPlaceById, updateParkingPlace, destroyParkingPlace } from '../controllers/ParkingPlace.js';
 import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, updateParkingBuilding, destroyParkingBuilding } from '../controllers/ParkingBuilding.js';
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
@@ -122,6 +130,7 @@ router.get('/bookmark/:id', getBookmarkById);
 router.get('/bookmark/user/:id', getBookmarkByUserId);
 router.put('/bookmark/:id', updateBookmark);
 router.delete('/bookmark/:id', destroyBookmark);
+router.delete('/bookmark', destroyBookmarkByRideScheduleIdandUserId);
 router.post('/wallet', storeWallet);
 router.get('/wallet', getAllWallets);
 router.get('/wallet/:id', getWalletById);
