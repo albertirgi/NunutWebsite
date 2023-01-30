@@ -1,6 +1,7 @@
 import ParkingBuilding from "../models/parkingBuildingModel.js";
 import jwt from "jsonwebtoken";
 import { db } from "../config/db.js";
+import ParkingSlot from "../models/parkingSlotModel.js";
 let token = null;
 const firestore = db.firestore();
 
@@ -25,6 +26,13 @@ export const getAllParkingBuildings = async (req, res) => {
     const data = await firestore.collection("parking_building").get();
     const parkingBuildingArray = [];
     const parkingPlace = await firestore.collection("parking_place").get();
+    const parkingSlot = await firestore.collection("parking_slot").get();
+    const parkingSlotArray = req.query.parking_slot !== undefined ? parkingSlot.docs.map(doc => {
+      return {
+        parking_slot_id: doc.id,
+        ...doc.data(),
+      };
+    }) : null;
     const parkingPlaceArray = req.query.parking_place !== undefined ? parkingPlace.docs.map(doc => {
       return {
         parking_place_id: doc.id,
@@ -46,9 +54,12 @@ export const getAllParkingBuildings = async (req, res) => {
                 (parkingPlace) =>
                   parkingPlace.parking_place_id === doc.data().parking_place_id
               )
-            : doc.data().parking_place_id
+            : doc.data().parking_place_id,
         );
-        parkingBuildingArray.push(parkingBuilding);
+        parkingBuildingArray.push({
+          ...parkingBuilding,
+          parkingSlot: parkingSlotArray != null ? parkingSlotArray.filter((parkingSlot) => parkingSlot.parking_building_id === doc.id) : null
+        });
       });
       res.status(200).send({
         message: "Parking building data retrieved successfuly",
