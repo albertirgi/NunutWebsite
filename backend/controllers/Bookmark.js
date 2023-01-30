@@ -249,3 +249,30 @@ export const destroyBookmark = async (req, res) => {
     })
   }
 }
+
+export const destroyBookmarkByRideScheduleIdandUserId = async (req, res) => {
+  try{
+    const rideScheduleId = req.query.ride_schedule
+    const userId = req.query.user
+    const data = await firestore.collection('bookmark').where('ride_schedule_id', '==', rideScheduleId).where('user_id', '==', userId).get()
+    if(data.empty){
+      res.status(404).json({
+        message: 'No bookmark record found',
+        status: 404,
+      })
+    }else{
+      data.forEach(doc => {
+        doc.ref.delete()
+      })
+      res.status(200).json({
+        message: 'Bookmark deleted successfuly',
+        status: 200
+      })
+    }
+  }catch (error) {
+    res.status(400).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 400
+    })
+  }
+}
