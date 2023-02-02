@@ -30,7 +30,7 @@ import { storeParkingPlace, getAllParkingPlaces, getParkingPlaceById, updatePark
 import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, updateParkingBuilding, destroyParkingBuilding } from '../controllers/ParkingBuilding.js';
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
-import { topup, handleTopup, topup2 } from '../controllers/Midtrans.js';
+import { topup, handleTopup, topup2, getTransaction } from '../controllers/Midtrans.js';
 import { storeMap, getAllMaps, getMapById, updateMap, destroyMap } from '../controllers/Map.js';
 import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
@@ -141,7 +141,7 @@ router.get('/transaction', getAllTransactions);
 router.get('/transaction/:id', getTransactionById);
 router.put('/transaction/:id', updateTransaction);
 router.delete('/transaction/:id', destroyTransaction);
-router.post('/topup', topup2);
+router.post('/topup', topup);
 router.post('/handle-topup', handleTopup);
 router.get('/map', getAllMaps);
 router.get('/map/:id', getMapById);
@@ -163,5 +163,6 @@ router.get('/vehicle-type/:id', getVehicleType);
 router.post('/vehicle-type', storeVehicleType);
 router.put('/vehicle-type/:id', updateVehicleType);
 router.delete('/vehicle-type/:id', deleteVehicleType);
+router.get('/get-transaction', getTransaction);
 
 export default router;
