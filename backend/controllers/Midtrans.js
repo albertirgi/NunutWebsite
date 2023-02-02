@@ -306,3 +306,27 @@ export const handleTopup = async (req, res) => {
     });
   }
 }
+
+export const getTransaction = async (req, res) => {
+  try {
+    const data = req.body;
+    const transaction = await firestore.collection("transaction").doc(data.order_id).get();
+    if (transaction.empty) {
+      res.status(404).json({
+        message: "No transaction record found",
+        status: 404,
+      })
+      return
+    }
+    res.status(200).json({
+      message: "Transaction record found",
+      status: 200,
+      data: transaction.data(),
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: `Error while get transaction: ${error.toString()}`,
+      status: 500,
+    });
+  }
+}
