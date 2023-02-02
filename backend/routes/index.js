@@ -163,6 +163,6 @@ router.get('/vehicle-type/:id', getVehicleType);
 router.post('/vehicle-type', storeVehicleType);
 router.put('/vehicle-type/:id', updateVehicleType);
 router.delete('/vehicle-type/:id', deleteVehicleType);
-router.get('/get-transaction', getTransaction);
+router.post('/get-transaction', getTransaction);
 
 export default router;
