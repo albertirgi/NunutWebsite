@@ -141,7 +141,7 @@ router.get('/transaction', getAllTransactions);
 router.get('/transaction/:id', getTransactionById);
 router.put('/transaction/:id', updateTransaction);
 router.delete('/transaction/:id', destroyTransaction);
-router.post('/topup', topup);
+router.post('/topup', topup2);
 router.post('/handle-topup', handleTopup);
 router.get('/map', getAllMaps);
 router.get('/map/:id', getMapById);
