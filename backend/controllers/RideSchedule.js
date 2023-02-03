@@ -24,7 +24,7 @@ export const storeRideSchedule = async (req, res) => {
 export const getAllRideSchedules = async (req, res) => {
   try{
     const data = await firestore.collection('ride_schedule').get()
-    const rideScheduleArray = []
+    var rideScheduleArray = []
     const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmark').where('user_id', '==', req.query.user).get() : null) : null
     const bookmarkArray = bookmark != null ? bookmark.docs.map(doc => {
       return {
@@ -87,6 +87,12 @@ export const getAllRideSchedules = async (req, res) => {
           rideScheduleArray.push(rideSchedule)
         }
       })
+
+      if(req.query.driver !== undefined && req.query.driver != ""){
+        rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
+          return rideSchedule.driver_id.driver_id == req.query.driver
+        })
+      }
 
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
