@@ -225,3 +225,84 @@ export const destroyRideSchedule = async (req, res) => {
     })
   }
 }
+
+export const getRideScheduleByList = async (req, res) => {
+  try{
+    const num = req.params.num
+    const data = await firestore.collection('ride_schedule').get()
+    const rideScheduleArray = []
+    const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmark').where('user_id', '==', req.query.user).get() : null) : null
+    const bookmarkArray = bookmark != null ? bookmark.docs.map(doc => {
+      return {
+        bookmark_id: doc.id,
+        ...doc.data()
+      }
+    }) : null
+    const driver = await firestore.collection('driver').get()
+    const driverArray = req.query.driver !== undefined ? driver.docs.map((doc) => {
+      return {
+        driver_id: doc.id,
+        ...doc.data()
+      }
+    }) : null
+    const vehicle = await firestore.collection('vehicle').get()
+    const vehicleArray = req.query.vehicle !== undefined ? vehicle.docs.map(doc => {
+      return {
+        vehicle_id: doc.id,
+        ...doc.data()
+      }
+    }) : null
+    if(data.empty){
+      res.status(404).json({
+        message: 'No ride schedule record found',
+        status: 404
+      })
+    }else{
+      data.forEach(doc => {
+        const rideSchedule = new RideSchedule(
+          doc.id,
+          doc.data().date,
+          doc.data().time,
+          doc.data().meeting_point,
+          doc.data().destination,
+          doc.data().note,
+          doc.data().price,
+          req.query.driver !== undefined
+            ? driverArray.find((driver) => {
+                return driver.driver_id == doc.data().driver_id;
+              })
+            : doc.data().driver_id,
+          req.query.vehicle !== undefined
+            ? vehicleArray.find((vehicle) => {
+                return vehicle.vehicle_id == doc.data().vehicle_id;
+              })
+            : doc.data().vehicle_id,
+          doc.data().capacity,
+          doc.data().is_active
+        );
+        if(bookmark != null){
+          const modifiedRideSchedule = {
+            ...rideSchedule,
+            is_bookmarked: bookmarkArray.find(bookmark => {
+              return bookmark.ride_schedule_id == rideSchedule.ride_schedule_id
+            }) != undefined ? true : false
+          }
+          rideScheduleArray.push(modifiedRideSchedule)
+        }else{
+          rideScheduleArray.push(rideSchedule)
+        }
+      })
+
+      res.status(200).json({
+        message: 'Ride schedule data retrieved successfuly',
+        data: rideScheduleArray.splice(0+((num-1)*10), (num*10)),
+        status: 200 
+      })
+    }
+  }catch(error) {
+    res.status(500).json({
+      message: "Something went wrong while fetching data: " + error.toString(),
+      status: 500
+    })
+  }
+}
