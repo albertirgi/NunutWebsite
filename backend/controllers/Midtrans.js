@@ -370,7 +370,10 @@ export const getWalletBalance = async (req, res) => {
     res.status(200).json({
       message: "Wallet record found",
       status: 200,
-      data: walletData,
+      data: {
+        id: wallet.docs[0].id,
+        ...walletData,
+      },
     });
   } catch (error) {
     res.status(500).json({
