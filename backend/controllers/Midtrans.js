@@ -330,3 +330,52 @@ export const getTransaction = async (req, res) => {
     });
   }
 }
+
+export const getTransactionByWallet = async (req, res) => {
+  try {
+    const data = req.body;
+    const transaction = await firestore.collection("transaction").where("wallet_id", "==", data.wallet_id).get();
+    if (transaction.empty) {
+      res.status(404).json({
+        message: "No transaction record found",
+        status: 404,
+      })
+      return
+    }
+    res.status(200).json({
+      message: "Transaction record found",
+      status: 200,
+      data: transaction.docs.map((doc) => doc.data()),
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: `Error while get transaction: ${error.toString()}`,
+      status: 500,
+    });
+  }
+}
+
+export const getWalletBalance = async (req, res) => {
+  try {
+    const data = req.body;
+    const wallet = await firestore.collection("wallet").where("user_id", "==", data.user_id).get();
+    if (wallet.empty) {
+      res.status(404).json({
+        message: "No wallet record found",
+        status: 404,
+      });
+      return;
+    }
+    const walletData = wallet.docs[0].data();
+    res.status(200).json({
+      message: "Wallet record found",
+      status: 200,
+      data: walletData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: `Error while get wallet: ${error.toString()}`,
+      status: 500,
+    });
+  }
+}
