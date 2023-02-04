@@ -197,6 +197,66 @@ export const getAllDrivers = async (req, res) => {
   }
 }
 
+export const getDriverByUserId = async (req, res) => {
+  try{
+    const user_id = req.params.id
+    const vehicle = await firestore.collection("vehicle").get();
+    const vehicleArray = vehicle.docs.map((doc) => {
+      return {
+        vehicle_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    const user = await firestore.collection("users").doc(user_id).get();
+    const userData = {
+      user_id: user.id,
+      ...user.data(),
+    }
+    const data = await firestore
+      .collection("driver")
+      .where("user_id", "==", user_id)
+      .get();
+    const driverData = data.docs[0];
+    if (driverData == undefined) {
+      res.status(404).json({
+        message: `Driver with the given User ID ${user_id} not found`,
+        status: 404,
+      });
+    } else {
+      const driver = {
+        driver_id: driverData.id,
+        name: driverData.data().name,
+        email: driverData.data().email,
+        nik: driverData.data().nik,
+        phone: driverData.data().phone,
+        student_card: driverData.data().student_card,
+        driving_license: driverData.data().driving_license,
+        aggrement_letter: driverData.data().aggrement_letter,
+        user_id: userData,
+        status: driverData.data().status,
+        message: driverData.data().message ? driverData.data().message : "",
+        image: driverData.data().image,
+        vehicle_id: vehicleArray.filter((vehicle) => {
+          if (driverData.id == vehicle.driver_id) {
+            return vehicle;
+          }
+        }),
+      };
+
+      res.status(200).json({
+        message: "Driver data retrieved successfuly",
+        data: driver,
+        status: 200,
+      });
+    }
+  }catch(error){
+    res.status(500).json({
+      message: "Error while fetching data: " + error.toString(),
+      status: 500,
+    })
+  }
+}
+
 export const getDriverById = async (req, res) => {
   try{
     const vehicle = await firestore.collection("vehicle").get();

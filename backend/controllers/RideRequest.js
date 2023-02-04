@@ -37,7 +37,7 @@ export const getAllRideRequests = async (req, res) => {
       };
     }) : null;
     const data = await firestore.collection('ride_request').get();
-    const rideRequestArray = [];
+    var rideRequestArray = [];
     if (data.empty) {
       res.status(404).json({
         message: 'No ride request record found',
@@ -57,6 +57,11 @@ export const getAllRideRequests = async (req, res) => {
         );
         rideRequestArray.push(rideRequest);
       });
+      if(req.query.ride_schedule !== undefined && req.query.ride_schedule !== "") {
+        rideRequestArray = rideRequestArray.filter((rideRequest) => {
+          return rideRequest.ride_schedule_id.ride_schedule_id == req.query.ride_schedule;
+        });
+      }
       res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: rideRequestArray,
