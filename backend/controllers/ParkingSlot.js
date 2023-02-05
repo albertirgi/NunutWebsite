@@ -194,10 +194,20 @@ export const updateParkingSlot = async (req, res) => {
     const id = req.params.id
     const data = req.body
     const parkingSlot = await firestore.collection('parking_slot').doc(id).get()
+    if(!parkingSlot.exists){
+      res.status(404).json({
+        message: 'Parking slot with the given ID not found',
+        status: 404
+      })
+      return
+    }
     const parkingSlotData = parkingSlot.data()
     const image = req.file;
     // Upload image to storage
     const imagePromise = new Promise((resolve, reject) => {
+      if(image === undefined){
+        resolve(parkingSlotData.image)
+      }
       const fileNameImage = uuid() + image.originalname;
       const file = storage.file(fileNameImage);
       file.save(image.buffer, { contentType: image.mimetype }, function (err) {
@@ -210,7 +220,7 @@ export const updateParkingSlot = async (req, res) => {
         }
       });
     });
-    const imageUrl = await imagePromise;
+    const imageUrl = image === undefined ? parkingSlotData.image : await imagePromise;
     await firestore.collection("parking_slot").doc(id).set({
       parking_building_id: data.parking_building_id ? data.parking_building_id : parkingSlotData.parking_building_id,
       instruction: data.instruction ? data.instruction : parkingSlotData.instruction,
