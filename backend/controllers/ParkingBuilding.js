@@ -24,7 +24,7 @@ export const storeParkingBuilding = async (req, res) => {
 export const getAllParkingBuildings = async (req, res) => {
   try {
     const data = await firestore.collection("parking_building").get();
-    const parkingBuildingArray = [];
+    var parkingBuildingArray = [];
     const parkingPlace = await firestore.collection("parking_place").get();
     const parkingSlot = await firestore.collection("parking_slot").get();
     const parkingSlotArray = req.query.parking_slot !== undefined ? parkingSlot.docs.map(doc => {
@@ -61,6 +61,9 @@ export const getAllParkingBuildings = async (req, res) => {
           parkingSlot: parkingSlotArray != null ? parkingSlotArray.filter((parkingSlot) => parkingSlot.parking_building_id === doc.id) : null
         });
       });
+      if(req.query.parking_place !== undefined && req.query.parking_place != "") {
+        parkingBuildingArray = parkingBuildingArray.filter((parkingBuilding) => parkingBuilding.parking_place_id.parking_place_id === req.query.parking_place);
+      }
       res.status(200).send({
         message: "Parking building data retrieved successfuly",
         data: parkingBuildingArray,
