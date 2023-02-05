@@ -96,6 +96,35 @@ export const getParkingRequestById = async (req, res) => {
   }
 }
 
+export const getParkingRequestByRideScheduleId = async (req, res) => {
+  try{
+    const rideScheduleId = req.params.id
+    const data = await firestore.collection('parking_requests').where('ride_schedule_id', '==', rideScheduleId).get()
+    const parkingRequestData = data.docs[0]
+    if(!parkingRequestData){
+      res.status(404).json({
+        message: 'Parking request with the given ride schedule ID not found',
+        status: 404
+      })
+    }
+    else{
+      res.status(200).json({
+        message: 'Parking request data retrieved successfuly',
+        data: {
+          parking_request_id: parkingRequestData.id,
+          ...parkingRequestData.data()
+        },
+        status: 200
+      })
+    }
+  }catch(error){
+    res.status(500).json({
+      message: 'Something went wrong while fetching data: ' + error.toString(),
+      status: 500
+    })
+  }
+}
+
 export const updateParkingRequest = async (req, res) => {
   try{
     const id = req.params.id

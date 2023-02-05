@@ -16,7 +16,7 @@ import { storeUserVoucher, getAllUserVouchers, getUserVoucherById, updateUserVou
 import { storeReport, getAllReports, getReportById, updateReport, destroyReport } from '../controllers/Report.js';
 import { storeNotification, getAllNotifications, getNotificationById, updateNotification, destroyNotification } from '../controllers/Notification.js';
 import { storeParkingSlot, getAllParkingSlots, getParkingSlotById, updateParkingSlot, destroyParkingSlot } from '../controllers/ParkingSlot.js';
-import { storeParkingRequest, getAllParkingRequests, getParkingRequestById, updateParkingRequest, destroyParkingRequest } from '../controllers/ParkingRequest.js';
+import { storeParkingRequest, getAllParkingRequests, getParkingRequestById, getParkingRequestByRideScheduleId, updateParkingRequest, destroyParkingRequest } from '../controllers/ParkingRequest.js';
 import {
   storeBookmark,
   getAllBookmarks,
@@ -125,6 +125,10 @@ router.delete('/parking-slot/:id', destroyParkingSlot);
 router.post('/parking-request', storeParkingRequest);
 router.get('/parking-request', getAllParkingRequests);
 router.get('/parking-request/:id', getParkingRequestById);
+router.get(
+  "/parking-request/ride-schedule/:id",
+  getParkingRequestByRideScheduleId
+);
 router.put('/parking-request/:id', updateParkingRequest);
 router.delete('/parking-request/:id', destroyParkingRequest);
 router.post('/bookmark', storeBookmark);
