@@ -52,6 +52,16 @@ export const getAllBookmarks = async (req, res) => {
             }
           })
         : null
+    const vehicle = await firestore.collection("vehicle").get();
+    const vehicleArray =
+      req.query.vehicle !== undefined
+        ? vehicle.docs.map(doc => {
+            return {
+              vehicle_id: doc.id,
+              ...doc.data(),
+            }
+          })
+        : null;
     if (data.empty) {
       res.status(404).json({
         message: 'No bookmark record found',
@@ -76,20 +86,35 @@ export const getAllBookmarks = async (req, res) => {
             : doc.data().user_id
         );
         if (req.query.ride_schedule !== undefined) {
+          const rideScheduleData = rideScheduleArray.find(
+            (rideSchedule) =>
+              rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
+          );
           const driverData = driver.docs.find(
             (driver) => driver.driver_id === doc.data().driver_id
           );
+          console.log(rideScheduleData)
           bookmarkArray.push({
             id: doc.id,
-          ride_schedule_id: req.query.ride_schedule !== undefined
-            ? rideScheduleArray.find(
-                (rideSchedule) =>
-                  rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
-              )
-            : doc.data().ride_schedule_id,
-          user_id: req.query.user !== undefined
-            ? userArray.find((user) => user.user_id === doc.data().user_id)
-            : doc.data().user_id,
+            ride_schedule_id:
+              req.query.ride_schedule !== undefined
+                ? rideScheduleArray.find(
+                    (rideSchedule) =>
+                      rideSchedule.ride_schedule_id ===
+                      doc.data().ride_schedule_id
+                  )
+                : doc.data().ride_schedule_id,
+            vehicle_id:
+              req.query.vehicle !== undefined
+                ? vehicleArray.find(
+                    (vehicle) =>
+                      vehicle.vehicle_id === rideScheduleData.vehicle_id
+                  )
+                : rideScheduleData.vehicle_id,
+            user_id:
+              req.query.user !== undefined
+                ? userArray.find((user) => user.user_id === doc.data().user_id)
+                : doc.data().user_id,
             driver_id: {
               driver_id: driverData.id,
               ...driverData.data(),
