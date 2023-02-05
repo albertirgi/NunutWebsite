@@ -301,7 +301,7 @@ export const getRideScheduleByList = async (req, res) => {
 
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
-        data: rideScheduleArray.splice(0+((num-1)*10), (num*10)),
+        data: rideScheduleArray.slice(0+((num-1)*10), (num*10)),
         status: 200 
       })
     }
