@@ -130,7 +130,7 @@ export const storeDriver = async (req, res, err) => {
     }
   } catch (error) {
     res.status(400).json({
-      message: "Error occured while storing driver registration data: " + error.toString,
+      message: "Error occured while storing driver registration data: " + error.toString(),
       status: 400,
     })
   }
