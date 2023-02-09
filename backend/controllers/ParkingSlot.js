@@ -241,6 +241,27 @@ export const updateParkingSlot = async (req, res) => {
   }
 }
 
+export const updateParkingSlotStatus = async (req, res) => {
+  try {
+    firestore.collection('parking_slot').get().then((snapshot) => {
+      snapshot.forEach((doc) => {
+        firestore.collection('parking_slot').doc(doc.id).update({
+          status: false
+        })
+      })
+    })
+    res.status(200).json({
+      message: 'Parking slot status updated successfuly',
+      status: 200
+    })
+  } catch (error) {
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 500
+    })
+  }
+}
+
 export const destroyParkingSlot = async (req, res) => {
   try {
     const id = req.params.id
