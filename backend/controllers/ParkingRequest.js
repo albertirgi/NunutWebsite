@@ -131,6 +131,15 @@ export const updateParkingRequest = async (req, res) => {
     const data = req.body
     const parkingRequest = firestore.collection('parking_request').doc(id)
     await parkingRequest.update(data)
+    if(data.parking_slot_id !== undefined){
+      firestore.collection('parking_slot').get().then(snapshot => {
+        snapshot.forEach(doc => {
+          firestore.collection('parking_slot').doc(doc.id).update({
+              status: true
+            })
+        })
+      })
+    }
     await firestore.collection('parking_slot').doc(data.parking_slot_id).update({
       status: data.status === 'finished' ? true : false
     })

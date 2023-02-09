@@ -15,7 +15,7 @@ import { storeVoucher, getAllVouchers, getVoucherById, updateVoucher, destroyVou
 import { storeUserVoucher, getAllUserVouchers, getUserVoucherById, updateUserVoucher, destroyUserVoucher } from '../controllers/UserVoucher.js';
 import { storeReport, getAllReports, getReportById, updateReport, destroyReport } from '../controllers/Report.js';
 import { storeNotification, getAllNotifications, getNotificationById, updateNotification, destroyNotification } from '../controllers/Notification.js';
-import { storeParkingSlot, getAllParkingSlots, getParkingSlotById, updateParkingSlot, destroyParkingSlot } from '../controllers/ParkingSlot.js';
+import { storeParkingSlot, getAllParkingSlots, getParkingSlotById, updateParkingSlot, destroyParkingSlot, updateParkingSlotStatus } from '../controllers/ParkingSlot.js';
 import { storeParkingRequest, getAllParkingRequests, getParkingRequestById, getParkingRequestByRideScheduleId, updateParkingRequest, destroyParkingRequest } from '../controllers/ParkingRequest.js';
 import {
   storeBookmark,
@@ -121,6 +121,7 @@ router.post('/parking-slot', upload.single("image"), storeParkingSlot);
 router.get('/parking-slot', getAllParkingSlots);
 router.get('/parking-slot/:id', getParkingSlotById);
 router.put('/parking-slot/:id', upload.single("image"), updateParkingSlot);
+router.put('/parking-slot/update/all', updateParkingSlotStatus);
 router.delete('/parking-slot/:id', destroyParkingSlot);
 router.post('/parking-request', storeParkingRequest);
 router.get('/parking-request', getAllParkingRequests);
