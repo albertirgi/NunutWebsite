@@ -91,9 +91,8 @@ export const getAllBookmarks = async (req, res) => {
               rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
           );
           const driverData = driver.docs.find(
-            (driver) => driver.driver_id === doc.data().driver_id
+            (driver) => driver.driver_id === rideScheduleData.driver_id
           );
-          console.log(rideScheduleData)
           bookmarkArray.push({
             id: doc.id,
             ride_schedule_id:
