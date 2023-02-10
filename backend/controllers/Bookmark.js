@@ -38,7 +38,8 @@ export const getAllBookmarks = async (req, res) => {
               vehicle_id: doc.data().vehicle_id,
               price: doc.data().price,
               is_active: doc.data().is_active,
-              note: doc.data().note
+              note: doc.data().note,
+              driver_id: doc.data().driver_id,
             }
           })
         : null
@@ -90,7 +91,14 @@ export const getAllBookmarks = async (req, res) => {
             (rideSchedule) =>
               rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
           );
-          const driverData = driver.docs.find(
+          console.log(rideScheduleData);
+          const driverArray = driver.docs.map((doc) => {
+            return {
+              driver_id: doc.id,
+              ...doc.data(),
+            };
+          });
+          const driverData = driverArray.find(
             (driver) => driver.driver_id === rideScheduleData.driver_id
           );
           bookmarkArray.push({
@@ -115,8 +123,8 @@ export const getAllBookmarks = async (req, res) => {
                 ? userArray.find((user) => user.user_id === doc.data().user_id)
                 : doc.data().user_id,
             driver_id: {
-              driver_id: driverData.id,
-              ...driverData.data(),
+              driver_id: driverData.driver_id,
+              ...driverData,
             },
           });
         } else {
