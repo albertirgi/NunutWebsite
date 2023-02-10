@@ -90,8 +90,8 @@ export const getAllRideSchedules = async (req, res) => {
 
       if(req.query.time !== undefined && req.query.time != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-          const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time);
-          const queryTime = new Date(req.query.time);
+          const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + " GMT+07:00");
+          const queryTime = new Date(parseInt(req.query.time));
           return rideScheduleTime.getTime() == queryTime.getTime();
         })
         if(rideScheduleArray.length == 0){
@@ -105,7 +105,9 @@ export const getAllRideSchedules = async (req, res) => {
 
       if(req.query.meeting_point !== undefined && req.query.meeting_point != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-          return rideSchedule.meeting_point.toLowerCase().includes(req.query.meeting_point.toLowerCase())
+	  const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g,'');
+	  const queryMeetingPoint = req.query.meeting_point.toLowerCase();
+	  return rideScheduleMeetingPoint.includes(queryMeetingPoint)
         })
         if(rideScheduleArray.length == 0){
           res.status(404).json({
@@ -118,7 +120,8 @@ export const getAllRideSchedules = async (req, res) => {
 
       if(req.query.destination !== undefined && req.query.destination != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-          return rideSchedule.destination.toLowerCase().includes(req.query.destination.toLowerCase())
+	  const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
+          return rideScheduleDestination.includes(req.query.destination.toLowerCase())
         })
         if(rideScheduleArray.length == 0){
           res.status(404).json({
