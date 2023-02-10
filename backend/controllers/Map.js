@@ -102,6 +102,77 @@ export const getAllMaps = async (req, res) => {
   }
 }
 
+export const getAllMapsByList = async (req, res) => {
+  try {
+    const num = req.params.num;
+    const map = firestore.collection("map");
+    const data = await map.get();
+    const mapArray = [];
+    if (data.empty) {
+      res.status(404).json({
+        message: "No map found",
+        status: 404,
+      });
+    } else {
+      data.forEach((doc) => {
+        const map = new Map(
+          doc.id,
+          doc.data().name,
+          doc.data().latitude,
+          doc.data().longitude
+        );
+        mapArray.push(map);
+      });
+      res.status(200).json({
+        message: "Map successfully retrieved",
+        data: mapArray.slice(0 + (num - 1) * 10, num * 10),
+        status: 200,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving map",
+      data: error.toString(),
+      status: 500,
+    });
+  }
+}
+
+export const getMapUKP = async (req, res) => {
+  try {
+    const map = firestore.collection("map");
+    const data = await map.get();
+    const mapArray = [];
+    if (data.empty) {
+      res.status(404).json({
+        message: "No map found",
+        status: 404,
+      });
+    } else {
+      data.forEach((doc) => {
+        const map = new Map(
+          doc.id,
+          doc.data().name,
+          doc.data().latitude,
+          doc.data().longitude
+        );
+        mapArray.push(map);
+      });
+      res.status(200).json({
+        message: "Map successfully retrieved",
+        data: mapArray.filter((item) => item.name.includes("Universitas Kristen Petra")),
+        status: 200,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: "Error retrieving map",
+      data: error.toString(),
+      status: 500,
+    });
+  }
+}
+
 export const getMapById = async (req, res) => {
   try {
     const id = req.params.id

@@ -31,7 +31,7 @@ import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, u
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
 import { topup, handleTopup, topup2, getTransaction, getTransactionByWallet, getWalletBalance } from '../controllers/Midtrans.js';
-import { storeMap, getAllMaps, getMapById, updateMap, destroyMap } from '../controllers/Map.js';
+import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByList, getMapUKP } from '../controllers/Map.js';
 import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
 import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
@@ -152,6 +152,8 @@ router.delete('/transaction/:id', destroyTransaction);
 router.post('/topup', topup2);
 router.post('/handle-topup', handleTopup);
 router.get('/map', getAllMaps);
+router.get('/map/list/:num', getAllMapsByList);
+router.get('/map-petra', getMapUKP);
 router.get('/map/:id', getMapById);
 router.post('/map', storeMap);
 router.put('/map/:id', updateMap);
