@@ -62,6 +62,11 @@ export const getAllRideRequests = async (req, res) => {
           return rideRequest.ride_schedule_id.ride_schedule_id == req.query.ride_schedule;
         });
       }
+      if(req.query.user !== undefined && req.query.user !== ""){
+        rideRequestArray = rideRequestArray.filter((rideRequest) => {
+          return rideRequest.user_id.user_id == req.query.user;
+        });
+      }
       res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: rideRequestArray,
