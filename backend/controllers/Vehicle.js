@@ -23,7 +23,7 @@ export const storeVehicle = async (req, res) => {
 export const getAllVehicles = async (req, res) => {
   try {
     const data = await firestore.collection('vehicle').get();
-    const vehicleArray = [];
+    var vehicleArray = [];
     const driver = await firestore.collection('driver').get();
     const driverArray = driver.docs.map(doc => {
       return {
@@ -54,6 +54,14 @@ export const getAllVehicles = async (req, res) => {
         );
         vehicleArray.push(vehicle);
       });
+      if (req.query.driver !== undefined && req.query.driver !== "") {
+        vehicleArray = vehicleArray.filter((vehicle) => {
+          if (vehicle.driver_id.driver_id == req.query.driver) {
+            return vehicle;
+          }
+        });
+      }
+      
       res.status(200).json({
         message: 'Vehicle data retrieved successfuly',
         data: vehicleArray,
