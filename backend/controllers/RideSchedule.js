@@ -340,6 +340,56 @@ export const getRideScheduleByList = async (req, res) => {
         }
       })
 
+      if (req.query.time !== undefined && req.query.time != "") {
+        rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+          const rideScheduleTime = new Date(
+            rideSchedule.date + " " + rideSchedule.time
+          );
+          const queryTime = new Date(req.query.time);
+          return rideScheduleTime.getTime() == queryTime.getTime();
+        });
+        if (rideScheduleArray.length == 0) {
+          res.status(404).json({
+            message: "No ride schedule record found: date and time not found",
+            status: 404,
+          });
+          return;
+        }
+      }
+
+      if (
+        req.query.meeting_point !== undefined &&
+        req.query.meeting_point != ""
+      ) {
+        rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+          return rideSchedule.meeting_point
+            .toLowerCase()
+            .includes(req.query.meeting_point.toLowerCase());
+        });
+        if (rideScheduleArray.length == 0) {
+          res.status(404).json({
+            message: "No ride schedule record found: meeting point not found",
+            status: 404,
+          });
+          return;
+        }
+      }
+
+      if (req.query.destination !== undefined && req.query.destination != "") {
+        rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+          return rideSchedule.destination
+            .toLowerCase()
+            .includes(req.query.destination.toLowerCase());
+        });
+        if (rideScheduleArray.length == 0) {
+          res.status(404).json({
+            message: "No ride schedule record found: destination not found",
+            status: 404,
+          });
+          return;
+        }
+      }
+
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray.slice(0+((num-1)*10), (num*10)),
