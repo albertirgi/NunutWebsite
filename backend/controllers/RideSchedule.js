@@ -75,7 +75,6 @@ export const getAllRideSchedules = async (req, res) => {
           doc.data().is_active
         );
         if(bookmark != null){
-          console.log(bookmarkArray)
           const modifiedRideSchedule = {
             ...rideSchedule,
             is_bookmarked: bookmarkArray.find(bookmark => {
@@ -91,7 +90,7 @@ export const getAllRideSchedules = async (req, res) => {
       if(req.query.time !== undefined && req.query.time != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
           const rideScheduleTime = new Date(rideSchedule.date);
-          const queryTime = new Date(req.query.time);
+          const queryTime = new Date(parseInt(req.query.time));
           return rideScheduleTime.getTime() == queryTime.getTime();
         })
         if(rideScheduleArray.length == 0){
@@ -348,7 +347,8 @@ export const getRideScheduleByList = async (req, res) => {
           const rideScheduleTime = new Date(
             rideSchedule.date
           );
-          const queryTime = new Date(req.query.time);
+          const queryTime = new Date(parseInt(req.query.time));
+          console.log(rideScheduleTime + " " + queryTime);
           return rideScheduleTime.getTime() == queryTime.getTime();
         });
         if (rideScheduleArray.length == 0) {
