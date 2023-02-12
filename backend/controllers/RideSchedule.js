@@ -90,8 +90,8 @@ export const getAllRideSchedules = async (req, res) => {
 
       if(req.query.time !== undefined && req.query.time != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-          const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + " GMT+07:00");
-          const queryTime = new Date(parseInt(req.query.time));
+          const rideScheduleTime = new Date(rideSchedule.date);
+          const queryTime = new Date(req.query.time);
           return rideScheduleTime.getTime() == queryTime.getTime();
         })
         if(rideScheduleArray.length == 0){
@@ -346,7 +346,7 @@ export const getRideScheduleByList = async (req, res) => {
       if (req.query.time !== undefined && req.query.time != "") {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
           const rideScheduleTime = new Date(
-            rideSchedule.date + " " + rideSchedule.time
+            rideSchedule.date
           );
           const queryTime = new Date(req.query.time);
           return rideScheduleTime.getTime() == queryTime.getTime();
