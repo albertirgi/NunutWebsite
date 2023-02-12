@@ -46,6 +46,28 @@ export const getAllRideSchedules = async (req, res) => {
         ...doc.data()
       }
     }) : null
+    const user = await firestore.collection("users").get();
+    const userArray = user.docs.map((doc) => {
+      return {
+        user_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    const rideRequest = await firestore.collection("ride_request").get();
+    const rideRequestArray =
+      req.query.ride_request !== undefined
+        ? rideRequest.docs.map((doc) => {
+            return {
+              ride_request_id: doc.id,
+              ride_schedule_id: doc.data().ride_schedule_id,
+              status_ride: doc.data().status_ride,
+              user_id: userArray.find((user) => {
+                return user.user_id == doc.data().user_id;
+              }),
+            };
+          })
+        : null;
+
     if(data.empty){
       res.status(404).json({
         message: 'No ride schedule record found',
@@ -74,6 +96,7 @@ export const getAllRideSchedules = async (req, res) => {
           doc.data().capacity,
           doc.data().is_active
         );
+
         if(bookmark != null){
           const modifiedRideSchedule = {
             ...rideSchedule,
@@ -86,6 +109,18 @@ export const getAllRideSchedules = async (req, res) => {
           rideScheduleArray.push(rideSchedule)
         }
       });
+
+      if(req.query.ride_request !== undefined) {
+        rideScheduleArray = rideScheduleArray.map(rideSchedule => {
+          const modifiedRideSchedule = {
+            ...rideSchedule,
+            ride_request_id: rideRequestArray.filter(rideRequest => {
+              return rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+            }),
+          }
+          return modifiedRideSchedule
+        });
+      }
 
       if(req.query.time !== undefined && req.query.time != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
@@ -193,6 +228,24 @@ export const getRideScheduleById = async (req, res) => {
           ...doc.data()
         }
       }) : null
+      const user = await firestore.collection('users').get()
+      const userArray = user.docs.map(doc => {
+        return {
+          user_id: doc.id,
+          ...doc.data()
+        }
+      })
+      const rideRequest = await firestore.collection('ride_request').get()
+      const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
+        return {
+          ride_request_id: doc.id,
+          ride_schedule_id: doc.data().ride_schedule_id,
+          status_ride: doc.data().status_ride,
+          user_id: userArray.find(user => {
+            return user.user_id == doc.data().user_id
+          }),
+        }
+      }) : null
       var rideSchedule = new RideSchedule(
         data.id,
         data.data().date,
@@ -227,6 +280,18 @@ export const getRideScheduleById = async (req, res) => {
         };
         rideSchedule = modifiedRideSchedule;
       }
+
+      if (req.query.ride_request !== undefined) {
+        rideSchedule = {
+          ...rideSchedule,
+          ride_request_id: rideRequestArray.filter((rideRequest) => {
+            return (
+              rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+            );
+          }),
+        };
+      }
+
       res.status(200).json({
         message: "Ride schedule data retrieved successfuly",
         data: rideSchedule,
@@ -301,6 +366,27 @@ export const getRideScheduleByList = async (req, res) => {
         ...doc.data()
       }
     }) : null
+    const user = await firestore.collection("users").get();
+    const userArray = user.docs.map((doc) => {
+      return {
+        user_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    const rideRequest = await firestore.collection("ride_request").get();
+    const rideRequestArray =
+      req.query.ride_request !== undefined
+        ? rideRequest.docs.map((doc) => {
+            return {
+              ride_request_id: doc.id,
+              ride_schedule_id: doc.data().ride_schedule_id,
+              status_ride: doc.data().status_ride,
+              user_id: userArray.find((user) => {
+                return user.user_id == doc.data().user_id;
+              }),
+            };
+          })
+        : null;
     if(data.empty){
       res.status(404).json({
         message: 'No ride schedule record found',
@@ -342,13 +428,26 @@ export const getRideScheduleByList = async (req, res) => {
         }
       })
 
+      if (req.query.ride_request !== undefined) {
+        rideScheduleArray = rideScheduleArray.map((rideSchedule) => {
+          const modifiedRideSchedule = {
+            ...rideSchedule,
+            ride_request_id: rideRequestArray.filter((rideRequest) => {
+              return (
+                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+              );
+            }),
+          };
+          return modifiedRideSchedule;
+        });
+      }
+
       if (req.query.time !== undefined && req.query.time != "") {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
           const rideScheduleTime = new Date(
             rideSchedule.date
           );
           const queryTime = new Date(parseInt(req.query.time));
-          console.log(rideScheduleTime + " " + queryTime);
           return rideScheduleTime.getTime() == queryTime.getTime();
         });
         if (rideScheduleArray.length == 0) {
