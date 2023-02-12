@@ -50,7 +50,7 @@ export const getAllRideRequests = async (req, res) => {
           req.query.ride_schedule !== undefined ? rideScheduleArray.find((rideSchedule) => {
             return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
           }) : doc.data().ride_schedule_id,
-          doc.data().status_payment,
+          doc.data().status_ride,
           req.query.user !== undefined ? userArray.find((user) => {
             return user.user_id == doc.data().user_id;
           }) : doc.data().user_id,
@@ -64,7 +64,7 @@ export const getAllRideRequests = async (req, res) => {
       }
       if(req.query.user !== undefined && req.query.user !== ""){
         rideRequestArray = rideRequestArray.filter((rideRequest) => {
-          return rideRequest.user_id.user_id == req.query.user;
+          return rideRequest.user_id.user_id == req.query.user && rideRequest.status_ride != "ONGOING";
         });
       }
       res.status(200).json({
