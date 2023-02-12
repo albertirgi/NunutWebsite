@@ -280,7 +280,7 @@ export const getRideScheduleByList = async (req, res) => {
   try{
     const num = req.params.num
     const data = await firestore.collection('ride_schedule').get()
-    const rideScheduleArray = []
+    var rideScheduleArray = []
     const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmark').where('user_id', '==', req.query.user).get() : null) : null
     const bookmarkArray = bookmark != null ? bookmark.docs.map(doc => {
       return {
@@ -365,9 +365,8 @@ export const getRideScheduleByList = async (req, res) => {
         req.query.meeting_point != ""
       ) {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-          return rideSchedule.meeting_point
-            .toLowerCase()
-            .includes(req.query.meeting_point.toLowerCase());
+	  const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g, '');
+          return rideScheduleMeetingPoint.includes(req.query.meeting_point.toLowerCase());
         });
         if (rideScheduleArray.length == 0) {
           res.status(404).json({
@@ -380,9 +379,8 @@ export const getRideScheduleByList = async (req, res) => {
 
       if (req.query.destination !== undefined && req.query.destination != "") {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-          return rideSchedule.destination
-            .toLowerCase()
-            .includes(req.query.destination.toLowerCase());
+	    const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
+return rideScheduleDestination.includes(req.query.destination.toLowerCase());
         });
         if (rideScheduleArray.length == 0) {
           res.status(404).json({
