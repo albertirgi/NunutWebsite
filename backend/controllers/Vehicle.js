@@ -56,7 +56,7 @@ export const getAllVehicles = async (req, res) => {
       });
       if (req.query.driver !== undefined && req.query.driver !== "") {
         vehicleArray = vehicleArray.filter((vehicle) => {
-          if (vehicle.driver_id.driver_id == req.query.driver) {
+          if (vehicle.driver_id[0].driver_id == req.query.driver) {
             return vehicle;
           }
         });
