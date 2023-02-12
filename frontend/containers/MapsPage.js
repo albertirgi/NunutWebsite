@@ -64,7 +64,7 @@ export default function MapsPage() {
   const [isDataChanged, setIsDataChanged] = useState(false);
   const [DataRetrivied, setDataRetrivied] = useState();
   const apiMaps = `${envConfig.URL_API_REST}/map`;
-  console.log("Data : ", DataRetrivied);
+  //console.log("Data : ", DataRetrivied);
 
    function DeleteDataMaps(id) {
      fetch(`${envConfig.URL_API_REST}/map/${id}`, {
@@ -324,7 +324,7 @@ export default function MapsPage() {
   // }
   let MapsAll;
   useEffect(() => {
-    console.log("useEffect Get Maps");
+    //console.log("useEffect Get Maps");
     
     fetch(apiMaps)
       .then((respone) => respone.json())

@@ -33,52 +33,10 @@ import {
 
 export default [
 	{
-		key: 'dashboard',
-		path: '/dashboard',
-		label: 'Dashboard',
-		leftIcon: <DashboardIcon size={19} />,
-	},
-	{
-		key: 'voucher',
-		path: '/dashboard/voucher',
-		label: 'Voucher',
-		leftIcon: <VoucherIcon size={19} />,
-	},
-	{
-		key: 'notification',
-		path: '/dashboard/nunut_notif',
-		label: 'Notification',
-		leftIcon: <NotificationIcon size={19} />,
-	},
-	{
 		key: 'parking',
 		path: '/dashboard/parking',
 		label: 'Parkir',
 		leftIcon: <CarIcon size={19} />,
-	},
-	{
-		key: 'user',
-		path: '/dashboard/user',
-		label: 'List User',
-		leftIcon: <ProfileIcon size={19} />,
-	},
-	{
-		key: 'transaction',
-		path: '/dashboard/transaction',
-		label: 'List Transaction',
-		leftIcon: <EditIcon size={19} />,
-	},
-	{
-		key: 'driver',
-		path: '/dashboard/driver',
-		label: 'List Driver',
-		leftIcon: <SidebarContactsIcon size={19} />,
-	},
-	{
-		key: 'emergency',
-		path: '/dashboard/emergency',
-		label: 'Emergency Report',
-		leftIcon: <MailSpamReportIcon size={19} />,
 	},
 	{
 		key: 'maps',
@@ -86,6 +44,50 @@ export default [
 		label: 'Maps',
 		leftIcon: <SidebarMapsIcon size={19} />,
 	},
+	// {
+	// 	key: 'dashboard',
+	// 	path: '/dashboard',
+	// 	label: 'Dashboard',
+	// 	leftIcon: <DashboardIcon size={19} />,
+	// },
+	// {
+	// 	key: 'voucher',
+	// 	path: '/dashboard/voucher',
+	// 	label: 'Voucher',
+	// 	leftIcon: <VoucherIcon size={19} />,
+	// },
+	// {
+	// 	key: 'notification',
+	// 	path: '/dashboard/nunut_notif',
+	// 	label: 'Notification',
+	// 	leftIcon: <NotificationIcon size={19} />,
+	// },
+	
+	// {
+	// 	key: 'user',
+	// 	path: '/dashboard/user',
+	// 	label: 'List User',
+	// 	leftIcon: <ProfileIcon size={19} />,
+	// },
+	// {
+	// 	key: 'transaction',
+	// 	path: '/dashboard/transaction',
+	// 	label: 'List Transaction',
+	// 	leftIcon: <EditIcon size={19} />,
+	// },
+	// {
+	// 	key: 'driver',
+	// 	path: '/dashboard/driver',
+	// 	label: 'List Driver',
+	// 	leftIcon: <SidebarContactsIcon size={19} />,
+	// },
+	// {
+	// 	key: 'emergency',
+	// 	path: '/dashboard/emergency',
+	// 	label: 'Emergency Report',
+	// 	leftIcon: <MailSpamReportIcon size={19} />,
+	// },
+	
 	{
 		key: 'logout',
 		path: '#',

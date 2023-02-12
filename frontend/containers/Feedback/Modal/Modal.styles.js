@@ -29,6 +29,7 @@ const Modals = ComponentName => styled(ComponentName)`
     font-size: 13px;
     color: ${palette('text', 3)};
     line-height: 1.5;
+    border-radius: 20px;
   }
 
   .ant-modal-footer {
