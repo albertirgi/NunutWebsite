@@ -35,7 +35,7 @@ import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByLi
 import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
 import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
-import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById } from '../controllers/Iris.js';
+import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById, getAllPayouts } from '../controllers/Iris.js';
 
 //import { getAllDrivers } from '../controllers/Driver2.js'
 
@@ -179,6 +179,7 @@ router.post('/get-wallet-balance', getWalletBalance);
 router.post('/beneficiary', storeBeneficiary);
 router.get('/beneficiary', getAllBeneficiaries);
 router.put('/beneficiary/:id', updateBeneficiary);
+router.get('/payout', getAllPayouts);
 router.post('/payout', storePayout);
 router.post('/payout/approve', approvePayout);
 router.post('/payout/reject', rejectPayout);

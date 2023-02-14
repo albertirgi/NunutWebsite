@@ -727,6 +727,36 @@ export const rejectPayout = async (req, res) => {
   }
 };
 
+export const getAllPayouts = async (req, res) => {
+  try {
+    const payout = await firestore.collection("transaction").where('type', "==", "withdraw").get();
+    if(payout.empty) {
+      res.status(404).json({
+        message: "No payout data found",
+        status: 404,
+        data: [],
+      });
+      return;
+    }
+    const payoutData = payout.docs.map((doc) => {
+      return {
+        payout_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    res.status(200).json({
+      message: "Payout data found",
+      status: 200,
+      data: payoutData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Something went wrong while getting data: " + error.toString(),
+      status: 500,
+    });
+  }
+};
+
 export const getPayoutById = async (req, res) => {
   try {
     const referenceNo = req.params.reference_no;
