@@ -71,7 +71,7 @@ export const getAllMaps = async (req, res) => {
   try {
     const map = firestore.collection('map')
     const data = await map.get()
-    const mapArray = []
+    var mapArray = []
     if (data.empty) {
       res.status(404).json({
         message: 'No map found',
@@ -87,6 +87,9 @@ export const getAllMaps = async (req, res) => {
         )
         mapArray.push(map)
       })
+      if(req.query.name){
+        mapArray = mapArray.filter((item) => item.name.includes(req.query.name));
+      }
       res.status(200).json({
         message: 'Map successfully retrieved',
         data: mapArray,
@@ -107,7 +110,7 @@ export const getAllMapsByList = async (req, res) => {
     const num = req.params.num;
     const map = firestore.collection("map");
     const data = await map.get();
-    const mapArray = [];
+    var mapArray = [];
     if (data.empty) {
       res.status(404).json({
         message: "No map found",
@@ -123,6 +126,11 @@ export const getAllMapsByList = async (req, res) => {
         );
         mapArray.push(map);
       });
+      if (req.query.name) {
+        mapArray = mapArray.filter((item) =>
+          item.name.includes(req.query.name)
+        );
+      }
       res.status(200).json({
         message: "Map successfully retrieved",
         data: mapArray.slice(0 + (num - 1) * 10, num * 10),
@@ -142,7 +150,7 @@ export const getMapUKP = async (req, res) => {
   try {
     const map = firestore.collection("map");
     const data = await map.get();
-    const mapArray = [];
+    var mapArray = [];
     if (data.empty) {
       res.status(404).json({
         message: "No map found",
@@ -158,6 +166,11 @@ export const getMapUKP = async (req, res) => {
         );
         mapArray.push(map);
       });
+      if (req.query.name) {
+        mapArray = mapArray.filter((item) =>
+          item.name.includes(req.query.name)
+        );
+      }
       res.status(200).json({
         message: "Map successfully retrieved",
         data: mapArray.filter((item) => item.name.includes("Universitas Kristen Petra")),
