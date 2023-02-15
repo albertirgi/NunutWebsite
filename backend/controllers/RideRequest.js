@@ -58,6 +58,7 @@ export const getAllRideRequests = async (req, res) => {
         rideRequestArray.push(rideRequest);
       });
       if(req.query.ride_schedule !== undefined && req.query.ride_schedule !== "") {
+        console.log(rideRequestArray);
         rideRequestArray = rideRequestArray.filter((rideRequest) => {
           return rideRequest.ride_schedule_id.ride_schedule_id == req.query.ride_schedule;
         });

@@ -448,8 +448,8 @@ export const storePayout = async (req, res) => {
       .doc(payload.reference_no)
       .set({
         amount: parseInt(data.amount),
-        status: JSON.parse(value).status,
-        method: payload.beneficiary_bank,
+        status: "pending",
+      method: payload.beneficiary_bank,
         order_id: payload.reference_no,
         transaction_id: payload.reference_no,
         type: "withdraw",

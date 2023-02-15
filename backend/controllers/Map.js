@@ -87,8 +87,11 @@ export const getAllMaps = async (req, res) => {
         )
         mapArray.push(map)
       })
-      if(req.query.name){
-        mapArray = mapArray.filter((item) => item.name.includes(req.query.name));
+      if (req.query.name) {
+        mapArray = mapArray.filter((item) => {
+          const mapName = item.name.toLowerCase();
+          return mapName.includes(req.query.name.toLowerCase());
+        });
       }
       res.status(200).json({
         message: 'Map successfully retrieved',
@@ -127,9 +130,10 @@ export const getAllMapsByList = async (req, res) => {
         mapArray.push(map);
       });
       if (req.query.name) {
-        mapArray = mapArray.filter((item) =>
-          item.name.includes(req.query.name)
-        );
+        mapArray = mapArray.filter((item) => {
+          const mapName = item.name.toLowerCase();
+          return mapName.includes(req.query.name.toLowerCase());
+        });
       }
       res.status(200).json({
         message: "Map successfully retrieved",
