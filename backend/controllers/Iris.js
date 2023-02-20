@@ -292,14 +292,19 @@ export const getAllBeneficiaries = async (req, res) => {
     //     });
     //   });
     const beneficiaries = await firestore.collection("beneficiary").get();
-    const beneficiariesData = beneficiaries.empty
+    var beneficiariesData = beneficiaries.empty
       ? []
       : beneficiaries.docs.map((beneficiary) => {
           return {
-            id: beneficiary.id,
+            beneficiary_id: beneficiary.id,
             ...beneficiary.data(),
           };
         });
+    if(req.query.user !== undefined && req.query.user != "") {
+      beneficiariesData = beneficiariesData.filter((beneficiary) => {
+        return beneficiary.alias_name == req.query.user;
+      });
+    } 
     res.status(200).json({
       message: "Beneficiaries data fetched successfuly",
       data: beneficiariesData,
@@ -365,14 +370,23 @@ export const storePayout = async (req, res) => {
     //     "X-Idempotency-Key": uuid(),
     //   },
     // };
+    const beneficiary = await firestore.collection("beneficiary").doc(data.beneficiary_id).get();
+    if(beneficiary.empty) {
+      res.status(400).json({
+        message: "Beneficiary not found",
+        status: 400,
+      });
+      return;
+    }
+    const beneficiaryData = beneficiary.data();
     const payload = {
       reference_no: uuid(),
-      beneficiary_name: data.beneficiary_name,
-      beneficiary_email: data.beneficiary_email,
-      beneficiary_account: data.beneficiary_account,
-      beneficiary_bank: data.beneficiary_bank,
+      beneficiary_name: beneficiaryData.name,
+      beneficiary_email: beneficiaryData.email,
+      beneficiary_account: beneficiaryData.account,
+      beneficiary_bank: beneficiaryData.bank,
       amount: parseInt(data.amount),
-      notes: data.notes,
+      notes: "Withdrawal",
     };
     // const post = new Promise((resolve, reject) => {
     //   const request = https.request(url, options, (res) => {
@@ -449,12 +463,12 @@ export const storePayout = async (req, res) => {
       .set({
         amount: parseInt(data.amount),
         status: "pending",
-      method: payload.beneficiary_bank,
+        method: payload.beneficiary_bank,
         order_id: payload.reference_no,
         transaction_id: payload.reference_no,
         type: "withdraw",
         wallet_id: walletData.id,
-        transaction_time: new Date().toISOString(),
+        transaction_time: new Date(),
       })
       .then(() => {
         res.status(200).json({
