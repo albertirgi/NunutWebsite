@@ -6,7 +6,7 @@ const upload = multer({storage: multer.memoryStorage()});
 
 var router = express.Router();
 import { storeUser, getAllUsers, login, logout, getUserById, resetPassword, destroyUser } from '../controllers/User.js';
-import { storeDriver, getAllDrivers, getDriverById, getDriverByUserId, updateDriver, destroyDriver } from '../controllers/Driver.js';
+import { storeDriver, getAllDrivers, getDriverById, getDriverByUserId, updateDriver, updateDriverStatus, destroyDriver } from '../controllers/Driver.js';
 import { storeVehicle, getAllVehicles, getVehicleById, updateVehicle, destroyVehicle } from '../controllers/Vehicle.js';
 import { storeRideSchedule, getAllRideSchedules, getRideScheduleById, updateRideSchedule, destroyRideSchedule, getRideScheduleByList } from '../controllers/RideSchedule.js';
 import { storeRideRequest, getAllRideRequests, getRideRequestById, updateRideRequest, destroyRideRequest } from '../controllers/RideRequest.js';
@@ -64,6 +64,7 @@ router.put(
   ]),
   updateDriver
 );
+router.put('/driver/status/:id', updateDriverStatus);
 router.get('/driver-user/:id', getDriverByUserId);
 router.delete('/driver/:id', destroyDriver);
 router.post('/vehicle', storeVehicle);

@@ -136,6 +136,40 @@ export const storeDriver = async (req, res, err) => {
   }
 }
 
+export const updateDriverStatus = async (req, res) => {
+  try {
+    const data = req.body
+    const driver_id = req.params.id
+    if(driver_id && data.status){
+      firestore.collection('driver').doc(driver_id).update({
+        status: data.status
+      }, {merge: true})
+      .then(() => {
+        res.status(200).json({
+          message: "Driver status updated successfuly",
+          status: 200,
+        })
+      })
+      .catch(err => {
+        res.status(400).json({
+          message: "Error occured while updating driver status: " + err.toString(),
+          status: 400,
+        })
+      })
+    }else{
+      res.status(400).json({
+        message: "Please provide driver id and status",
+        status: 400,
+      })
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: "Error occured while updating driver status: " + error.toString(),
+      status: 400,
+    })
+  }
+}
+
 export const getAllDrivers = async (req, res) => {
   try {
     const vehicle = await firestore
