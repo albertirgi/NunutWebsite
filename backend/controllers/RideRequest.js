@@ -207,13 +207,13 @@ export const getRideRequestByList = async (req, res) => {
               destination: rideScheduleSingle.destination,
               note: rideScheduleSingle.note,
               price: rideScheduleSingle.price,
-              driver:
+              driver_id:
                 req.query.driver !== undefined
                   ? driverArray.find((driver) => {
                       return driver.driver_id == rideScheduleSingle.driver_id;
                     })
                   : rideScheduleSingle.driver_id,
-              vehicle:
+              vehicle_id:
                 req.query.vehicle !== undefined
                   ? vehicleArray.find((vehicle) => {
                       return vehicle.vehicle_id == rideScheduleSingle.vehicle_id;

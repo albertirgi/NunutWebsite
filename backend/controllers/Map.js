@@ -203,7 +203,12 @@ export const getMapById = async (req, res) => {
     } else {
       res.status(200).json({
         message: 'Map successfully retrieved',
-        data: data.data(),
+        data: {
+          map_id: data.id,
+          name: data.data().name,
+          latitude: data.data().latitude,
+          longitude: data.data().longitude
+        },
         status: 200
       })
     }
