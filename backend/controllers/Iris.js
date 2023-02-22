@@ -755,7 +755,7 @@ export const getAllPayouts = async (req, res) => {
     var payoutDataArray = [];
     const payoutData = payout.docs.map((doc) => {
       return {
-        payout_id: doc.id,
+        order_id: doc.id,
         ...doc.data(),
       };
     });
@@ -768,7 +768,7 @@ export const getAllPayouts = async (req, res) => {
     });
     payout.docs.forEach((doc) => {
       payoutDataArray.push({
-        payout_id: doc.id,
+        order_id: doc.id,
         ...doc.data(),
         beneficiary: beneficiaryData.find(
           (beneficiary) => beneficiary.beneficiary_id == doc.data().transaction_id

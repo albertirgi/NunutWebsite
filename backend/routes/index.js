@@ -36,6 +36,7 @@ import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, 
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
 import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
 import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById, getAllPayouts } from '../controllers/Iris.js';
+import { getFile } from '../controllers/File.js';
 
 //import { getAllDrivers } from '../controllers/Driver2.js'
 
@@ -186,5 +187,6 @@ router.post('/payout', storePayout);
 router.post('/payout/approve', approvePayout);
 router.post('/payout/reject', rejectPayout);
 router.get('/payout/:referenceno', getPayoutById);
+router.get('/file/:filename', getFile);
 
 export default router;

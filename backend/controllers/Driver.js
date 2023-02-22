@@ -41,7 +41,8 @@ export const storeDriver = async (req, res, err) => {
             reject(aggrLetterMessage)
           }else{
             file.makePublic();
-            resolve(file.publicUrl())
+            const pubUrl = `https://ayonunut.com/api/v1/file/${fileNameAggrLetter}`;
+            resolve(pubUrl)
           }
         })
       })
@@ -55,7 +56,8 @@ export const storeDriver = async (req, res, err) => {
             reject(studentCardMessage)
           }else{
             file.makePublic();
-            resolve(file.publicUrl())
+            const pubUrl = `https://ayonunut.com/api/v1/file/${fileNameAggrLetter}`;
+            resolve(pubUrl);
           }
         })
       })
@@ -70,7 +72,8 @@ export const storeDriver = async (req, res, err) => {
             reject(drivingLicenseMessage)
           }else{
             file.makePublic();
-            resolve(file.publicUrl())
+            const pubUrl = `https://ayonunut.com/api/v1/file/${fileNameAggrLetter}`;
+            resolve(pubUrl);
           }
         })
       })
@@ -85,7 +88,8 @@ export const storeDriver = async (req, res, err) => {
             reject(imageMessage)
           }else{
             file.makePublic()
-            resolve(file.publicUrl())
+            const pubUrl = `https://ayonunut.com/api/v1/file/${fileNameAggrLetter}`;
+            resolve(pubUrl);
           }
         })
       })
