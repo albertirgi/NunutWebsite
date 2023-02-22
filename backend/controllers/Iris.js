@@ -752,16 +752,33 @@ export const getAllPayouts = async (req, res) => {
       });
       return;
     }
+    var payoutDataArray = [];
     const payoutData = payout.docs.map((doc) => {
       return {
         payout_id: doc.id,
         ...doc.data(),
       };
     });
+    const beneficiary = await firestore.collection("beneficiary").get();
+    const beneficiaryData = beneficiary.docs.map((doc) => {
+      return {
+        beneficiary_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    payout.docs.forEach((doc) => {
+      payoutDataArray.push({
+        payout_id: doc.id,
+        ...doc.data(),
+        beneficiary: beneficiaryData.find(
+          (beneficiary) => beneficiary.beneficiary_id == doc.data().transaction_id
+        ),
+      });
+    });
     res.status(200).json({
       message: "Payout data found",
       status: 200,
-      data: payoutData,
+      data: payoutDataArray,
     });
   } catch (error) {
     res.status(500).json({
@@ -843,10 +860,21 @@ export const getPayoutById = async (req, res) => {
       });
       return;
     }
+    const beneficiary = await firestore.collection("beneficiary").doc(payout.data().transaction_id).get();
+    if (!beneficiary.exists) {
+      res.status(404).json({
+        message: "Beneficiary not found",
+        status: 404,
+      });
+      return;
+    }
     res.status(200).json({
       message: "Payout data retrieved successfuly",
       status: 200,
-      data: payout.data(),
+      data: {
+        ...payout.data(),
+        ...beneficiary.data(),
+      },
     });
   } catch (error) {
     res.status(500).json({
