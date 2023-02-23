@@ -23,6 +23,21 @@ export const storeNotification = async (req, res) => {
         }
       });
     });
+    if(data.user_id == null || data.user_id == undefined || data.user_id == ''){
+      const user = await firestore.collection('users').get();
+      user.docs.forEach(async (doc) => {
+        await firestore
+          .collection("notification")
+          .doc()
+          .set({
+            description: data.description,
+            image: imageUrl,
+            is_read: data.is_read == "true" ? true : false,
+            title: data.title,
+            user_id: doc.data().user_id,
+          });
+      });
+    }
     const imageUrl = await imagePromise;
     await firestore.collection('notification').doc().set({
       description: data.description,
