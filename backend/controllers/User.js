@@ -21,7 +21,7 @@ export const storeUser = async (req, res) => {
 
   // Upload image to storage
   let publicUrl =
-    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/default-avatar.png?alt=media&token=215b4ac9-5b92-4ee1-a923-64941391a78d";
+    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/avatar.png?alt=media&token=62dfdb20-7aa0-4ca4-badf-31c282583b1b";
   const image = req.file;
   if (image) {
     let status = true;
@@ -80,6 +80,69 @@ export const storeUser = async (req, res) => {
       });
     });
 }
+
+export const updateUser = async (req, res) => {
+  // Validate request
+  if (!req.body) {
+    return res.status(400).json({
+      message: "Input can not be empty",
+    });
+  }
+
+  // Upload image to storage
+  let publicUrl =
+    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/avatar.png?alt=media&token=62dfdb20-7aa0-4ca4-badf-31c282583b1b";
+  const image = req.file;
+  if (image) {
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + image.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(image.buffer, { contentType: image.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          const pubUrl = file.publicUrl();
+          resolve(pubUrl);
+        }
+      });
+    });
+    publicUrl = await imagePromise;
+  }
+
+  // Save userModel in the database
+  db.auth()
+    .createUser({
+      email: req.body.email,
+      emailVerified: false,
+      password: req.body.password,
+      displayName: req.body.name,
+      disabled: false,
+      photoURL: publicUrl,
+    })
+    .then(async function (data) {
+      await firestore.collection("users").doc(data.uid).set({
+        email: req.body.email,
+        name: req.body.name,
+        nik: req.body.nik,
+        phone: req.body.phone,
+        image: publicUrl,
+        role: req.body.role,
+      });
+      res.status(200).json({
+        message: "User created successfully",
+        data: data,
+        status: 200,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: err.message || "Some error occurred while creating the user.",
+        status: 500,
+      });
+    });
+};
 
 // Login a user
 export const login = async (req, res) => {
