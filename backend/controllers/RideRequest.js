@@ -17,6 +17,17 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     await firestore.collection("ride_request").doc().set(data);
+    const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
+    if (wallet.empty) {
+      res.status(404).json({
+        message: 'No wallet record found',
+        status: 404,
+      });
+      return;
+    }
+    const walletData = wallet[0].data();
+    walletData.balance -= data.price;
+    await firestore.collection('wallet').doc(wallet[0].id).update(walletData);
     res.status(200).json({
       message: 'Ride request data saved successfuly',
       status: 200,
