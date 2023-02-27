@@ -31,6 +31,13 @@ export const storeRideRequest = async (req, res) => {
 
 export const getAllRideRequests = async (req, res) => {
   try {
+    const rideRequest = await firestore.collection('ride_request').get();
+    const dataRideRequest = rideRequest.docs.map(doc => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const rideSchedule = await firestore.collection('ride_schedule').get();
     const rideScheduleArray = req.query.ride_schedule !== undefined ? rideSchedule.docs.map(doc => {
       return {
@@ -97,7 +104,10 @@ export const getAllRideRequests = async (req, res) => {
                 })
               : rideSchedule.vehicle_id,
             capacity: rideSchedule.capacity,
-            is_active: rideSchedule.is_active
+            is_active: rideSchedule.is_active,
+            ride_request: dataRideRequest.filter((rideRequest) => {
+              return rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id;
+            }),
           };
           rideRequestArray.push(data);
         } else {
@@ -152,6 +162,13 @@ export const getAllRideRequests = async (req, res) => {
 
 export const getRideRequestByList = async (req, res) => {
   try {
+    const rideRequest = await firestore.collection('ride_request').get();
+    const DataRideRequestArray = rideRequest.docs.map(doc => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const num = req.params.num;
     const rideSchedule = await firestore.collection("ride_schedule").get();
     const rideScheduleArray =
@@ -231,6 +248,9 @@ export const getRideRequestByList = async (req, res) => {
               capacity: rideScheduleSingle.capacity,
               is_active: rideScheduleSingle.is_active,
               status_ride: doc.data().status_ride,
+              ride_request: DataRideRequestArray.filter((rideRequest) => {
+                return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+              }),
             };
             rideRequestArray.push(single);
           }

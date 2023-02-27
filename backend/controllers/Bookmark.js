@@ -47,7 +47,7 @@ export const getAllBookmarks = async (req, res) => {
               is_active: doc.data().is_active,
               note: doc.data().note,
               driver_id: doc.data().driver_id,
-              ride_request: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
+              ride_request_id: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
             }
           })
         : null
@@ -171,7 +171,7 @@ export const getBookmarkById = async (req, res) => {
             return {
               ride_schedule_id: doc.id,
               ...doc.data(),
-              ride_request: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
+              ride_request_id: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
             }
           })
         : null
@@ -236,7 +236,7 @@ export const getBookmarkByUserId = async (req, res) => {
             return {
               ride_schedule_id: doc.id,
               ...doc.data(),
-              ride_request: rideRequestArray.filter(
+              ride_request_id: rideRequestArray.filter(
                 (rideRequest) => rideRequest.ride_schedule_id === doc.id
               ),
             };
