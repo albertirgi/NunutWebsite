@@ -8,6 +8,15 @@ export const storeRideRequest = async (req, res) => {
   try {
     const data = req.body;
     await firestore.collection('ride_request').doc().set(data);
+    // Check ride request and user id
+    const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).get();
+    if (!rideRequest.empty) {
+      res.status(400).json({
+        message: 'You have already requested this ride',
+        status: 400,
+      });
+      return;
+    }
     res.status(200).json({
       message: 'Ride request data saved successfuly',
       status: 200,
