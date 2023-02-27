@@ -35,7 +35,7 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     const walletData = wallet.docs[0].data();
-    walletData.balance -= rideScheduleData.price;
+    walletData.balance -= (rideScheduleData.price + (rideScheduleData.price * 0.1));
     await firestore.collection('wallet').doc(wallet.docs[0].id).update(walletData);
     res.status(200).json({
       message: 'Ride request data saved successfuly',

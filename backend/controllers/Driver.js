@@ -118,6 +118,7 @@ export const storeDriver = async (req, res, err) => {
               });
             })
             .catch((error) => {
+		console.log(error.message);
               res.status(400).json({
                 message:
                   "Error occured while storing driver registration data: " +
