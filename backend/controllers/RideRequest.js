@@ -16,6 +16,15 @@ export const storeRideRequest = async (req, res) => {
       });
       return;
     }
+    const rideSchedule = await firestore.collection('ride_schedule').doc(data.ride_schedule_id).get();
+    if (!rideSchedule.exists) {
+      res.status(404).json({
+        message: 'No ride schedule record found',
+        status: 404,
+      });
+      return;
+    }
+    const rideScheduleData = rideSchedule.data();
     await firestore.collection("ride_request").doc().set(data);
     const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
     if (wallet.empty) {
@@ -26,7 +35,7 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     const walletData = wallet[0].data();
-    walletData.balance -= data.price;
+    walletData.balance -= rideScheduleData.price;
     await firestore.collection('wallet').doc(wallet[0].id).update(walletData);
     res.status(200).json({
       message: 'Ride request data saved successfuly',
