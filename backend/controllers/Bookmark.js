@@ -47,6 +47,7 @@ export const getAllBookmarks = async (req, res) => {
               is_active: doc.data().is_active,
               note: doc.data().note,
               driver_id: doc.data().driver_id,
+              ride_request: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
             }
           })
         : null
