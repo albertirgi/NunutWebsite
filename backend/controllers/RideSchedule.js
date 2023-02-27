@@ -8,7 +8,29 @@ const firestore = db.firestore()
 export const storeRideSchedule = async (req, res) => {
   try {
     const data = req.body
-    await firestore.collection('ride_schedule').doc().set(data)
+    const vehicle = await firestore
+      .collection("vehicle")
+      .doc(data.vehicle_id)
+      .get();
+    const vehicleType = await firestore
+      .collection("vehicle_type")
+      .doc(vehicle.data().vehicle_type)
+      .get();
+    const rate = data.distance / vehicleType.data().fuel_consumption;
+    const petrol = rate * vehicleType.data().fuel_price;
+    const price = petrol * 2.8;
+    await firestore.collection('ride_schedule').doc().set({
+      capacity: data.capacity,
+      date: data.date,
+      destination: data.destination,
+      driver_id: data.driver_id,
+      is_active: data.is_active,
+      meeting_point: data.meeting_point,
+      note: "Nunut Ride",
+      time: data.time,
+      vehicle_id: data.vehicle_id,
+      price: price
+    })
     res.status(200).json({
       message: 'Ride schedule data saved successfuly',
       status: 200
@@ -511,6 +533,71 @@ return rideScheduleDestination.includes(req.query.destination.toLowerCase());
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray.slice(0+((num-1)*10), (num*10)),
         status: 200 
+      })
+    }
+  }catch(error) {
+    res.status(500).json({
+      message: "Something went wrong while fetching data: " + error.toString(),
+      status: 500
+    })
+  }
+}
+
+export const rideScheduleDone = async (req, res) => {
+  try{
+    const id = req.params.id
+    const body = req.body
+    const rideSchedule = await firestore.collection('ride_schedule').doc(id).get()
+    if(rideSchedule.empty){
+      res.status(404).json({
+        message: 'No ride schedule record found',
+        status: 404
+      })
+    }else{
+      const rideScheduleData = rideSchedule.data()
+      const vehicle = await firestore.collection('vehicle').doc(rideScheduleData.vehicle_id).get()
+      const vehicleType = await firestore.collection('vehicle_type').doc(vehicle.data().vehicle_type).get()
+      const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
+      rideRequest.forEach(async doc => {
+        const data = doc.data()
+        const rate = body.distance / vehicleType.data().fuel_consumption;
+        const petrol = rate * vehicleType.data().fuel_price;
+        const price = petrol * 2.8;
+        if(price == (rideScheduleData.price - (rideScheduleData.price * 0.1))){
+          console.log("price is correct")
+        }else{
+          console.log("price is not correct")
+        }
+        const commision = price - petrol;
+        const driverShare = petrol + (commision - (commision * 0.3));
+        const driver = await firestore.collection('driver').doc(rideScheduleData.driver_id).get();
+        const driverData = driver.data();
+        const wallet = await firestore.collection('wallet').where('user_id', '==', driverData.user_id).get();
+        const walletData = wallet.docs[0].data();
+        const updateWallet = await firestore.collection('wallet').doc(wallet.docs[0].id).update({
+          balance: walletData.balance + driverShare
+        })
+        const transaction = await firestore.collection('transaction').add({
+          amount: driverShare,
+          method: "NUNUTRIDE",
+          order_id: doc.id,
+          status: "SUCCESS",
+          transaction_id: doc.id,
+          transaction_time: new Date(),
+          type: "WALLET",
+          wallet_id: wallet.docs[0].id
+        })
+
+        await firestore.collection('ride_request').doc(doc.id).update({
+          status_ride: 'DONE'
+        })
+      })
+      await firestore.collection('ride_schedule').doc(id).update({
+        is_active: false
+      })
+      res.status(200).json({
+        message: 'Ride schedule data updated successfuly',
+        status: 200
       })
     }
   }catch(error) {
