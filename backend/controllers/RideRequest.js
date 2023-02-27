@@ -34,9 +34,9 @@ export const storeRideRequest = async (req, res) => {
       });
       return;
     }
-    const walletData = wallet[0].data();
+    const walletData = wallet.docs[0].data();
     walletData.balance -= rideScheduleData.price;
-    await firestore.collection('wallet').doc(wallet[0].id).update(walletData);
+    await firestore.collection('wallet').doc(wallet.docs[0].id).update(walletData);
     res.status(200).json({
       message: 'Ride request data saved successfuly',
       status: 200,
