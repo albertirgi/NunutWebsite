@@ -149,6 +149,14 @@ export const getBookmarkById = async (req, res) => {
   try {
     const id = req.params.id
     const data = await firestore.collection('bookmark').doc(id).get()
+    const rideRequest = await firestore.collection('ride_request').get()
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
+
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
@@ -156,6 +164,7 @@ export const getBookmarkById = async (req, res) => {
             return {
               ride_schedule_id: doc.id,
               ...doc.data(),
+              ride_request: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
             }
           })
         : null
@@ -206,6 +215,13 @@ export const getBookmarkByUserId = async (req, res) => {
             ...user.data(),
         }
         : null
+    const rideRequest = await firestore.collection('ride_request').get()
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
@@ -213,7 +229,10 @@ export const getBookmarkByUserId = async (req, res) => {
             return {
               ride_schedule_id: doc.id,
               ...doc.data(),
-            }
+              ride_request: rideRequestArray.filter(
+                (rideRequest) => rideRequest.ride_schedule_id === doc.id
+              ),
+            };
           })
         : null
     if (data.empty) {

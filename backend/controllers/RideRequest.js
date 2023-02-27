@@ -361,12 +361,25 @@ export const updateRideRequest = async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    const rideRequest = firestore.collection('ride_request').doc(id);
+    const rideRequest = firestore.collection("ride_request").doc(id);
     await rideRequest.update(data);
+    // Check ride request and user id
+    const rideRequestCheck = await firestore
+      .collection("ride_request")
+      .where("ride_schedule_id", "==", data.ride_schedule_id)
+      .where("user_id", "==", data.user_id)
+      .get();
+    if (!rideRequestCheck.empty) {
+      res.status(400).json({
+        message: "You have already requested this ride",
+        status: 400,
+      });
+      return;
+    }
     res.status(200).json({
-      message: 'Ride request data updated successfuly',
+      message: "Ride request data updated successfuly",
       status: 200,
-    })
+    });
   } catch (error) {
     res.status(500).json({
       message: 'Something went wrong while updating data: ' + error.toString(),
