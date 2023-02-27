@@ -120,6 +120,16 @@ export const getAllRideSchedules = async (req, res) => {
           }
           return modifiedRideSchedule
         });
+        if (
+          req.query.user_view !== undefined &&
+          req.query.user_view == "true"
+        ) {
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideScheduleCapacity = rideSchedule.capacity;
+            const rideRequestCapactity = rideSchedule.ride_request_id.length;
+            return rideScheduleCapacity > rideRequestCapactity;
+          });
+        }
       }
 
       if(req.query.time !== undefined && req.query.time != ""){
@@ -440,6 +450,13 @@ export const getRideScheduleByList = async (req, res) => {
           };
           return modifiedRideSchedule;
         });
+        if(req.query.user_view !== undefined && req.query.user_view == "true"){
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideScheduleCapacity = rideSchedule.capacity
+            const rideRequestCapactity = rideSchedule.ride_request_id.length
+            return rideScheduleCapacity > rideRequestCapactity
+          })
+        }
       }
 
       if (req.query.time !== undefined && req.query.time != "") {
