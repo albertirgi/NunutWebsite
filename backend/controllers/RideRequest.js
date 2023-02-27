@@ -248,8 +248,8 @@ export const getRideRequestByList = async (req, res) => {
               capacity: rideScheduleSingle.capacity,
               is_active: rideScheduleSingle.is_active,
               status_ride: doc.data().status_ride,
-              ride_request: DataRideRequestArray.filter((rideRequest) => {
-                return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+              ride_request: DataRideRequestArray.find((rideRequest) => {
+                return rideRequest.user_id == req.query.ride_schedule_only;
               }),
             };
             rideRequestArray.push(single);
