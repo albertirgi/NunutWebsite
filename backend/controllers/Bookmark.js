@@ -24,6 +24,13 @@ export const getAllBookmarks = async (req, res) => {
   try {
     const data = await firestore.collection('bookmark').get()
     var bookmarkArray = []
+    const rideRequest = await firestore.collection('ride_request').get()
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
@@ -91,7 +98,6 @@ export const getAllBookmarks = async (req, res) => {
             (rideSchedule) =>
               rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
           );
-          console.log(rideScheduleData);
           const driverArray = driver.docs.map((doc) => {
             return {
               driver_id: doc.id,
@@ -217,7 +223,7 @@ export const getBookmarkByUserId = async (req, res) => {
         : null
     const rideRequest = await firestore.collection('ride_request').get()
     const rideRequestArray = rideRequest.docs.map((doc) => {
-      return {
+      return {  
         ride_request_id: doc.id,
         ...doc.data(),
       };
