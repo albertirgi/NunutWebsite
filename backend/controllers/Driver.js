@@ -11,7 +11,7 @@ let token = null
 export const storeDriver = async (req, res, err) => {
   try {
     const data = req.body
-    if(data.name && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0] && req.files.image[0]){
+    if(data.name && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0]){
       //Upload files to firebase storage
       const aggrLetter = req.files.aggrement_letter[0]
       const studentCard = req.files.student_card[0]
