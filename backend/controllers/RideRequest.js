@@ -444,3 +444,45 @@ export const destroyRideRequest = async (req, res) => {
   }
 }
 
+export const updateStatusRideRequest = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if(id == 'all') {
+      const rideRequestAll = await firestore.collection('ride_request').get();
+      rideRequestAll.forEach(async (rideRequest) => {
+        await rideRequest.ref.update({
+          status_ride: 'REGISTERED'
+        })
+      })
+      res.status(200).json({
+        message: 'Ride request data updated successfuly',
+        status: 200,
+      });
+      return;
+    }else{
+      const status = req.params.status;
+      const rideRequest = firestore.collection("ride_request").doc(id);
+      const data = await rideRequest.get();
+      if (!data.exists) {
+        res.status(404).json({
+          message: "Ride request with the given ID not found",
+          status: 404,
+        });
+        return;
+      }
+      await rideRequest.update({
+        status_ride: status,
+      });
+      res.status(200).json({
+        message: "Ride request data updated successfuly",
+        status: 200,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
+      status: 500
+    })
+  }
+}
+

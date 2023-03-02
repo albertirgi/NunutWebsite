@@ -9,7 +9,7 @@ import { storeUser, getAllUsers, login, logout, getUserById, resetPassword, dest
 import { storeDriver, getAllDrivers, getDriverById, getDriverByUserId, updateDriver, updateDriverStatus, destroyDriver } from '../controllers/Driver.js';
 import { storeVehicle, getAllVehicles, getVehicleById, updateVehicle, destroyVehicle } from '../controllers/Vehicle.js';
 import { storeRideSchedule, getAllRideSchedules, getRideScheduleById, updateRideSchedule, destroyRideSchedule, getRideScheduleByList, rideScheduleDone } from '../controllers/RideSchedule.js';
-import { storeRideRequest, getAllRideRequests, getRideRequestByList, getRideRequestById, updateRideRequest, destroyRideRequest } from '../controllers/RideRequest.js';
+import { storeRideRequest, getAllRideRequests, getRideRequestByList, getRideRequestById, updateRideRequest, updateStatusRideRequest, destroyRideRequest } from '../controllers/RideRequest.js';
 import { storeRideOrder, getAllRideOrders, getRideOrderById, updateRideOrder, destroyRideOrder } from '../controllers/RideOrder.js';
 import { storeVoucher, getAllVouchers, getVoucherById, updateVoucher, destroyVoucher } from '../controllers/Voucher.js';
 import { storeUserVoucher, getAllUserVouchers, getUserVoucherById, updateUserVoucher, destroyUserVoucher } from '../controllers/UserVoucher.js';
@@ -85,6 +85,7 @@ router.get('/ride-request', getAllRideRequests);
 router.get('/ride-request/list/:num', getRideRequestByList);
 router.get('/ride-request/:id', getRideRequestById);
 router.put('/ride-request/:id', updateRideRequest);
+router.get('/ride-request/status/:id/:status', updateStatusRideRequest);
 router.delete('/ride-request/:id', destroyRideRequest);
 router.post('/ride-order', storeRideOrder);
 router.get('/ride-order', getAllRideOrders);
