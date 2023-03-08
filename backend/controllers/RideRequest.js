@@ -245,6 +245,9 @@ export const getRideRequestByList = async (req, res) => {
             const rideScheduleSingle = rideScheduleArray.find((rideSchedule) => {
               return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
             });
+            const capacity = DataRideRequestArray.filter((rideRequest) => {
+              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+            }).length;
             const single = {
               ride_schedule_id: rideScheduleSingle.ride_schedule_id,
               date: rideScheduleSingle.date,
@@ -262,10 +265,12 @@ export const getRideRequestByList = async (req, res) => {
               vehicle_id:
                 req.query.vehicle !== undefined
                   ? vehicleArray.find((vehicle) => {
-                      return vehicle.vehicle_id == rideScheduleSingle.vehicle_id;
+                      return (
+                        vehicle.vehicle_id == rideScheduleSingle.vehicle_id
+                      );
                     })
                   : rideScheduleSingle.vehicle_id,
-              capacity: rideScheduleSingle.capacity,
+              capacity: capacity,
               is_active: rideScheduleSingle.is_active,
               status_ride: doc.data().status_ride,
               ride_request: DataRideRequestArray.find((rideRequest) => {
