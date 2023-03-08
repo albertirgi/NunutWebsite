@@ -151,6 +151,14 @@ export const getAllRideSchedules = async (req, res) => {
             const rideRequestCapactity = rideSchedule.ride_request_id.length;
             return rideScheduleCapacity > rideRequestCapactity;
           });
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            return (
+              rideSchedule.is_active == true &&
+              rideSchedule.ride_request_id.find((rideRequest) => {
+                return rideRequest.user_id.user_id == req.query.user;
+              }) == undefined
+            );
+          });
         }
       }
 
@@ -477,6 +485,12 @@ export const getRideScheduleByList = async (req, res) => {
             const rideScheduleCapacity = rideSchedule.capacity
             const rideRequestCapactity = rideSchedule.ride_request_id.length
             return rideScheduleCapacity > rideRequestCapactity
+          })
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            console.log(rideRequest)
+            return rideSchedule.is_active == true && rideSchedule.ride_request_id.find((rideRequest) => {
+              return rideRequest.user_id.user_id == req.query.user
+            }) == undefined
           })
         }
       }
