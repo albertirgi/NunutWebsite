@@ -7,6 +7,17 @@ const firestore = db.firestore();
 export const storeRideOrder = async (req, res) => {
   try {
     const data = req.body;
+    var userVoucher = await firestore.collection('user_voucher').get();
+    if(data.voucher_id != undefined && data.voucher_id != ''){
+      userVoucher = await firestore.collection('user_voucher').where('voucher_id', '==', data.voucher_id).get();
+    }
+    const userVoucherData = userVoucher.docs.map((doc) => {
+      return {
+        user_voucher_id: doc.id,
+        voucher_id: doc.data().voucher_id,
+        user_id: doc.data().user_id
+      }
+    });
     // Check user wallet
     const wallet = await firestore
       .collection("wallet")
@@ -42,12 +53,21 @@ export const storeRideOrder = async (req, res) => {
         });
         return;
       }else{
+        // Check is used 
+        if(userVoucherData.find((userVoucher) => {
+          return userVoucher.user_id == data.user_id && userVoucher.voucher_id == data.voucher_id
+        }).length > 0){
+          res.status(400).json({
+            message: "Voucher is used",
+            status: 400,
+          });
+          return;
+        }
         // Check voucher expired
         const voucherData = voucher.data();
         const voucherExpired = new Date(voucherData.expired_at);
         const today = new Date();
-        // Check minimum maximum price
-        // Later
+        
         if (today <= voucherExpired) {
           // Check voucher type
           if(voucherData.type == 'percentage'){
