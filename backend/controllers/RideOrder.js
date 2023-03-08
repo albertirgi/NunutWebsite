@@ -59,6 +59,11 @@ export const storeRideOrder = async (req, res) => {
             price_after = 0;
           }
         }
+        // Store User Voucher
+        await firestore.collection("user_voucher").doc().set({
+          user_id: data.user_id,
+          voucher_id: data.voucher_id,
+        });
       }
     }
     if (walletData.balance < price_after) {

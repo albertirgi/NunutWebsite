@@ -28,8 +28,8 @@ export const storeVoucher = async (req, res) => {
     await firestore.collection('voucher').doc().set({
       code: data.code,
       expired_at: data.expired_at,
-      minimum: data.minimum,
-      maximum: data.maximum,
+      minimum_purchase: parseInt(data.minimum),
+      maximum_discount: parseInt(data.maximum),
       tnc: data.tnc,
       image: imageUrl,
       type: data.type,
@@ -50,7 +50,14 @@ export const storeVoucher = async (req, res) => {
 export const getAllVouchers = async (req, res) => {
   try {
     const data = await firestore.collection('voucher').get()
-    const voucherArray = []
+    const userVoucher = await firestore.collection('user_voucher').get()
+    const userVoucherArray = userVoucher.docs.map((doc) => {
+      return {
+        user_voucher_id: doc.id,
+        ...doc.data()
+      }
+    });
+    var voucherArray = []
     if (data.empty) {
       res.status(404).json({
         message: 'No voucher record found',
@@ -62,20 +69,40 @@ export const getAllVouchers = async (req, res) => {
           doc.id,
           doc.data().code,
           doc.data().expired_at,
-          doc.data().minimum,
-          doc.data().maximum,
+          doc.data().minimum_purchase,
+          doc.data().maximum_discount,
           doc.data().tnc,
           doc.data().image,
           doc.data().type,
           doc.data().discount
-        )
+        );
         voucherArray.push(voucher)
       })
-      res.status(200).json({
-        message: 'Voucher data retrieved successfuly',
-        data: voucherArray,
-        status: 200
-      })
+      if(req.query.user !== undefined && req.query.user !== ''){
+        voucherArray = voucherArray.filter(
+          (voucher) => {
+            const userVoucherData = userVoucherArray.find((uv) => {
+              return uv.voucher_id == voucher.voucher_id && uv.user_id == req.query.user
+            });
+            if(userVoucherData == undefined){
+              return true;
+            }else{
+              return false;
+            }
+          }
+        );
+        res.status(200).json({
+          message: "Voucher data retrieved successfuly",
+          data: voucherArray,
+          status: 200,
+        });
+      }else{  
+        res.status(200).json({
+          message: "Voucher data retrieved successfuly",
+          data: voucherArray,
+          status: 200,
+        });
+      }
     }
   } catch (error) {
     res.status(500).json({
@@ -140,8 +167,8 @@ export const updateVoucher = async (req, res) => {
       .set({
         code: data.code ? data.code : voucherData.data().code,
         expired_at: data.expired_at ? data.expired_at : voucherData.data().expired_at,
-        minimum: data.minimum ? data.minimum : voucherData.data().minimum,
-        maximum: data.maximum ? data.maximum : voucherData.data().maximum,
+        minimum_purchase: data.minimum_purchase ? data.minimum_purchase : voucherData.data().minimum_purchase,
+        maximum_discount: data.maximum_discount ? data.maximum_discount : voucherData.data().maximum_discount,
         tnc: data.tnc ? data.tnc : voucherData.data().tnc,
         image: image ? imageUrl : voucherData.data().image,
         type: data.type ? data.type : voucherData.data().type,
