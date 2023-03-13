@@ -7,6 +7,10 @@ const LayoutContentStyle = styled.div`
   background-color: #ffffff;
   border: 1px solid ${palette('border', 0)};
   height: 100%;
+
+  .ant-table-thead .ant-table-cell {
+    background-color: #FAD14B;
+  }
 `;
 
 export default LayoutContentStyle;

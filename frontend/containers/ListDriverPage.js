@@ -7,51 +7,71 @@ import envConfig from '../env-config';
 
 const { rowStyle, colStyle, gutter } = basicStyle;
 const columns = [
+  // {
+  //   title: 'Id',
+  //   dataIndex: 'id_driver',
+  //   key: 'id_driver',
+  //   align: 'center',
+  // },
   {
-    title: 'Id',
-    dataIndex: 'id_driver',
-    key: 'id_driver',
+    title: 'No',
+    dataIndex: 'no',
+    key: 'no',
+    align: 'center',
   },
   {
     title:'Full Name',
     dataIndex:'full_name',
     key:'full_name',
+    align: 'center',
   },
   {
-    title: 'NIK',
-    dataIndex: 'nik',
-    key: 'nik',
+    title:'KTP',
+    dataIndex:'KTP',
+    key:'KTP',
+    align: 'center',
   },
   {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
+    title:'Driving License',
+    dataIndex:'driving_license',
+    key:'driving_license',
+    align: 'center',
   },
   {
-    title:'Driver License',
-    dataIndex:'driver_license',
-    key:'driver_license',
+    title:'Agreement Letter',
+    dataIndex:'agreement_letter',
+    key:'agreement_letter',
+    align: 'center',
   },
   {
-    title:'Agreement',
-    dataIndex:'agreement',
-    key:'agreement',
+    title:'Driver Image',
+    dataIndex:'driver_image',
+    key:'driver_image',
+    align: 'center',
   },
   {
-    title:'Image',
-    dataIndex:'image',
-    key:'image',
+    title:'Driver Status',
+    dataIndex:'driver_status',
+    key:'driver_status',
+    align:'center',
+    textAlign:'center',
   },
   {
     title:'Action',
     dataIndex:'action',
     key:'action',
-},
+    align: 'center',
+  },
   
 
 ];
 
+function getFileNameOnURL(url) {
+  return url?.substring(url.lastIndexOf('/') + 1);
+}
+
 export default function ListDriverPage() {
+  var number = 1;
   const [DataRetrivied, setDataRetrivied] = useState();
   const apiUrlDriver = `${envConfig.URL_API_REST}/driver?user`;
   let DriverAll;
@@ -61,40 +81,38 @@ export default function ListDriverPage() {
       .then((responData) => {
         DriverAll = responData.data?.map(function (data) {
           return {
-            key: data.id,
-            id_driver: data.id,
-            full_name: data.fullname,
-            nik:data.nik,
-            phone_number: data.phone,
-            driver_license:
-            <a href={data.drivingLicense.toString()} target="_blank">
+            key: data.driver_id,
+            // id_driver: data.driver_id,
+            no : number++,
+            full_name: data.name,
+            KTP: <a href={"https://ayonunut.com/api/v1/file/" + getFileNameOnURL(data?.student_card.toString())} target="_blank">
+              <Button> 
+                Click to Open
+              </Button>
+            </a>,
+            driving_license: <a href={"https://ayonunut.com/api/v1/file/" + getFileNameOnURL(data?.driving_license?.toString())} target="_blank">
               <Button>
                 Click to Open
               </Button>
-
             </a>,
-            agreement:
-            <a href={data.aggrementLetter.toString()} target="_blank">
-              <Button>
-                Click to Open
-              </Button>
-
+            agreement_letter:<a href={"https://ayonunut.com/api/v1/file/" + getFileNameOnURL(data?.agreement_letter?.toString())} target="_blank">
+            <Button> 
+              Click to Open
+            </Button>
             </a>,
-            image:
-            <a href={data.image.toString()} target="_blank">
-              <Button>
-                Click to Open
-              </Button>
-
+            driver_image:<a href={"https://ayonunut.com/api/v1/file/" + getFileNameOnURL(data?.driver_image?.toString())} target="_blank">
+            <Button> 
+              Click to Open
+            </Button>
             </a>,
-            action:
-            <a href="">
-                <Button>
-                    Delete
-                </Button>
-
-            </a>
-          ,
+            driver_status: data.status,
+            action: <Button onClick={
+              () => {
+                
+              }
+            }>
+              Edit
+            </Button>
 
           };
         });
@@ -106,8 +124,8 @@ export default function ListDriverPage() {
     pullDriver();
   }, []);
   return (
-    <LayoutContentWrapper style={{ height: '100vh' }}>
-      <LayoutContent style={{maxHeight:"100vh"}}>
+    <LayoutContentWrapper >
+      <LayoutContent >
           <Row style={rowStyle} gutter={gutter} justify="start">
               <Col md={24} sm={24} xs={24} style={colStyle}>
                 <h1 style={{fontWeight:"bold", fontSize:"20px"}}>
@@ -123,7 +141,7 @@ export default function ListDriverPage() {
           </Row>
           <Row style={rowStyle} gutter={gutter} justify="start">
               <Col md={24} sm={24} xs={24} style={colStyle}>
-                <Table dataSource={DataRetrivied} columns={columns} />
+                <Table dataSource={DataRetrivied} columns={columns} pagination={false}/>
               
               </Col>
           </Row>   

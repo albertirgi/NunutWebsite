@@ -32,13 +32,16 @@ const nextConfig = {
 //   require.extensions['.css'] = file => {};
 // }
 module.exports = {
-	rewrites: [
-	  {
-		source: '/',
-		destination: '/home',
-	  },
-	],
-  };
+	async redirects() {
+	  return [
+		{
+		  source: '/',
+		  destination: '/home',
+		  permanent: true,
+		},
+	  ]
+	},
+  }
 module.exports = withPlugins(
 	[
 		withTM,
