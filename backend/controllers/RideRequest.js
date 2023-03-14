@@ -170,10 +170,6 @@ export const storeRideRequest = async (req, res) => {
         type: "nominal",
         voucher_id: data.voucher_id != undefined ? data.voucher_id : "",
       });
-    res.status(200).json({
-      message: "Ride order data saved successfuly",
-      status: 200,
-    });
     // ==========================
     res.status(200).json({
       message: 'Ride request data saved successfuly',
