@@ -60,7 +60,7 @@ export const storeRideRequest = async (req, res) => {
     }
     const walletData = wallet.docs[0].data();
     var price_after =
-      rideScheduleData.price + (rideScheduleData.price * 10) / 100; // 10% tax fee
+      rideScheduleData.price + (rideScheduleData.price * 0.1); // 10% tax fee
     // Check voucher
     if (data.voucher_id != undefined && data.voucher_id != "") {
       const voucher = await firestore
@@ -92,6 +92,7 @@ export const storeRideRequest = async (req, res) => {
         const voucherData = voucher.data();
         const voucherExpired = new Date(voucherData.expired_at);
         const today = new Date();
+        console.log(voucherExpired);
 
         if (today <= voucherExpired) {
           // Check voucher type
