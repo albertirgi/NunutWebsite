@@ -25,7 +25,7 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     const rideScheduleData = rideSchedule.data();
-    await firestore.collection("ride_request").doc().set(data);
+    const postRideRequest = await firestore.collection("ride_request").doc().set(data);
     const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
     if (wallet.empty) {
       res.status(404).json({
@@ -34,9 +34,158 @@ export const storeRideRequest = async (req, res) => {
       });
       return;
     }
+    // RIDE ORDER ==========================
+    // const walletData = wallet.docs[0].data();
+    // walletData.balance -= (rideScheduleData.price + (rideScheduleData.price * 0.1));
+    // await firestore.collection('wallet').doc(wallet.docs[0].id).update(walletData);
+    var userVoucher = await firestore.collection("user_voucher").get();
+    if (data.voucher_id != undefined && data.voucher_id != "") {
+      userVoucher = await firestore
+        .collection("user_voucher")
+        .where("voucher_id", "==", data.voucher_id)
+        .get();
+    }
+    const userVoucherData = userVoucher.docs.map((doc) => {
+      return {
+        user_voucher_id: doc.id,
+        voucher_id: doc.data().voucher_id,
+        user_id: doc.data().user_id,
+      };
+    });
+    // Check user wallet
+    if (wallet.empty) {
+      await firestore.collection("wallet").doc().set({
+        user_id: data.user_id,
+        balance: 0,
+      });
+      res.status(400).json({
+        message: "Your wallet is empty, please top up your wallet first",
+        status: 400,
+      });
+      return;
+    }
     const walletData = wallet.docs[0].data();
-    walletData.balance -= (rideScheduleData.price + (rideScheduleData.price * 0.1));
-    await firestore.collection('wallet').doc(wallet.docs[0].id).update(walletData);
+    var price_after =
+      rideScheduleData.price + (rideScheduleData.price * 10) / 100; // 10% tax fee
+    // Check voucher
+    if (
+      data.voucher_id !== undefined &&
+      data.voucher_id !== null &&
+      data.voucher_id !== ""
+    ) {
+      const voucher = await firestore
+        .collection("voucher")
+        .doc(data.voucher_id)
+        .get();
+      if (!voucher.exists) {
+        res.status(400).json({
+          message: "Voucher not found",
+          status: 400,
+        });
+        return;
+      } else {
+        // Check is used
+        if (
+          userVoucherData.find((userVoucher) => {
+            return (
+              userVoucher.user_id == data.user_id &&
+              userVoucher.voucher_id == data.voucher_id
+            );
+          }).length > 0
+        ) {
+          res.status(400).json({
+            message: "Voucher is used",
+            status: 400,
+          });
+          return;
+        }
+        // Check voucher expired
+        const voucherData = voucher.data();
+        const voucherExpired = new Date(voucherData.expired_at);
+        const today = new Date();
+
+        if (today <= voucherExpired) {
+          // Check voucher type
+          if (voucherData.type == "percentage") {
+            price_after =
+              rideScheduleData.price -
+              (rideScheduleData.price * voucherData.discount) / 100;
+          } else {
+            price_after = rideScheduleData.price - voucherData.discount;
+          }
+          if (price_after < 0) {
+            price_after = 0;
+          }
+        }
+        // Store User Voucher
+        await firestore.collection("user_voucher").doc().set({
+          user_id: data.user_id,
+          voucher_id: data.voucher_id,
+        });
+      }
+    }
+    if (walletData.balance < price_after) {
+      res.status(400).json({
+        message:
+          "Your wallet balance is not enough, please top up your wallet first",
+        status: 400,
+      });
+      return;
+    }
+    // Check ride request
+    const rideRequestSingle = await firestore
+      .collection("ride_request")
+      .doc(postRideRequest.id)
+      .get();
+    if (!rideRequestSingle.exists) {
+      res.status(400).json({
+        message: "Ride request not found",
+        status: 400,
+      });
+      return;
+    }
+    // Substract wallet balance
+    await firestore
+      .collection("wallet")
+      .doc(wallet.docs[0].id)
+      .update({
+        balance: walletData.balance - price_after,
+      });
+
+    // Get driver data
+    const driver = await firestore
+      .collection("driver")
+      .doc(rideScheduleData.driver_id)
+      .get();
+    if (!driver.exists) {
+      res.status(400).json({
+        message: "Driver not found",
+        status: 400,
+      });
+      return;
+    }
+    const driverData = driver.data();
+    // Add ride order
+    await firestore
+      .collection("ride_order")
+      .doc()
+      .set({
+        description: "Ride Order",
+        discount: price_after - (rideScheduleData.price + (rideScheduleData.price * 10) / 100),
+        from: postRideRequest.data().user_id,
+        price_after: price_after,
+        price_before: rideScheduleData.price + (rideScheduleData.price * 10) / 100,
+        ride_request_id: postRideRequest.id,
+        status_payment: "paid",
+        to: driverData.user_id,
+        type: voucherData.type || "nominal",
+        voucher_id: data.voucher_id || "",
+      });
+    res.status(200).json({
+      message: "Ride order data saved successfuly",
+      status: 200,
+    });
+    // ==========================
     res.status(200).json({
       message: 'Ride request data saved successfuly',
       status: 200,

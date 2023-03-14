@@ -35,7 +35,7 @@ export const storeRideOrder = async (req, res) => {
       return;
     }
     const walletData = wallet.docs[0].data();
-    var price_after = data.price;
+    var price_after = data.price + (data.price * 10 / 100); // 10% tax fee
     // Check voucher
     if (
       data.voucher_id !== undefined &&
