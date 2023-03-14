@@ -26,8 +26,8 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     const rideScheduleData = rideSchedule.data();
-    const postRideRequest = await firestore.collection("ride_request").doc().set(data);
-    console.log(postRideRequest);
+    const postRideRequest = await firestore.collection("ride_request").add(data);
+    console.log(postRideRequest.id);
     const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
     if (wallet.empty) {
       res.status(404).json({
