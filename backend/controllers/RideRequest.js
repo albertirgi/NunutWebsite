@@ -7,6 +7,7 @@ const firestore = db.firestore();
 export const storeRideRequest = async (req, res) => {
   try {
     const data = req.body;
+    console.log(data);
     // Check ride request and user id
     const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).get();
     if (!rideRequest.empty) {
