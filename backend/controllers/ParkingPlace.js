@@ -10,7 +10,6 @@ export const storeParkingPlace = async (req, res) => {
   try {
     const data = req.body;
     const image = req.file;
-console.log(req.file);
     // Upload image to firebase storage
     const imagePromise = new Promise((resolve, reject) => {
       const fileNameImage = uuid() + image.originalname;

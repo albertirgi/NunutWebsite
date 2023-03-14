@@ -161,7 +161,7 @@ export const storeRideRequest = async (req, res) => {
       .set({
         description: "Ride Order",
         discount: price_after - (rideScheduleData.price + (rideScheduleData.price * 10) / 100),
-        from: postRideRequest.data().user_id,
+        from: data.user_id,
         price_after: price_after,
         price_before: rideScheduleData.price + (rideScheduleData.price * 10) / 100,
         ride_request_id: postRideRequest.id,
@@ -455,7 +455,6 @@ export const getRideRequestByList = async (req, res) => {
       }
       if (req.query.status_ride !== undefined && req.query.status_ride !== "") {
         const active = req.query.status_ride == "active" ? true : false;
-        console.log(active);
         if (active) {
           rideRequestArray = rideRequestArray.filter((rideRequest) => {
             return (

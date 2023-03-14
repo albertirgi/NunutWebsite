@@ -487,7 +487,6 @@ export const getRideScheduleByList = async (req, res) => {
             return rideScheduleCapacity > rideRequestCapactity
           })
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-            console.log(rideRequest)
             return rideSchedule.is_active == true && rideSchedule.ride_request_id.find((rideRequest) => {
               return rideRequest.user_id.user_id == req.query.user
             }) == undefined
