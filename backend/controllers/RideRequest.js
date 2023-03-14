@@ -60,7 +60,7 @@ export const storeRideRequest = async (req, res) => {
     }
     const walletData = wallet.docs[0].data();
     var price_after =
-      rideScheduleData.price + (rideScheduleData.price * 0.1); // 10% tax fee
+      rideScheduleData.price; // 10% tax fee
     // Check voucher
     if (data.voucher_id != undefined && data.voucher_id != "") {
       const voucher = await firestore
@@ -144,7 +144,7 @@ export const storeRideRequest = async (req, res) => {
       .collection("wallet")
       .doc(wallet.docs[0].id)
       .update({
-        balance: walletData.balance - price_after,
+        balance: walletData.balance - (price_after + (rideScheduleData.price * 0.1)),
       });
 
     // Get driver data
@@ -166,9 +166,9 @@ export const storeRideRequest = async (req, res) => {
       .doc()
       .set({
         description: "Ride Order",
-        discount: (rideScheduleData.price + (rideScheduleData.price * 0.1)) - price_after,
+        discount: (rideScheduleData.price) - price_after,
         from: data.user_id,
-        price_after: price_after,
+        price_after: price_after + (rideScheduleData.price * 0.1),
         price_before: rideScheduleData.price + (rideScheduleData.price * 0.1),
         ride_request_id: postRideRequest.id,
         status_payment: "paid",
