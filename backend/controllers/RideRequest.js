@@ -7,7 +7,6 @@ const firestore = db.firestore();
 export const storeRideRequest = async (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
     // Check ride request and user id
     const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).get();
     if (!rideRequest.empty) {
@@ -27,7 +26,6 @@ export const storeRideRequest = async (req, res) => {
     }
     const rideScheduleData = rideSchedule.data();
     const postRideRequest = await firestore.collection("ride_request").add(data);
-    console.log(postRideRequest.id);
     const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
     if (wallet.empty) {
       res.status(404).json({
@@ -41,13 +39,6 @@ export const storeRideRequest = async (req, res) => {
     // walletData.balance -= (rideScheduleData.price + (rideScheduleData.price * 0.1));
     // await firestore.collection('wallet').doc(wallet.docs[0].id).update(walletData);
     var userVoucher = await firestore.collection("user_voucher").get();
-    if (data.voucher_id != undefined && data.voucher_id != "") {
-      console.log("Getting voucher... " + data.voucher_id);
-      userVoucher = await firestore
-        .collection("user_voucher")
-        .where("voucher_id", "==", data.voucher_id)
-        .get();
-    }
     const userVoucherData = userVoucher.docs.map((doc) => {
       return {
         user_voucher_id: doc.id,
@@ -84,14 +75,13 @@ export const storeRideRequest = async (req, res) => {
         return;
       } else {
         // Check is used
-        if (
-          userVoucherData.find((userVoucher) => {
-            return (
-              userVoucher.user_id == data.user_id &&
-              userVoucher.voucher_id == data.voucher_id
-            );
-          }).length > 0
-        ) {
+        const usedVoucher = userVoucherData.find((userVoucher) => {
+          return (
+            userVoucher.user_id == data.user_id &&
+            userVoucher.voucher_id == data.voucher_id
+          );
+        });
+        if (usedVoucher != undefined) {
           res.status(400).json({
             message: "Voucher is used",
             status: 400,
