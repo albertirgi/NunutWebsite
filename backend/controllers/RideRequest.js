@@ -27,6 +27,7 @@ export const storeRideRequest = async (req, res) => {
     }
     const rideScheduleData = rideSchedule.data();
     const postRideRequest = await firestore.collection("ride_request").doc().set(data);
+    console.log(postRideRequest);
     const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
     if (wallet.empty) {
       res.status(404).json({
@@ -41,6 +42,7 @@ export const storeRideRequest = async (req, res) => {
     // await firestore.collection('wallet').doc(wallet.docs[0].id).update(walletData);
     var userVoucher = await firestore.collection("user_voucher").get();
     if (data.voucher_id != undefined && data.voucher_id != "") {
+      console.log("Getting voucher... " + data.voucher_id);
       userVoucher = await firestore
         .collection("user_voucher")
         .where("voucher_id", "==", data.voucher_id)
@@ -69,9 +71,7 @@ export const storeRideRequest = async (req, res) => {
     var price_after =
       rideScheduleData.price + (rideScheduleData.price * 10) / 100; // 10% tax fee
     // Check voucher
-    if (
-      data.voucher_id != undefined
-    ) {
+    if (data.voucher_id != undefined && data.voucher_id != "") {
       const voucher = await firestore
         .collection("voucher")
         .doc(data.voucher_id)
