@@ -92,7 +92,6 @@ export const storeRideRequest = async (req, res) => {
         const voucherData = voucher.data();
         const voucherExpired = new Date(voucherData.expired_at);
         const today = new Date();
-        console.log(voucherExpired + " " + today);
 
         if (today <= voucherExpired) {
           // Check voucher type
@@ -167,10 +166,10 @@ export const storeRideRequest = async (req, res) => {
       .doc()
       .set({
         description: "Ride Order",
-        discount: price_after - (rideScheduleData.price + (rideScheduleData.price * 10) / 100),
+        discount: (rideScheduleData.price + (rideScheduleData.price * 0.1)) - price_after,
         from: data.user_id,
         price_after: price_after,
-        price_before: rideScheduleData.price + (rideScheduleData.price * 10) / 100,
+        price_before: rideScheduleData.price + (rideScheduleData.price * 0.1),
         ride_request_id: postRideRequest.id,
         status_payment: "paid",
         to: driverData.user_id,
