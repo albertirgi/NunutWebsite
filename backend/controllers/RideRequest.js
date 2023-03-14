@@ -92,7 +92,7 @@ export const storeRideRequest = async (req, res) => {
         const voucherData = voucher.data();
         const voucherExpired = new Date(voucherData.expired_at);
         const today = new Date();
-        console.log(voucherExpired);
+        console.log(voucherExpired + " " + today);
 
         if (today <= voucherExpired) {
           // Check voucher type
@@ -106,6 +106,12 @@ export const storeRideRequest = async (req, res) => {
           if (price_after < 0) {
             price_after = 0;
           }
+        }else {
+          res.status(400).json({
+            message: "Voucher is expired",
+            status: 400,
+          });
+          return;
         }
         // Store User Voucher
         await firestore.collection("user_voucher").doc().set({
