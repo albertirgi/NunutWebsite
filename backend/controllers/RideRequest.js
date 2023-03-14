@@ -69,9 +69,7 @@ export const storeRideRequest = async (req, res) => {
       rideScheduleData.price + (rideScheduleData.price * 10) / 100; // 10% tax fee
     // Check voucher
     if (
-      data.voucher_id !== undefined &&
-      data.voucher_id !== null &&
-      data.voucher_id !== ""
+      data.voucher_id != undefined
     ) {
       const voucher = await firestore
         .collection("voucher")
@@ -178,8 +176,8 @@ export const storeRideRequest = async (req, res) => {
         ride_request_id: postRideRequest.id,
         status_payment: "paid",
         to: driverData.user_id,
-        type: voucherData.type || "nominal",
-        voucher_id: data.voucher_id || "",
+        type: "nominal",
+        voucher_id: data.voucher_id != undefined ? data.voucher_id : "",
       });
     res.status(200).json({
       message: "Ride order data saved successfuly",
