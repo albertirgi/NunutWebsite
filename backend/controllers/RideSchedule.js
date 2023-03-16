@@ -568,42 +568,46 @@ export const rideScheduleDone = async (req, res) => {
       })
     }else{
       const rideScheduleData = rideSchedule.data()
-      const vehicle = await firestore.collection('vehicle').doc(rideScheduleData.vehicle_id).get()
-      const vehicleType = await firestore.collection('vehicle_type').doc(vehicle.data().vehicle_type).get()
       const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
       rideRequest.forEach(async doc => {
         const data = doc.data()
-        const rate = body.distance / vehicleType.data().fuel_consumption;
-        const petrol = rate * vehicleType.data().fuel_price;
-        const price = petrol * 2.8;
-        if(price == (rideScheduleData.price - (rideScheduleData.price * 0.1))){
-          console.log("price is correct")
-        }else{
-          console.log("price is not correct")
-        }
-        const commision = price - petrol;
-        const driverShare = petrol + (commision - (commision * 0.3));
-        const driver = await firestore.collection('driver').doc(rideScheduleData.driver_id).get();
-        const driverData = driver.data();
-        const wallet = await firestore.collection('wallet').where('user_id', '==', driverData.user_id).get();
-        const walletData = wallet.docs[0].data();
-        const updateWallet = await firestore.collection('wallet').doc(wallet.docs[0].id).update({
-          balance: walletData.balance + driverShare
-        })
-        const transaction = await firestore.collection('transaction').add({
-          amount: driverShare,
-          method: "NUNUTRIDE",
-          order_id: doc.id,
-          status: "SUCCESS",
-          transaction_id: doc.id,
-          transaction_time: new Date(),
-          type: "WALLET",
-          wallet_id: wallet.docs[0].id
-        })
+        if(data.status_ride == "ongoing"){
+          const rideOrder = await firestore.collection('ride_order').where('ride_request_id', '==', doc.id).get()
+          const rideOrderData = rideOrder.docs[0].data()
+          const petrol = rideScheduleData.price / 2.8;
+          const commision = rideScheduleData.price - petrol;
+          const driverShare = petrol + (commision - (commision * 0.3));
+          const driver = await firestore
+            .collection("driver")
+            .doc(rideScheduleData.driver_id)
+            .get();
+          const driverData = driver.data();
+          const wallet = await firestore
+            .collection("wallet")
+            .where("user_id", "==", driverData.user_id)
+            .get();
+          const walletData = wallet.docs[0].data();
+          await firestore
+            .collection("wallet")
+            .doc(wallet.docs[0].id)
+            .update({
+              balance: walletData.balance + driverShare,
+            });
+          await firestore.collection("transaction").add({
+            amount: driverShare,
+            method: "NUNUTRIDE",
+            order_id: doc.id,
+            status: "SUCCESS",
+            transaction_id: doc.id,
+            transaction_time: new Date(),
+            type: "WALLET",
+            wallet_id: wallet.docs[0].id,
+          });
 
-        await firestore.collection('ride_request').doc(doc.id).update({
-          status_ride: 'DONE'
-        })
+          await firestore.collection("ride_request").doc(doc.id).update({
+            status_ride: "DONE",
+          });
+        }
       })
       await firestore.collection('ride_schedule').doc(id).update({
         is_active: false
