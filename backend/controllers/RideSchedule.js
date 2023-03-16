@@ -571,14 +571,12 @@ export const rideScheduleDone = async (req, res) => {
       const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
       rideRequest.forEach(async doc => {
         const data = doc.data()
-        console.log(data);
         if(data.status_ride == "ONGOING"){
-          console.log('ongoing');
           // const rideOrder = await firestore.collection('ride_order').where('ride_request_id', '==', doc.id).get()
           // const rideOrderData = rideOrder.docs[0].data()
           const petrol = rideScheduleData.price / 2.8;
           const commision = rideScheduleData.price - petrol;
-          const driverShare = petrol + (commision - (commision * 0.3));
+          const driverShare = Math.floor(petrol + (commision * 0.3));
           const driver = await firestore
             .collection("driver")
             .doc(rideScheduleData.driver_id)
