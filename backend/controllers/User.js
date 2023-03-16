@@ -150,7 +150,7 @@ export const login = async (req, res) => {
     const password = req.body.password
     signInWithEmailAndPassword(getAuth(app), email, password)
     .then(async data => {
-        const userData = await firestore.collection('users').doc(data.user.uid)
+        const userData = firestore.collection('users').doc(data.user.uid)
         const datauser = await userData.get();
         if(!datauser.exists) {
           return res.status(404).json({
@@ -158,12 +158,14 @@ export const login = async (req, res) => {
             status: 404
           });
         }else{
-          token = jwt.sign({
-            userId: data.user.uid,
-            userEmail: data.user.email
-          },
-          "RANDOM-TOKEN",
-          { expiresIn: "24h" });
+          token = jwt.sign(
+            {
+              userId: data.user.uid,
+              userEmail: data.user.email,
+            },
+            "9d891f12a761461d918c8264ad3f0e2e9a49998f008982c0cee73467e657e1f2",
+            { expiresIn: "24h" }
+          );
           const sendData = {
             token: token,
           }
@@ -174,6 +176,7 @@ export const login = async (req, res) => {
           });
         }
     }).catch(err => {
+        console.log(err)
         res.status(500).json({
             message: err.message || "Some error occurred while logging in the user.",
             status: 500

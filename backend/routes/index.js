@@ -1,6 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 dotenv.config();
 const upload = multer({storage: multer.memoryStorage()});
 
@@ -39,6 +40,89 @@ import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, 
 import { getFile } from '../controllers/File.js';
 
 //import { getAllDrivers } from '../controllers/Driver2.js'
+
+// Middleware to check if user is logged in
+const isLoggedIn = (req, res, next) => {
+    var token = req.headers['Authorization'];
+    if (token.startsWith('Bearer ')) {
+        // Remove Bearer from string
+        token = token.slice(7, token.length);
+    }
+    if (!token) {
+        res.status(401).json({
+            message: "No token provided",
+            status: 401
+        });
+    } else {
+        next();
+    }
+}
+
+// Middleware to check if user is admin
+// const isAdmin = (req, res, next) => {
+//     var token = req.headers["Authorization"];
+//     if (token.startsWith("Bearer ")) {
+//       // Remove Bearer from string
+//       token = token.slice(7, token.length);
+//     }
+//     if (!token) {
+//         res.status(401).json({
+//             message: "No token provided",
+//             status: 401
+//         });
+//     } else {
+//         jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
+//             if (err) {
+//                 res.status(401).json({
+//                     message: "Unauthorized",
+//                     status: 401
+//                 });
+//             } else {
+//                 if (decoded.role === "admin") {
+//                     next();
+//                 } else {
+//                     res.status(401).json({
+//                         message: "Unauthorized",
+//                         status: 401
+//                     });
+//                 }
+//             }
+//         });
+//     }
+// }
+
+// Check if data is user's own data
+// const isOwnDataOrAdmin = (req, res, next) => {
+//     var token = req.headers["Authorization"];
+//     if (token.startsWith("Bearer ")) {
+//       // Remove Bearer from string
+//       token = token.slice(7, token.length);
+//     }
+//     if (!token) {
+//         res.status(401).json({
+//             message: "No token provided",
+//             status: 401
+//         });
+//     } else {
+//         jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
+//             if (err) {
+//                 res.status(401).json({
+//                     message: "Unauthorized",
+//                     status: 401
+//                 });
+//             } else {
+//                 if (decoded.userId === req.params.userId || decoded.role === "admin") {
+//                     next();
+//                 } else {
+//                     res.status(401).json({
+//                         message: "Unauthorized",
+//                         status: 401
+//                     });
+//                 }
+//             }
+//         });
+//     }
+// }
 
 router.post('/login', login);
 router.post('/logout', logout);
