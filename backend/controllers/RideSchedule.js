@@ -571,7 +571,8 @@ export const rideScheduleDone = async (req, res) => {
       const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
       rideRequest.forEach(async doc => {
         const data = doc.data()
-        if(data.status_ride == "ongoing"){
+        console.log(data);
+        if(data.status_ride == "ONGOING"){
           const rideOrder = await firestore.collection('ride_order').where('ride_request_id', '==', doc.id).get()
           const rideOrderData = rideOrder.docs[0].data()
           const petrol = rideScheduleData.price / 2.8;
