@@ -24,13 +24,32 @@ export const storeNotification = async (req, res) => {
       });
     });
     const imageUrl = await imagePromise;
-    await firestore.collection('notification').doc().set({
-      description: data.description,
-      image: imageUrl,
-      is_read: data.is_read == 'true' ? true : false,
-      title: data.title,
-      user_id: data.user_id
-    });
+    if(data.user_id == null || data.user_id == undefined || data.user_id == ''){
+      const user = await firestore.collection('users').get();
+      user.docs.forEach(async (doc) => {
+        await firestore
+          .collection("notification")
+          .doc()
+          .set({
+            description: data.description,
+            image: imageUrl,
+            is_read: false,
+            title: data.title,
+            user_id: doc.data().user_id,
+          });
+      });
+    }else {
+      await firestore
+        .collection("notification")
+        .doc()
+        .set({
+          description: data.description,
+          image: imageUrl,
+          is_read: false,
+          title: data.title,
+          user_id: data.user_id,
+        });
+    }
     res.status(200).json({
       message: 'Record saved successfuly',
       status: 200

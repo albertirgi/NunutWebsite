@@ -1,13 +1,35 @@
 import ParkingPlace from "../models/parkingPlaceModel.js";
 import jwt from "jsonwebtoken";
 import { db } from "../config/db.js";
+import { v4 as uuid } from "uuid";
+const storage = db.storage().bucket();
 let token = null;
 const firestore = db.firestore();
 
 export const storeParkingPlace = async (req, res) => {
   try {
     const data = req.body;
-    await firestore.collection("parking_place").doc().set(data);
+    const image = req.file;
+    // Upload image to firebase storage
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + image.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(image.buffer, { contentType: file.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          resolve(file.publicUrl());
+        }
+      });
+    });
+    const imageUrl = await imagePromise;
+    await firestore.collection("parking_place").doc().set({
+      name: data.name,
+      image: imageUrl,
+      sub_name: data.sub_name,
+    });
     res.status(200).json({
       message: "Parking place data saved successfuly",
       status: 200,
@@ -34,6 +56,8 @@ export const getAllParkingPlaces = async (req, res) => {
         const parkingPlace = new ParkingPlace(
           doc.id,
           doc.data().name,
+          doc.data().image,
+          doc.data().sub_name
         );
         parkingPlaceArray.push(parkingPlace);
       });
@@ -54,7 +78,7 @@ export const getAllParkingPlaces = async (req, res) => {
 export const getParkingPlaceById = async (req, res) => {
   try {
     const id = req.params.id;
-    const parkingPlace = await firestore.collection("parking_place").doc(id);
+    const parkingPlace = firestore.collection("parking_place").doc(id);
     const data = await parkingPlace.get();
     if (!data.exists) {
       res.status(404).json({
@@ -79,9 +103,36 @@ export const getParkingPlaceById = async (req, res) => {
 export const updateParkingPlace = async (req, res) => {
   try {
     const id = req.params.id;
+    const imageFile = req.file;
+    // Upload image to firebase storage
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + imageFile.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(imageFile.buffer, { contentType: file.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          resolve(file.publicUrl());
+        }
+      });
+    });
+    const imageUrl = await imagePromise;
     const data = req.body;
-    const parkingPlace = await firestore.collection("parking_place").doc(id);
-    await parkingPlace.update(data);
+    const parkingPlace = firestore.collection("parking_place").doc(id);
+    if(!imageFile){
+      await parkingPlace.update({
+        name: data.name,
+        sub_name: data.sub_name,
+      }, { merge: true });
+    }else{   
+      await parkingPlace.update({
+        name: data.name,
+        image: imageUrl,
+        sub_name: data.sub_name,
+      });
+    }
     res.status(200).json({
       message: "Parking place updated successfuly",
       status: 200

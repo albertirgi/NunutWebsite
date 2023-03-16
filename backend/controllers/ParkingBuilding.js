@@ -1,6 +1,7 @@
 import ParkingBuilding from "../models/parkingBuildingModel.js";
 import jwt from "jsonwebtoken";
 import { db } from "../config/db.js";
+import ParkingSlot from "../models/parkingSlotModel.js";
 let token = null;
 const firestore = db.firestore();
 
@@ -23,11 +24,18 @@ export const storeParkingBuilding = async (req, res) => {
 export const getAllParkingBuildings = async (req, res) => {
   try {
     const data = await firestore.collection("parking_building").get();
-    const parkingBuildingArray = [];
+    var parkingBuildingArray = [];
     const parkingPlace = await firestore.collection("parking_place").get();
-    const parkingPlaceArray = req.query.parkingPlace !== undefined ? parkingPlace.docs.map(doc => {
+    const parkingSlot = await firestore.collection("parking_slot").get();
+    const parkingSlotArray = req.query.parking_slot !== undefined ? parkingSlot.docs.map(doc => {
       return {
-        id: doc.id,
+        parking_slot_id: doc.id,
+        ...doc.data(),
+      };
+    }) : null;
+    const parkingPlaceArray = req.query.parking_place !== undefined ? parkingPlace.docs.map(doc => {
+      return {
+        parking_place_id: doc.id,
         name: doc.data().name
       }
     }) : null;
@@ -41,15 +49,21 @@ export const getAllParkingBuildings = async (req, res) => {
         const parkingBuilding = new ParkingBuilding(
           doc.id,
           doc.data().name,
-          req.query.parking_place !== undefined
+          parkingPlaceArray != null
             ? parkingPlaceArray.find(
                 (parkingPlace) =>
-                  parkingPlace.id === doc.data().parking_place_id
+                  parkingPlace.parking_place_id === doc.data().parking_place_id
               )
-            : doc.data().parking_place_id
+            : doc.data().parking_place_id,
         );
-        parkingBuildingArray.push(parkingBuilding);
+        parkingBuildingArray.push({
+          ...parkingBuilding,
+          parkingSlot: parkingSlotArray != null ? parkingSlotArray.filter((parkingSlot) => parkingSlot.parking_building_id === doc.id) : null
+        });
       });
+      if(req.query.parking_place !== undefined && req.query.parking_place != "") {
+        parkingBuildingArray = parkingBuildingArray.filter((parkingBuilding) => parkingBuilding.parking_place_id.parking_place_id === req.query.parking_place);
+      }
       res.status(200).send({
         message: "Parking building data retrieved successfuly",
         data: parkingBuildingArray,
@@ -67,12 +81,12 @@ export const getAllParkingBuildings = async (req, res) => {
 export const getParkingBuildingById = async (req, res) => {
   try {
     const id = req.params.id;
-    const parkingBuilding = await firestore.collection("parking_building").doc(id);
+    const parkingBuilding = firestore.collection("parking_building").doc(id);
     const data = await parkingBuilding.get();
     const parkingPlace = await firestore.collection("parking_place").get();
-    const parkingPlaceArray = req.query.parkingPlace !== undefined ? parkingPlace.docs.map(doc => {
+    const parkingPlaceArray = req.query.parking_place !== undefined ? parkingPlace.docs.map(doc => {
       return {
-        id: doc.id,
+        parking_place_id: doc.id,
         name: doc.data().name
       }
     }) : null;
@@ -87,12 +101,14 @@ export const getParkingBuildingById = async (req, res) => {
         data: {
           id: data.id,
           name: data.data().name,
-          parking_place: req.query.parking_place !== undefined ? parkingPlaceArray.find(
-            (parkingPlace) =>
-              parkingPlace.id === data.data().parking_place_id
-          ) : data.data().parking_place_id
+          parking_place_id:
+            parkingPlaceArray != null ? parkingPlaceArray.find(
+              (parkingPlace) =>
+                parkingPlace.parking_place_id === data.data().parking_place_id
+            )
+              : data.data().parking_place_id,
         },
-        status: 200
+        status: 200,
       });
     }
   } catch (error) {

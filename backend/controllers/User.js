@@ -21,7 +21,7 @@ export const storeUser = async (req, res) => {
 
   // Upload image to storage
   let publicUrl =
-    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/default-avatar.png?alt=media&token=215b4ac9-5b92-4ee1-a923-64941391a78d";
+    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/avatar.png?alt=media&token=62dfdb20-7aa0-4ca4-badf-31c282583b1b";
   const image = req.file;
   if (image) {
     let status = true;
@@ -81,13 +81,76 @@ export const storeUser = async (req, res) => {
     });
 }
 
+export const updateUser = async (req, res) => {
+  // Validate request
+  if (!req.body) {
+    return res.status(400).json({
+      message: "Input can not be empty",
+    });
+  }
+
+  // Upload image to storage
+  let publicUrl =
+    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/avatar.png?alt=media&token=62dfdb20-7aa0-4ca4-badf-31c282583b1b";
+  const image = req.file;
+  if (image) {
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + image.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(image.buffer, { contentType: image.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          const pubUrl = file.publicUrl();
+          resolve(pubUrl);
+        }
+      });
+    });
+    publicUrl = await imagePromise;
+  }
+
+  // Save userModel in the database
+  db.auth()
+    .createUser({
+      email: req.body.email,
+      emailVerified: false,
+      password: req.body.password,
+      displayName: req.body.name,
+      disabled: false,
+      photoURL: publicUrl,
+    })
+    .then(async function (data) {
+      await firestore.collection("users").doc(data.uid).set({
+        email: req.body.email,
+        name: req.body.name,
+        nik: req.body.nik,
+        phone: req.body.phone,
+        image: publicUrl,
+        role: req.body.role,
+      });
+      res.status(200).json({
+        message: "User created successfully",
+        data: data,
+        status: 200,
+      });
+    })
+    .catch((err) => {
+      res.status(500).json({
+        message: err.message || "Some error occurred while creating the user.",
+        status: 500,
+      });
+    });
+};
+
 // Login a user
 export const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
     signInWithEmailAndPassword(getAuth(app), email, password)
     .then(async data => {
-        const userData = await firestore.collection('users').doc(data.user.uid)
+        const userData = firestore.collection('users').doc(data.user.uid)
         const datauser = await userData.get();
         if(!datauser.exists) {
           return res.status(404).json({
@@ -95,15 +158,16 @@ export const login = async (req, res) => {
             status: 404
           });
         }else{
-          token = jwt.sign({
-            userId: data.user.uid,
-            userEmail: data.user.email
-          },
-          "RANDOM-TOKEN",
-          { expiresIn: "24h" });
+          token = jwt.sign(
+            {
+              userId: data.user.uid,
+              userEmail: data.user.email,
+            },
+            "9d891f12a761461d918c8264ad3f0e2e9a49998f008982c0cee73467e657e1f2",
+            { expiresIn: "24h" }
+          );
           const sendData = {
             token: token,
-            email: data.user.email,
           }
           res.status(200).json({
             message: "Login Successful",
@@ -112,6 +176,7 @@ export const login = async (req, res) => {
           });
         }
     }).catch(err => {
+        console.log(err)
         res.status(500).json({
             message: err.message || "Some error occurred while logging in the user.",
             status: 500
@@ -161,7 +226,7 @@ export const getAllUsers = async (req, res) => {
 }
 
 export const getUserById = async (req, res) => {
-    const user = await firestore.collection('users').doc(req.params.id);
+    const user = firestore.collection('users').doc(req.params.id);
     const data = await user.get();
     if(data.empty){
       res.status(404).json({
@@ -218,7 +283,7 @@ export const resetPassword = async (req, res) => {
 
 export const destroyUser = async (req, res) => {
     const uid = req.params.id
-    const user = await firestore.collection('users').doc(uid);
+    const user = firestore.collection('users').doc(uid);
     const data = await user.get();
     if(!data.exists) {
       res.status(404).json({

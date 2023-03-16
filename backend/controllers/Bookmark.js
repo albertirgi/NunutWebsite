@@ -23,14 +23,31 @@ export const storeBookmark = async (req, res) => {
 export const getAllBookmarks = async (req, res) => {
   try {
     const data = await firestore.collection('bookmark').get()
-    const bookmarkArray = []
+    var bookmarkArray = []
+    const rideRequest = await firestore.collection('ride_request').get()
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
         ? rideSchedule.docs.map(doc => {
             return {
-              id: doc.id,
-              ...doc.data(),
+              ride_schedule_id: doc.id,
+              date: doc.data().date,
+              time: doc.data().time,
+              capacity: doc.data().capacity,
+              destination: doc.data().destination,
+              meeting_point: doc.data().meeting_point,
+              vehicle_id: doc.data().vehicle_id,
+              price: doc.data().price,
+              is_active: doc.data().is_active,
+              note: doc.data().note,
+              driver_id: doc.data().driver_id,
+              ride_request_id: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
             }
           })
         : null
@@ -39,24 +56,87 @@ export const getAllBookmarks = async (req, res) => {
       req.query.user !== undefined
         ? user.docs.map(doc => {
             return {
-              id: doc.id,
+              user_id: doc.id,
               ...doc.data(),
             }
           })
         : null
+    const vehicle = await firestore.collection("vehicle").get();
+    const vehicleArray =
+      req.query.vehicle !== undefined
+        ? vehicle.docs.map(doc => {
+            return {
+              vehicle_id: doc.id,
+              ...doc.data(),
+            }
+          })
+        : null;
     if (data.empty) {
       res.status(404).json({
         message: 'No bookmark record found',
         status: 404,
       })
     } else {
+      const driver = await firestore.collection("driver").get();
       data.forEach(doc => {
-        const bookmark = new Bookmark(
+        if(req.query.user != "" && req.query.user != undefined && doc.data().user_id != req.query.user){
+          return
+        }
+        var bookmark = new Bookmark(
           doc.id,
-          req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.id === doc.data().ride_schedule_id) : doc.data().ride_schedule_id,
-          req.query.user !== undefined ? userArray.find(user => user.id === doc.data().user_id) : doc.data().user_id,
-        )
-        bookmarkArray.push(bookmark)
+          req.query.ride_schedule !== undefined
+            ? rideScheduleArray.find(
+                (rideSchedule) =>
+                  rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
+              )
+            : doc.data().ride_schedule_id,
+          req.query.user !== undefined
+            ? userArray.find((user) => user.user_id === doc.data().user_id)
+            : doc.data().user_id
+        );
+        if (req.query.ride_schedule !== undefined) {
+          const rideScheduleData = rideScheduleArray.find(
+            (rideSchedule) =>
+              rideSchedule.ride_schedule_id === doc.data().ride_schedule_id
+          );
+          const driverArray = driver.docs.map((doc) => {
+            return {
+              driver_id: doc.id,
+              ...doc.data(),
+            };
+          });
+          const driverData = driverArray.find(
+            (driver) => driver.driver_id === rideScheduleData.driver_id
+          );
+          bookmarkArray.push({
+            id: doc.id,
+            ride_schedule_id:
+              req.query.ride_schedule !== undefined
+                ? rideScheduleArray.find(
+                    (rideSchedule) =>
+                      rideSchedule.ride_schedule_id ===
+                      doc.data().ride_schedule_id
+                  )
+                : doc.data().ride_schedule_id,
+            vehicle_id:
+              req.query.vehicle !== undefined
+                ? vehicleArray.find(
+                    (vehicle) =>
+                      vehicle.vehicle_id === rideScheduleData.vehicle_id
+                  )
+                : rideScheduleData.vehicle_id,
+            user_id:
+              req.query.user !== undefined
+                ? userArray.find((user) => user.user_id === doc.data().user_id)
+                : doc.data().user_id,
+            driver_id: {
+              driver_id: driverData.driver_id,
+              ...driverData,
+            },
+          });
+        } else {
+          bookmarkArray.push(bookmark);
+        }
       })
       res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
@@ -76,13 +156,22 @@ export const getBookmarkById = async (req, res) => {
   try {
     const id = req.params.id
     const data = await firestore.collection('bookmark').doc(id).get()
+    const rideRequest = await firestore.collection('ride_request').get()
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
+
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
         ? rideSchedule.docs.map(doc => {
             return {
-              id: doc.id,
+              ride_schedule_id: doc.id,
               ...doc.data(),
+              ride_request_id: rideRequestArray.filter(rideRequest => rideRequest.ride_schedule_id === doc.id)
             }
           })
         : null
@@ -91,7 +180,7 @@ export const getBookmarkById = async (req, res) => {
       req.query.user !== undefined
         ? user.docs.map(doc => {
             return {
-              id: doc.id,
+              user_id: doc.id,
               ...doc.data(),
             }
           })
@@ -105,9 +194,9 @@ export const getBookmarkById = async (req, res) => {
       res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
         data: {
-          id: data.id,
-          ride_schedule: req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.id === data.data().ride_schedule_id) : data.data().ride_schedule_id,
-          user: req.query.user !== undefined ? userArray.find(user => user.id === data.data().user_id) : data.data().user_id,
+          bookmark_id: data.id,
+          ride_schedule: req.query.ride_schedule !== undefined ? rideScheduleArray.find(rideSchedule => rideSchedule.ride_schedule_id === data.data().ride_schedule_id) : data.data().ride_schedule_id,
+          user: req.query.user !== undefined ? userArray.find(user => user.user_id === data.data().user_id) : data.data().user_id,
         },
         status: 200
       })
@@ -129,18 +218,28 @@ export const getBookmarkByUserId = async (req, res) => {
     const userArray =
       req.query.user !== undefined
         ? {
-            id: user.id,
+            user_id: user.user_id,
             ...user.data(),
         }
         : null
+    const rideRequest = await firestore.collection('ride_request').get()
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {  
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const rideSchedule = await firestore.collection('ride_schedule').get()
     const rideScheduleArray =
       req.query.ride_schedule !== undefined
         ? rideSchedule.docs.map(doc => {
             return {
-              id: doc.id,
+              ride_schedule_id: doc.id,
               ...doc.data(),
-            }
+              ride_request_id: rideRequestArray.filter(
+                (rideRequest) => rideRequest.ride_schedule_id === doc.id
+              ),
+            };
           })
         : null
     if (data.empty) {
@@ -154,7 +253,7 @@ export const getBookmarkByUserId = async (req, res) => {
           doc.id,
           req.query.ride_schedule !== undefined
             ? rideScheduleArray.find((rideSchedule) => {
-                return rideSchedule.id == doc.data().ride_schedule_id;
+                return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
               })
             : doc.data().ride_schedule_id,
           req.query.user !== undefined ? userArray : doc.data().user_id
@@ -202,6 +301,33 @@ export const destroyBookmark = async (req, res) => {
       status: 200
     })
   } catch (error) {
+    res.status(400).json({
+      message: 'Something went wrong while deleting data: ' + error.toString(),
+      status: 400
+    })
+  }
+}
+
+export const destroyBookmarkByRideScheduleIdandUserId = async (req, res) => {
+  try{
+    const rideScheduleId = req.query.ride_schedule
+    const userId = req.query.user
+    const data = await firestore.collection('bookmark').where('ride_schedule_id', '==', rideScheduleId).where('user_id', '==', userId).get()
+    if(data.empty){
+      res.status(404).json({
+        message: 'No bookmark record found',
+        status: 404,
+      })
+    }else{
+      data.forEach(doc => {
+        doc.ref.delete()
+      })
+      res.status(200).json({
+        message: 'Bookmark deleted successfuly',
+        status: 200
+      })
+    }
+  }catch (error) {
     res.status(400).json({
       message: 'Something went wrong while deleting data: ' + error.toString(),
       status: 400
