@@ -117,9 +117,11 @@ export const updateUser = async (req, res) => {
     phone: req.body.phone,
     image: publicUrl,
   }, { merge: true });
+  const user = await firestore.collection("users").doc(req.params.id).get();
   res.status(200).json({
     message: "User updated successfully",
     status: 200,
+    data: user.data(),
   });
 };
 
