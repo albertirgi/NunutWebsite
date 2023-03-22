@@ -176,7 +176,6 @@ export const login = async (req, res) => {
           });
         }
     }).catch(err => {
-        console.log(err)
         res.status(500).json({
             message: err.message || "Some error occurred while logging in the user.",
             status: 500

@@ -6,7 +6,7 @@ dotenv.config();
 const upload = multer({storage: multer.memoryStorage()});
 
 var router = express.Router();
-import { storeUser, getAllUsers, login, logout, getUserById, resetPassword, destroyUser } from '../controllers/User.js';
+import { storeUser, updateUser, getAllUsers, login, logout, getUserById, resetPassword, destroyUser } from '../controllers/User.js';
 import { storeDriver, getAllDrivers, getDriverById, getDriverByUserId, updateDriver, updateDriverStatus, destroyDriver } from '../controllers/Driver.js';
 import { storeVehicle, getAllVehicles, getVehicleById, updateVehicle, destroyVehicle } from '../controllers/Vehicle.js';
 import { storeRideSchedule, getAllRideSchedules, getRideScheduleById, updateRideSchedule, destroyRideSchedule, getRideScheduleByList, rideScheduleDone } from '../controllers/RideSchedule.js';
@@ -130,6 +130,7 @@ router.post('/user', upload.single('image'), storeUser);
 router.get('/user', getAllUsers);
 router.get('/user/:id', getUserById);
 router.post('/reset', resetPassword);
+router.put('/user/:id', upload.single('image'), updateUser);
 router.delete('/user/:id', destroyUser);
 router.post('/driver', upload.fields([
   {name: 'student_card', maxCount: 1},
