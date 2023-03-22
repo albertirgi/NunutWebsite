@@ -112,7 +112,7 @@ export const updateUser = async (req, res) => {
   }
 
   // Save userModel in the database
-  await firestore.collection("users").doc(data.uid).set({
+  await firestore.collection("users").doc(req.params.id).set({
     name: req.body.name,
     nik: req.body.nik,
     phone: req.body.phone,
