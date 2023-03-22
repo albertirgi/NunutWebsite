@@ -90,8 +90,7 @@ export const updateUser = async (req, res) => {
   }
 
   // Upload image to storage
-  let publicUrl =
-    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/avatar.png?alt=media&token=62dfdb20-7aa0-4ca4-badf-31c282583b1b";
+  let publicUrl = req.body.image;
   const image = req.file;
   if (image) {
     const imagePromise = new Promise((resolve, reject) => {
@@ -117,7 +116,7 @@ export const updateUser = async (req, res) => {
     nik: req.body.nik,
     phone: req.body.phone,
     image: publicUrl,
-  });
+  }, { merge: true });
   res.status(200).json({
     message: "User updated successfully",
     status: 200,
