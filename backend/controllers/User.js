@@ -112,36 +112,16 @@ export const updateUser = async (req, res) => {
   }
 
   // Save userModel in the database
-  db.auth()
-    .createUser({
-      email: req.body.email,
-      emailVerified: false,
-      password: req.body.password,
-      displayName: req.body.name,
-      disabled: false,
-      photoURL: publicUrl,
-    })
-    .then(async function (data) {
-      await firestore.collection("users").doc(data.uid).set({
-        email: req.body.email,
-        name: req.body.name,
-        nik: req.body.nik,
-        phone: req.body.phone,
-        image: publicUrl,
-        role: req.body.role,
-      });
-      res.status(200).json({
-        message: "User created successfully",
-        data: data,
-        status: 200,
-      });
-    })
-    .catch((err) => {
-      res.status(500).json({
-        message: err.message || "Some error occurred while creating the user.",
-        status: 500,
-      });
-    });
+  await firestore.collection("users").doc(data.uid).set({
+    name: req.body.name,
+    nik: req.body.nik,
+    phone: req.body.phone,
+    image: publicUrl,
+  });
+  res.status(200).json({
+    message: "User updated successfully",
+    status: 200,
+  });
 };
 
 // Login a user
