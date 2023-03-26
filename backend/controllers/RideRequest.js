@@ -322,7 +322,7 @@ export const getAllRideRequests = async (req, res) => {
 
 export const getRideRequestByList = async (req, res) => {
   try {
-    const rideRequest = await firestore.collection('ride_request').get();
+    const rideRequest = await firestore.collection('ride_request').where('status_ride', '!=', "CANCELED").get();
     const DataRideRequestArray = rideRequest.docs.map(doc => {
       return {
         ride_request_id: doc.id,
