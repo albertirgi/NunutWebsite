@@ -129,7 +129,7 @@ export const updateUser = async (req, res) => {
 export const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
-    console.log(email, password);
+    console.log(req.body);
     signInWithEmailAndPassword(getAuth(app), email, password)
     .then(async data => {
         const userData = firestore.collection('users').doc(data.user.uid)
