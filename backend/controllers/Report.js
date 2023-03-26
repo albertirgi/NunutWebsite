@@ -22,7 +22,7 @@ export const storeReport = async (req, res) => {
       .collection("cancellation_user")
       .doc(cancellationUser.cancellation_user_id)
       .set(cancellationUser.toFirestore());
-    await firestore.collection("ride_request").doc(data.ride_request_id).set(
+    await firestore.collection("ride_request").doc(data.ride_request_id).update(
       {
         status_ride: "CANCELED",
       },
