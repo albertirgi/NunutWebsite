@@ -368,7 +368,10 @@ export const getRideRequestByList = async (req, res) => {
             };
           })
         : null;
-    const data = await firestore.collection("ride_request").get();
+    const data = await firestore
+      .collection("ride_request")
+      .where("status_ride", "!=", "CANCELED")
+      .get();
     var rideRequestArray = [];
     if (data.empty) {
       res.status(404).json({
