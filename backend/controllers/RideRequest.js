@@ -322,7 +322,7 @@ export const getAllRideRequests = async (req, res) => {
 
 export const getRideRequestByList = async (req, res) => {
   try {
-    const rideRequest = await firestore.collection('ride_request').where('status_ride', '!=', "CANCELED").get();
+    const rideRequest = await firestore.collection('ride_request').get();
     const DataRideRequestArray = rideRequest.docs.map(doc => {
       return {
         ride_request_id: doc.id,
@@ -370,7 +370,6 @@ export const getRideRequestByList = async (req, res) => {
         : null;
     const data = await firestore
       .collection("ride_request")
-      .where("status_ride", "!=", "CANCELED")
       .get();
     var rideRequestArray = [];
     if (data.empty) {
@@ -464,7 +463,8 @@ export const getRideRequestByList = async (req, res) => {
           rideRequestArray = rideRequestArray.filter((rideRequest) => {
             return (
               rideRequest.status_ride == "ONGOING" ||
-              rideRequest.status_ride == "BOOKED"
+              rideRequest.status_ride == "BOOKED"  ||
+              rideRequest.status_ride == "REGISTERED"
             );
           });
         } else {
@@ -472,6 +472,7 @@ export const getRideRequestByList = async (req, res) => {
             return (
               rideRequest.status_ride == "COMPLETED" ||
               rideRequest.status_ride == "CANCELLED" ||
+              rideRequest.status_ride == "CANCELED" ||
               rideRequest.status_ride == "REJECTED" ||
               rideRequest.status_ride == "EXPIRED" ||
               rideRequest.status_ride == "FAILED" ||
