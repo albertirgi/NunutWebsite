@@ -271,7 +271,7 @@ router.get('/beneficiary', getAllBeneficiaries);
 router.put('/beneficiary/:id', updateBeneficiary);
 router.get('/payout', getAllPayouts);
 router.post('/payout', storePayout);
-router.post('/payout/approve', approvePayout);
+router.post('/payout/approve', upload.single('image'), approvePayout);
 router.post('/payout/reject', rejectPayout);
 router.get('/payout/:referenceno', getPayoutById);
 router.get('/file/:filename', getFile);

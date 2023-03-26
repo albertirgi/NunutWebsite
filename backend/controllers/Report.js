@@ -8,10 +8,28 @@ export const storeReport = async (req, res) => {
   try {
     const data = req.body
     await firestore.collection('report').doc().set(data)
+    const cancellationUser = new CancellationUser(
+      uuid(),
+      data.user_id,
+      data.ride_request_id,
+      data.title,
+      data.description
+    );
+    await firestore
+      .collection("cancellation_user")
+      .doc(cancellationUser.cancellation_user_id)
+      .set(cancellationUser.toFirestore());
+    await firestore.collection("ride_request").doc(data.ride_request_id).set(
+      {
+        status_ride: "CANCELED",
+      },
+      { merge: true }
+    );
     res.status(200).json({
-      message: 'Report data saved successfuly',
-      status: 200
-    })
+      message: "CancellationUser successfully added",
+      data: cancellationUser,
+      status: 200,
+    });
   } catch (error) {
     res.status(500).json({
       message: 'Something went wrong while saving data: ' + error.toString(),

@@ -2,7 +2,23 @@ import { db } from "../config/db.js";
 import { v4 as uuid } from "uuid";
 import https from "https";
 import fetch from "node-fetch";
+import nodemailer from "nodemailer";
 const firestore = db.firestore();
+
+function setupMailer() {
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "psociopreneur@gmail.com",
+      pass: "Xpyla2022",
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+}
 
 export const storeBeneficiary = async (req, res) => {
   try {
@@ -519,6 +535,15 @@ export const approvePayout = async (req, res) => {
       });
       return;
     }
+    const user = await firestore.collection("user").doc(walletData.user_id).get();
+    if (!user.exists) {
+      res.status(400).json({
+        message: "User not found",
+        status: 400,
+      });
+      return;
+    }
+    const userData = user.data();
     // const url = "https://app.sandbox.midtrans.com/iris/api/v1/payouts/approve";
     // const options = {
     //   method: "POST",
@@ -609,9 +634,39 @@ export const approvePayout = async (req, res) => {
         wallet.ref.update({
           balance: walletData.balance - payoutData.amount,
         }).then(() => {
-          res.status(200).json({
-            message: "Payout data approved successfuly",
-            status: 200,
+          // Get image and send email to user
+          const image = req.file;
+          const email = userData.email;
+          const subject = "Payout Approved";
+          const html = `<p>Your payout has been approved</p>
+          <p>Amount: ${payoutData.amount}</p>
+          <p>Bank: ${payoutData.method}</p>
+          <p>Transaction Time: ${payoutData.transaction_time}</p>
+          <p>Transaction Status: Approved</p>
+          <p>Transaction Type: ${payoutData.type}</p>
+          <p>Transaction Balance: ${walletData.balance}</p>
+          <p>Transaction Image: <img src="${image}" /></p>
+          `;
+          const mailer = setupMailer();
+          const mailOptions = {
+            from: "psociopreneur@gmail.com",
+            to: email,
+            subject: subject,
+            html: html,
+          };
+          mailer.sendMail(mailOptions, function (err, info) {
+            if (err) {
+              res.status(500).json({
+                message: "Error while sending email: " + err.message,
+                status: 500,
+              });
+              user.delete();
+            } else {
+              res.status(200).json({
+                message: "Payout data approved successfuly",
+                status: 200,
+              });
+            }
           });
         })
       })
@@ -652,6 +707,50 @@ export const rejectPayout = async (req, res) => {
       references_no: [data.reference_no],
       reject_reason: data.reject_reason,
     };
+    const payout = await firestore
+      .collection("transaction")
+      .doc(data.reference_no)
+      .get();
+
+    if (!payout.exists) {
+      res.status(404).json({
+        message: "Payout data not found",
+        status: 404,
+      });
+      return;
+    }
+
+    const payoutData = payout.data();
+
+    const wallet = await firestore
+      .collection("wallet")
+      .doc(payoutData.wallet_id)
+      .get();
+
+    if (!wallet.exists) {
+      res.status(404).json({
+        message: "Wallet data not found",
+        status: 404,
+      });
+      return;
+    }
+
+    const walletData = wallet.data();
+
+    const user = await firestore
+      .collection("user")
+      .doc(walletData.user_id)
+      .get();
+
+    if (!user.exists) {
+      res.status(404).json({
+        message: "User data not found",
+        status: 404,
+      });
+      return;
+    }
+
+    const userData = user.data();
     // const post = new Promise((resolve, reject) => {
     //   const request = https.request(url, options, (res) => {
     //     if (res.statusCode < 200 || res.statusCode > 299) {
@@ -721,9 +820,38 @@ export const rejectPayout = async (req, res) => {
         status: "rejected",
       })
       .then(() => {
-        res.status(200).json({
-          message: "Payout data rejected successfuly",
-          status: 200,
+        // Get image and send email to user
+        const email = userData.email;
+        const subject = "Payout Rejected";
+        const html = `
+          <h1>Payout Rejected</h1>
+          <p>Transaction ID: ${payoutData.transaction_id}</p>
+          <p>Transaction Status: Rejected</p>
+          <p>Transaction Type: ${payoutData.type}</p>
+          <p>Transaction Amount: ${payoutData.amount}</p>
+          <p>Transaction Date: ${payoutData.transaction_time}</p>
+          <p>Reject Reason: ${data.reject_reason}</p>
+          `;
+        const mailer = setupMailer();
+        const mailOptions = {
+          from: "psociopreneur@gmail.com",
+          to: email,
+          subject: subject,
+          html: html,
+        };
+        mailer.sendMail(mailOptions, function (err, info) {
+          if (err) {
+            res.status(500).json({
+              message: "Error while sending email: " + err.message,
+              status: 500,
+            });
+            user.delete();
+          } else {
+            res.status(200).json({
+              message: "Payout data rejected successfuly",
+              status: 200,
+            });
+          }
         });
       })
       .catch((error) => {
