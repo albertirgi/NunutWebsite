@@ -762,7 +762,7 @@ export const rejectPayout = async (req, res) => {
     const walletData = wallet.data();
     console.log(walletData.user_id)
     const user = await firestore
-      .collection("user")
+      .collection("users")
       .doc(walletData.user_id)
       .get();
 
@@ -837,7 +837,7 @@ export const rejectPayout = async (req, res) => {
     //     });
     //   }
     // );
-    
+
     firestore
       .collection("transaction")
       .doc(data.reference_no)
