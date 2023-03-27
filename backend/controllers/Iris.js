@@ -8,15 +8,38 @@ const firestore = db.firestore();
 function setupMailer() {
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
       user: "psociopreneur@gmail.com",
-      pass: "Xpyla2022",
+      pass: "remnvcsctsuphumg",
     },
     tls: {
       rejectUnauthorized: false,
     },
+  });
+}
+
+export const testingEmail = (req, res) => {
+  const mailer = setupMailer();
+  const mailOptions = {
+    from: "psociopreneur@gmail.com",
+    to: "mchaelwng@gmail.com",
+    subject: "Testing Email",
+    text: "Testing Email",
+  };
+  mailer.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      res.status(500).json({
+        message: "Something went wrong while sending email: " + error.toString(),
+        status: 500,
+      });
+    } else {
+      res.status(200).json({
+        message: "Email sent successfully",
+        status: 200,
+      });
+    }
   });
 }
 
