@@ -711,6 +711,7 @@ export const approvePayout = async (req, res) => {
 export const rejectPayout = async (req, res) => {
   try {
     const data = req.body;
+    console.log(data);
     // const url = "https://app.sandbox.midtrans.com/iris/api/v1/payouts/reject";
     // const options = {
     //   method: "POST",
@@ -744,7 +745,7 @@ export const rejectPayout = async (req, res) => {
     }
 
     const payoutData = payout.data();
-
+    console.log(payoutData.wallet_id);
     const wallet = await firestore
       .collection("wallet")
       .doc(payoutData.wallet_id)
@@ -759,7 +760,7 @@ export const rejectPayout = async (req, res) => {
     }
 
     const walletData = wallet.data();
-
+    console.log(walletData.user_id)
     const user = await firestore
       .collection("user")
       .doc(walletData.user_id)
@@ -836,6 +837,7 @@ export const rejectPayout = async (req, res) => {
     //     });
     //   }
     // );
+    
     firestore
       .collection("transaction")
       .doc(data.reference_no)
