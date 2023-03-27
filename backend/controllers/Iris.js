@@ -533,6 +533,7 @@ export const storePayout = async (req, res) => {
 export const approvePayout = async (req, res) => {
   try {
     const data = req.body;
+    console.log(req.file);
     const payout = await firestore.collection("transaction").doc(data.reference_no).get();
     if (!payout.exists) {
       res.status(400).json({
@@ -657,7 +658,6 @@ export const approvePayout = async (req, res) => {
         wallet.ref.update({
           balance: walletData.balance - payoutData.amount,
         }).then(() => {
-          const transaction_date = new Date(payoutData.transaction_time);
           // Get image and send email to user
           const image = req.file;
           const email = userData.email;
@@ -665,7 +665,7 @@ export const approvePayout = async (req, res) => {
           const html = `<p>Your payout has been approved</p>
           <p>Amount: ${payoutData.amount}</p>
           <p>Bank: ${payoutData.method}</p>
-          <p>Transaction Date: ${transaction_date}</p>
+          <p>Transaction Date: ${payoutData.transaction_time.toDate()}</p>
           <p>Transaction Status: Approved</p>
           <p>Transaction Type: ${payoutData.type}</p>
           <p>Transaction Balance: ${walletData.balance}</p>
@@ -835,7 +835,6 @@ export const rejectPayout = async (req, res) => {
     //     });
     //   }
     // );
-    const transaction_date = new Date(payoutData.transaction_time);
     firestore
       .collection("transaction")
       .doc(data.reference_no)
@@ -852,7 +851,7 @@ export const rejectPayout = async (req, res) => {
           <p>Transaction Status: Rejected</p>
           <p>Transaction Type: ${payoutData.type}</p>
           <p>Transaction Amount: ${payoutData.amount}</p>
-          <p>Transaction Date: ${transaction_date}</p>
+          <p>Transaction Date: ${payoutData.transaction_time.toDate()}</p>
           <p>Reject Reason: ${data.reject_reason}</p>
           `;
         const mailer = setupMailer();
