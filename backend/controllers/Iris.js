@@ -534,6 +534,7 @@ export const approvePayout = async (req, res) => {
   try {
     const data = req.body;
     const encoded = req.file.buffer.toString("base64");
+    console.log(encoded);
     const payout = await firestore.collection("transaction").doc(data.reference_no).get();
     if (!payout.exists) {
       res.status(400).json({
@@ -677,6 +678,14 @@ export const approvePayout = async (req, res) => {
             to: email,
             subject: subject,
             html: html,
+            attachments: [
+              {
+                // encoded string as an attachment
+                filename: "transfer_receipt.jpg",
+                content: encoded.split("base64,")[1],
+                encoding: "base64",
+              },
+            ],
           };
           mailer.sendMail(mailOptions, function (err, info) {
             if (err) {
