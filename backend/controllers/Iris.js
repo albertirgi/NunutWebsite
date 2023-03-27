@@ -682,7 +682,7 @@ export const approvePayout = async (req, res) => {
               {
                 // encoded string as an attachment
                 filename: "transfer_receipt.jpg",
-                content: encoded.split("base64,")[1],
+                content: encoded,
                 encoding: "base64",
               },
             ],
