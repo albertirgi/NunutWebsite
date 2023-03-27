@@ -534,7 +534,6 @@ export const approvePayout = async (req, res) => {
   try {
     const data = req.body;
     const encoded = req.file.buffer.toString("base64");
-    console.log(encoded);
     const payout = await firestore.collection("transaction").doc(data.reference_no).get();
     if (!payout.exists) {
       res.status(400).json({
@@ -670,7 +669,6 @@ export const approvePayout = async (req, res) => {
           <p>Transaction Status: Approved</p>
           <p>Transaction Type: ${payoutData.type}</p>
           <p>Transaction Balance: ${walletData.balance}</p>
-          <p>Transaction Image: <img src="data:image/png;base64,${encoded}" /></p>
           `;
           const mailer = setupMailer();
           const mailOptions = {
