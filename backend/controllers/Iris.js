@@ -558,7 +558,7 @@ export const approvePayout = async (req, res) => {
       });
       return;
     }
-    const user = await firestore.collection("user").doc(walletData.user_id).get();
+    const user = await firestore.collection("users").doc(walletData.user_id).get();
     if (!user.exists) {
       res.status(400).json({
         message: "User not found",
@@ -657,6 +657,7 @@ export const approvePayout = async (req, res) => {
         wallet.ref.update({
           balance: walletData.balance - payoutData.amount,
         }).then(() => {
+          const transaction_date = new Date(payoutData.transaction_time);
           // Get image and send email to user
           const image = req.file;
           const email = userData.email;
@@ -664,7 +665,7 @@ export const approvePayout = async (req, res) => {
           const html = `<p>Your payout has been approved</p>
           <p>Amount: ${payoutData.amount}</p>
           <p>Bank: ${payoutData.method}</p>
-          <p>Transaction Time: ${payoutData.transaction_time}</p>
+          <p>Transaction Date: ${transaction_date}</p>
           <p>Transaction Status: Approved</p>
           <p>Transaction Type: ${payoutData.type}</p>
           <p>Transaction Balance: ${walletData.balance}</p>
@@ -711,7 +712,6 @@ export const approvePayout = async (req, res) => {
 export const rejectPayout = async (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
     // const url = "https://app.sandbox.midtrans.com/iris/api/v1/payouts/reject";
     // const options = {
     //   method: "POST",
@@ -745,7 +745,6 @@ export const rejectPayout = async (req, res) => {
     }
 
     const payoutData = payout.data();
-    console.log(payoutData.wallet_id);
     const wallet = await firestore
       .collection("wallet")
       .doc(payoutData.wallet_id)
@@ -760,7 +759,6 @@ export const rejectPayout = async (req, res) => {
     }
 
     const walletData = wallet.data();
-    console.log(walletData.user_id)
     const user = await firestore
       .collection("users")
       .doc(walletData.user_id)
@@ -837,7 +835,7 @@ export const rejectPayout = async (req, res) => {
     //     });
     //   }
     // );
-
+    const transaction_date = new Date(payoutData.transaction_time);
     firestore
       .collection("transaction")
       .doc(data.reference_no)
@@ -854,7 +852,7 @@ export const rejectPayout = async (req, res) => {
           <p>Transaction Status: Rejected</p>
           <p>Transaction Type: ${payoutData.type}</p>
           <p>Transaction Amount: ${payoutData.amount}</p>
-          <p>Transaction Date: ${payoutData.transaction_time}</p>
+          <p>Transaction Date: ${transaction_date}</p>
           <p>Reject Reason: ${data.reject_reason}</p>
           `;
         const mailer = setupMailer();
