@@ -21,6 +21,10 @@ export default function SignInPage(props) {
   const router = useRouter();
   const handleLogin = e => {
     e.preventDefault();
+    localStorage.setItem(
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE",
+      "token"
+    );
     dispatch(login(true));
   };
 
@@ -34,6 +38,10 @@ export default function SignInPage(props) {
         (process.browser && document.getElementById('inpuPassword').value) ||
         '',
     };
+    localStorage.setItem(
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE",
+      "token"
+    );
     // jwtLogin(history, userInfo);
   };
 

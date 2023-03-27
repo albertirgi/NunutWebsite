@@ -181,9 +181,9 @@ export default function NotificationPage() {
         formData.append("image", image);
         formData.append("description", description);
         formData.append("isRead", isRead);
-        //formData.append("user_id", "giagiaiogiawjgiawog");
+        formData.append("user_id", "");
 
-        fetch(`${envConfig.URL_API_REST}/notification`, {
+        fetch(`${envConfig.URL_API_REST}notification`, {
             method: "POST",
             // headers: {
             // "Content-Type": "application/json",
