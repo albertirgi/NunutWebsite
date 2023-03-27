@@ -146,7 +146,7 @@ export const login = async (req, res) => {
               userEmail: data.user.email,
             },
             "9d891f12a761461d918c8264ad3f0e2e9a49998f008982c0cee73467e657e1f2",
-            { expiresIn: "24h" }
+            { expiresIn: "365d" }
           );
           const sendData = {
             token: token,
