@@ -98,7 +98,7 @@ export const storeRideRequest = async (req, res) => {
           if (voucherData.type == "percentage") {
             price_after =
               rideScheduleData.price -
-              (rideScheduleData.price * voucherData.discount) / 100;
+              (rideScheduleData.price * (voucherData.discount / 100));
           } else {
             price_after = rideScheduleData.price - voucherData.discount;
           }
