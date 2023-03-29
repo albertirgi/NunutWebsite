@@ -7,13 +7,14 @@ let token = null;
 export const storeVehicle = async (req, res) => {
   try {
     const data = req.body;
-    await firestore.collection('vehicle').doc().set(data);
     if(data.is_main == true){
       const vehicle = await firestore.collection('vehicle').where('driver_id', '==', data.driver_id).get();
       vehicle.forEach(async (doc) => {
         await firestore.collection('vehicle').doc(doc.id).update({is_main: false});
       });
     }
+    await firestore.collection("vehicle").doc().set(data);
+
     res.status(200).json({
       message: 'Vehicle data saved successfuly',
       status: 200,

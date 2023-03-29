@@ -12,12 +12,14 @@ export const storeRideSchedule = async (req, res) => {
       .collection("vehicle")
       .doc(data.vehicle_id)
       .get();
+    const vehicleData = vehicle.data();
     const vehicleType = await firestore
       .collection("vehicle_type")
-      .doc(vehicle.data().vehicle_type)
+      .doc(vehicleData.vehicle_type)
       .get();
-    const rate = data.distance / vehicleType.data().fuel_consumption;
-    const petrol = rate * vehicleType.data().fuel_price;
+    const vehicleTypeData = vehicleType.data();
+    const rate = data.distance / vehicleTypeData.fuel_consumption;
+    const petrol = rate * vehicleTypeData.fuel_price;
     const price = petrol * 2.8;
     await firestore.collection('ride_schedule').doc().set({
       capacity: data.capacity,
@@ -403,9 +405,17 @@ export const getRideScheduleByList = async (req, res) => {
     const vehicleArray = req.query.vehicle !== undefined ? vehicle.docs.map(doc => {
       return {
         vehicle_id: doc.id,
-        ...doc.data()
+        color: doc.data().color,
+        driver_id: doc.data().driver_id,
+        expired_at: doc.data().expired_at,
+        is_main: doc.data().is_main,
+        license_plate: doc.data().license_plate,
+        note: doc.data().note,
+        transportation_type: doc.data().transportation_type,
+        vehicle_type: doc.data().vehicle_type,
       }
     }) : null
+    console.log(vehicleArray)
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
@@ -576,7 +586,7 @@ export const rideScheduleDone = async (req, res) => {
           // const rideOrderData = rideOrder.docs[0].data()
           const petrol = rideScheduleData.price / 2.8;
           const commision = rideScheduleData.price - petrol;
-          const driverShare = Math.floor(petrol + (commision * 0.3));
+          const driverShare = Math.floor(petrol + (commision * 0.7));
           const driver = await firestore
             .collection("driver")
             .doc(rideScheduleData.driver_id)
@@ -606,6 +616,10 @@ export const rideScheduleDone = async (req, res) => {
 
           await firestore.collection("ride_request").doc(doc.id).update({
             status_ride: "DONE",
+          });
+        } else if (data.status_ride == "REGISTERED") {
+          await firestore.collection("ride_request").doc(doc.id).update({
+            status_ride: "CANCELED",
           });
         }
       })

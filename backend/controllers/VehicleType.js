@@ -9,11 +9,12 @@ export const storeVehicleType = async (req, res) => {
     const rules = {
       name: "required",
       fuel_consumption: "required",
-      fuel_type: "required"
+      fuel_type: "required",
+      fuel_price: "required"
     }
     const validation = new Validator(req.body, rules)
     if (validation.passes()) {
-      const vehicleType = new VehicleType(uuidv4(), req.body.name, req.body.fuel_consumption, req.body.fuel_type)
+      const vehicleType = new VehicleType(uuidv4(), req.body.name, req.body.fuel_consumption, req.body.fuel_type, req.body.fuel_price)
       await firestore.collection("vehicle_type").doc(vehicleType.vehicle_type_id).set(vehicleType.toFirestore())
       res.status(201).json({
         message: "Vehicle type successfully created",
