@@ -31,7 +31,7 @@ export const storeRideSchedule = async (req, res) => {
       note: "Nunut Ride",
       time: data.time,
       vehicle_id: data.vehicle_id,
-      price: price
+      price: Math.round(price),
     })
     res.status(200).json({
       message: 'Ride schedule data saved successfuly',
