@@ -242,34 +242,33 @@ export const getAllRideRequests = async (req, res) => {
     } else {
       data.forEach(doc => {
         if(req.query.ride_schedule_only !== undefined && req.query.ride_schedule_only !== ""){
-          const rideSchedule = rideScheduleArray.find((rideSchedule) => {
+          const rideScheduleSingle = rideScheduleArray.find((rideSchedule) => {
             return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
           });
           const data = {
-            ride_schedule_id: rideSchedule.id,
-            date: rideSchedule.date,
-            time: rideSchedule.time,
-            meeting_point: rideSchedule.meeting_point,
-            destination: rideSchedule.destination,
-            note: rideSchedule.note,
-            price: rideSchedule.price,
+            ride_schedule_id: rideScheduleSingle.id,
+            date: rideScheduleSingle.date,
+            time: rideScheduleSingle.time,
+            meeting_point: rideScheduleSingle.meeting_point,
+            destination: rideScheduleSingle.destination,
+            note: rideScheduleSingle.note,
+            price: rideScheduleSingle.price,
             driver: req.query.driver !== undefined
               ? driverArray.find((driver) => {
-                  return driver.driver_id == rideSchedule.driver_id;
+                  return driver.driver_id == rideScheduleSingle.driver_id;
                 })
-              : rideSchedule.driver_id,
+              : rideScheduleSingle.driver_id,
             vehicle: req.query.vehicle !== undefined
               ? vehicleArray.find((vehicle) => {
-                  return vehicle.vehicle_id == rideSchedule.vehicle_id;
+                  return vehicle.vehicle_id == rideScheduleSingle.vehicle_id;
                 })
-              : rideSchedule.vehicle_id,
-            capacity: rideSchedule.capacity,
-            is_active: rideSchedule.is_active,
+              : rideScheduleSingle.vehicle_id,
+            capacity: rideScheduleSingle.capacity,
+            is_active: rideScheduleSingle.is_active,
             ride_request: dataRideRequest.filter((rideRequest) => {
-              return rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id;
+              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
             }),
           };
-          console.log(data);
           rideRequestArray.push(data);
         } else {
           const rideRequest = new RideRequest(
@@ -282,6 +281,7 @@ export const getAllRideRequests = async (req, res) => {
               return user.user_id == doc.data().user_id;
             }) : doc.data().user_id,
           );
+          console.log(rideRequest);
           rideRequestArray.push(rideRequest);
         }
       });
