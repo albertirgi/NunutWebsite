@@ -365,7 +365,14 @@ export const getRideRequestByList = async (req, res) => {
         ? vehicle.docs.map((doc) => {
             return {
               vehicle_id: doc.id,
-              ...doc.data(),
+              color: doc.data().color,
+              driver_id: doc.data().driver_id,
+              expired_at: doc.data().expired_at,
+              is_main: doc.data().is_main,
+              license_plate: doc.data().license_plate,
+              note: doc.data().note,
+              transportation_type: doc.data().transportation_type,
+              vehicle_type: doc.data().vehicle_type,
             };
           })
         : null;
