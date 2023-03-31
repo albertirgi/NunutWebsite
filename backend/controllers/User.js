@@ -217,7 +217,7 @@ export const getUserById = async (req, res) => {
     }else{
       res.status(200).json({
         message: "User retrieved successfully",
-        user: data.data(),
+        data: data.data(),
         status: 200
       });
     }
