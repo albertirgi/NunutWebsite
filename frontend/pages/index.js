@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useDispatch } from 'react-redux';
 import { useRouter } from 'next/router';
@@ -14,7 +14,7 @@ import SignInStyleWrapper from '../styled/SignIn.styles';
 import IconNunut from '@iso/assets/images/nunut/nunut-icon.png';
 import LogoNunut from '@iso/assets/images/nunut/nunut-logo.png';
 import Head from 'next/head';
-
+import envConfig from '../env-config';
 const { login } = authActions;
 export default function SignInPage(props) {
   const dispatch = useDispatch();
@@ -28,15 +28,28 @@ export default function SignInPage(props) {
     dispatch(login(true));
   };
 
-  const handleJWTLogin = () => {
-    const { jwtLogin, history } = props;
-    const userInfo = {
-      username:
-        (process.browser && document.getElementById('inputUserName').value) ||
-        '',
-      password:
-        (process.browser && document.getElementById('inpuPassword').value) ||
-        '',
+  // const handleJWTLogin = () => {
+  //   const { jwtLogin, history } = props;
+  //   const userInfo = {
+  //     username:
+  //       (process.browser && document.getElementById('inputUserName').value) ||
+  //       '',
+  //     password:
+  //       (process.browser && document.getElementById('inpuPassword').value) ||
+  //       '',
+  //   };
+  //   // jwtLogin(history, userInfo);
+  // };
+  const [Email, setEmail] = React.useState('');
+  const [Password, setPassword] = React.useState('');
+  const [counterBtn, setCounterBtn] = React.useState(0);
+
+  const apiLogin = `${envConfig.URL_API_REST}login`;
+  function Login(email, pass) {
+   
+    let data = {
+      email: email,
+      password: pass
     };
     localStorage.setItem(
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE",
@@ -45,6 +58,25 @@ export default function SignInPage(props) {
     // jwtLogin(history, userInfo);
   };
 
+    fetch(apiLogin, {
+    method: "POST",
+    // headers: {
+    //   "Content-Type": "application/json",
+    // },
+    body: JSON.stringify(data),
+  })
+    .then((res) => res.json())
+    .then((result) => {
+      console.log("login result", result);
+    });
+  }
+  // useEffect(() => {
+  //   if(Email != '' && Password != ''){
+  //     Login(Email, Password);
+  //     console.log("counter button : ", counterBtn)
+  //   }
+    
+  // }, [counterBtn]);
   return (
     
     <SignInStyleWrapper  className="isoSignInPage">
@@ -55,12 +87,7 @@ export default function SignInPage(props) {
       <div className="isoLoginContentWrapper">
         <div className="isoLoginContent">
           <div className="isoLogoWrapper">
-            {/* <Link href="/dashboard">
-              <a>
-                {/* <IntlMessages id="page.signInTitle" />
-                
-              </a>
-            </Link> */}
+            
             <img src={LogoNunut} alt="Nunut" height={140}/>
           </div>
 
@@ -69,9 +96,9 @@ export default function SignInPage(props) {
               <Input
                 id="inputUserName"
                 size="large"
-                placeholder="Username"
-                
+                placeholder="Username"  
                 style={{borderRadius: '15px', border: '1px solid #efefef'}}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
 
@@ -82,20 +109,23 @@ export default function SignInPage(props) {
                 type="password"
                 placeholder="Password"
                 style={{borderRadius: '15px', border: '1px solid #efefef'}}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
 
             <div className="isoInputWrapper isoCenter">
-              
               <Button
                 style={{
                   backgroundColor: '#FAD14B',
                   border:"1px solid #000000",
                   borderRadius: "5px",
-
                 }}
                 type="primary"
-                onClick={jwtConfig.enabled ? handleJWTLogin : handleLogin}
+                onClick={() => {
+                  Login(Email, Password);
+                  setCounterBtn(counterBtn + 1);
+                }}
+                //onClick={jwtConfig.enabled ? handleJWTLogin : handleLogin}
               >
                 <p style={{
                   color: '#000000',
@@ -108,4 +138,4 @@ export default function SignInPage(props) {
       </div>
     </SignInStyleWrapper>
   );
-}
+
