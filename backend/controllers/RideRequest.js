@@ -144,7 +144,7 @@ export const storeRideRequest = async (req, res) => {
       .collection("wallet")
       .doc(wallet.docs[0].id)
       .update({
-        balance: walletData.balance - (price_after + (rideScheduleData.price * 0.1)),
+        balance: walletData.balance - Math.floor(price_after + (rideScheduleData.price * 0.1)),
       });
 
     // Get driver data
@@ -269,6 +269,7 @@ export const getAllRideRequests = async (req, res) => {
               return rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id;
             }),
           };
+          console.log(data);
           rideRequestArray.push(data);
         } else {
           const rideRequest = new RideRequest(
