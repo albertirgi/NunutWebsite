@@ -72,11 +72,19 @@ function getFileNameOnURL(url) {
 
 export default function ListDriverPage() {
   var number = 1;
+  const token = localStorage.getItem("token");
   const [DataRetrivied, setDataRetrivied] = useState();
   const apiUrlDriver = `${envConfig.URL_API_REST}/driver?user`;
   let DriverAll;
   function pullDriver(){
-    fetch(apiUrlDriver)
+    
+    fetch(apiUrlDriver,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((respone) => respone.json())
       .then((responData) => {
         DriverAll = responData.data?.map(function (data) {

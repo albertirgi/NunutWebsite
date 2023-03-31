@@ -78,8 +78,13 @@ export default function MapsPage() {
   //console.log("Data : ", DataRetrivied);
 
    function DeleteDataMaps(id) {
+    const token = localStorage.getItem("token");
      fetch(`${envConfig.URL_API_REST}/map/${id}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((result) => {
@@ -170,10 +175,12 @@ export default function MapsPage() {
             latitude: LatitudeController,
             longitude: LongitudeController,
         };
+        const token = localStorage.getItem("token");
         fetch(`${envConfig.URL_API_REST}/map`, {
             method: "POST",
             headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(data),
         })
@@ -310,7 +317,14 @@ export default function MapsPage() {
   
   let MapsAll;
   useEffect(() => {
-    fetch(apiMaps)
+    const token = localStorage.getItem("token");
+    fetch(apiMaps,{
+      method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+    })
       .then((respone) => respone.json())
       .then((responData) => {
         var number = 1;

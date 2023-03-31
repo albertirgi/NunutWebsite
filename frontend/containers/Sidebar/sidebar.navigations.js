@@ -41,7 +41,7 @@ export default [
 	// },
 	{
 		key: 'maps',
-		path: '/dashboard/maps',
+		path: '/dashboard/',
 		label: 'Maps',
 		leftIcon: <SidebarMapsIcon size={19} />,
 	},

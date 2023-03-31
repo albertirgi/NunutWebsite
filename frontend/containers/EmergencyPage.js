@@ -58,7 +58,14 @@ export default function EmergencyPage() {
   let ReportAll;
   function pullReport(){
     var number = 1;
-    fetch(apiUrlReport)
+    const token = localStorage.getItem("token");
+    fetch(apiUrlReport,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((respone) => respone.json())
       .then((responData) => {
         ReportAll = responData.data?.map(function (data) {
@@ -69,7 +76,7 @@ export default function EmergencyPage() {
             title: data.title,
             description: data.description,
             //id_ride_share:data.ride_request_id,
-            id_user:data.user_id,
+            id_user:data.user_id.user_id,
             action:[ <Row>
               <Col md={16} sm={16} xs={16} className="" align="center">
                 <Button

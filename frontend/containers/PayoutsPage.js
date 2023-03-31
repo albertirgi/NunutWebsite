@@ -27,55 +27,55 @@ import NotificationContent from "@iso/containers/Feedback/Notification/Notificat
 const isoDetailModal = DetailModalStyle(DetailModals);
 const DetailModal = WithDirection(isoDetailModal);
 
-const { rowStyle, colStyle, gutter } = basicStyle;
-const columns = [
-    // {
-    //   title: 'Payout Id',
-    //   dataIndex: 'payout_id',
-    //   key: 'payout_id',
-    // },
-    // {
-    //   title: 'Transaction Id',
-    //   dataIndex: 'transaction_id',
-    //   key: 'transaction_id',
-    // },
-    {
-      title: 'No',
-      dataIndex: 'no',
-      key: 'no',
-      align: 'center',
-    },
-    {
-        title:'Status',
-        dataIndex:'status',
-        key:'status',
+  const { rowStyle, colStyle, gutter } = basicStyle;
+  const columns = [
+      // {
+      //   title: 'Payout Id',
+      //   dataIndex: 'payout_id',
+      //   key: 'payout_id',
+      // },
+      // {
+      //   title: 'Transaction Id',
+      //   dataIndex: 'transaction_id',
+      //   key: 'transaction_id',
+      // },
+      {
+        title: 'No',
+        dataIndex: 'no',
+        key: 'no',
         align: 'center',
       },
-    {
-      title: 'Amount',
-      dataIndex: 'amount',
-      key: 'amount',
-      align: 'center',
-    },
-    {
-      title: 'Method',
-      dataIndex: 'method',
-      key: 'method',
-      align: 'center',
-    },
-    {
-      title: 'Info Account',
-      dataIndex: 'info',
-      key: 'info',
-      align: 'center',
-    },
-    {
-        title:'Action',
-        dataIndex:'action',
-        key:'action',
+      {
+          title:'Status',
+          dataIndex:'status',
+          key:'status',
+          align: 'center',
+        },
+      {
+        title: 'Amount',
+        dataIndex: 'amount',
+        key: 'amount',
         align: 'center',
-    },
-  ];
+      },
+      {
+        title: 'Method',
+        dataIndex: 'method',
+        key: 'method',
+        align: 'center',
+      },
+      {
+        title: 'Info Account',
+        dataIndex: 'info',
+        key: 'info',
+        align: 'center',
+      },
+      {
+          title:'Action',
+          dataIndex:'action',
+          key:'action',
+          align: 'center',
+      },
+    ];
 
   export default function PayoutsPage() { 
     const [DataRetrivied, setDataRetrivied] = useState();

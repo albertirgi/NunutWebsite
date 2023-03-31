@@ -73,8 +73,13 @@ const columns = [
 ];
 
 function DeleteNotification(id) {
+  const token = localStorage.getItem("token");
   fetch(`${envConfig.URL_API_REST}/notification/${id}`, {
   method: "DELETE",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  },
 })
   .then((res) => res.json())
   .then((result) => {
@@ -182,12 +187,13 @@ export default function NotificationPage() {
         formData.append("description", description);
         formData.append("isRead", isRead);
         formData.append("user_id", "");
-
+        
+        const token = localStorage.getItem("token");
         fetch(`${envConfig.URL_API_REST}notification`, {
             method: "POST",
-            // headers: {
-            // "Content-Type": "application/json",
-            // },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
             body: formData,
         })
         .then((res) => res.json())
@@ -314,7 +320,15 @@ export default function NotificationPage() {
 
   function pullNotification(){
     var number = 1;
-    fetch(apiUrlNotification)
+    const token = localStorage.getItem("token");
+    fetch(apiUrlNotification,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+
+    })
       .then((respone) => respone.json())
       .then((responData) => {
         NotificationAll = responData.data?.map(function (data) {

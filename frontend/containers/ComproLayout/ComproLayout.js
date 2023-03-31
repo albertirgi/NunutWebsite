@@ -23,28 +23,28 @@ export default function ComproLayout ({children, identifier, content}){
         switch(identifierNavbar){
             case 'home':
                 items = [
-                    {name: 'Home', link: '/home', status: 'active'},
+                    {name: 'Home', link: '/', status: 'active'},
                     {name: 'About', link: '/about', status: ''},
                     {name: 'Join Us', link: '/join', status: ''},
                 ]
                 break;
             case 'about':
                 items = [
-                    {name: 'Home', link: '/home', status: ''},
+                    {name: 'Home', link: '/', status: ''},
                     {name: 'About', link: '/about', status: 'active'},
                     {name: 'Join Us', link: '/join', status: ''},
                 ]
                 break;
             case 'join':
                 items = [
-                    {name: 'Home', link: '/home', status: ''},
+                    {name: 'Home', link: '/', status: ''},
                     {name: 'About', link: '/about', status: ''},
                     {name: 'Join Us', link: '/join', status: 'active'},
                 ]
                 break;
             default:
                 items = [
-                    {name: 'Home', link: '/home', status: 'active'},
+                    {name: 'Home', link: '/', status: 'active'},
                     {name: 'About', link: '/about', status: ''},
                     {name: 'Join Us', link: '/join', status: ''},
                 ]

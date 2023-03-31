@@ -36,8 +36,13 @@ import NotificationContent from "@iso/containers/Feedback/Notification/Notificat
 export default function VoucherPage() {
   //function-funtion
   function DeleteVoucher(id) {
+    const token = localStorage.getItem("token");
     fetch(`${envConfig.URL_API_REST}/voucher/${id}`, {
     method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
   })
     .then((res) => res.json())
     .then((result) => {
@@ -124,7 +129,14 @@ export default function VoucherPage() {
 
   function pullVoucher(){
     var number = 1;
-    fetch(apiUrlVoucher)
+    const token = localStorage.getItem("token");
+    fetch(apiUrlVoucher,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((respone) => respone.json())
       .then((responData) => {
         
@@ -134,8 +146,8 @@ export default function VoucherPage() {
             no: number++,
             code: data.code,
             expired_at: data.expired_at,
-            minimum: data.minimum,
-            maximum: data.maximum,
+            minimum: data.minimum_purchase,
+            maximum: data.maximum_discount,
             tnc: data.tnc,
             image: <a href={data?.image.toString()} target="_blank">
               <Button>
@@ -189,13 +201,13 @@ export default function VoucherPage() {
       formData.append("type", voucherType);
       formData.append("discount", voucherDiscount);
 
-     
+      const token = localStorage.getItem("token");
       fetch(`${envConfig.URL_API_REST}/voucher`, {
          
           method: "POST",
-          // headers: {
-          //   "Content-Type": "application/json",
-          // },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
       })
       .then((res) => res.json())

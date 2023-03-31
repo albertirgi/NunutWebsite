@@ -12,6 +12,7 @@ const HomeLayoutHolder = styled.div`
     }
     .title-home{
         margin-top: 30px !important;
+        font-size: 40px !important;
     }
 }
 .content-home {
@@ -27,10 +28,13 @@ const HomeLayoutHolder = styled.div`
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    
+    height:500px;
 }
 .directPage:hover{
     cursor: pointer;
+}
+.cta-text{
+    margin-top: 100px !important;
 }
 
 `;
