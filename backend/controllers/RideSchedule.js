@@ -586,7 +586,7 @@ export const rideScheduleDone = async (req, res) => {
           // const rideOrderData = rideOrder.docs[0].data()
           const petrol = rideScheduleData.price / 2.8;
           const commision = rideScheduleData.price - petrol;
-          const driverShare = Math.floor(petrol + (commision * 0.7));
+          const driverShare = Math.floor(petrol + (commision * 0.55));
           const driver = await firestore
             .collection("driver")
             .doc(rideScheduleData.driver_id)
