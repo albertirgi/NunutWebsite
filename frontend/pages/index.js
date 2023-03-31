@@ -15,11 +15,23 @@ import IconNunut from '@iso/assets/images/nunut/nunut-icon.png';
 import LogoNunut from '@iso/assets/images/nunut/nunut-logo.png';
 import Head from 'next/head';
 import envConfig from '../env-config';
+import DetailModals from "@iso/components/Feedback/Modal";
+import DetailModalStyle from "@iso/containers/Feedback/Modal/Modal.styles";
+import WithDirection from "@iso/lib/helpers/rtl";
+import {
+  Button as ButtonAntd,
+  Row,
+  Col
+} from "antd";
+import basicStyle from "@iso/assets/styles/constants";
+const isoDetailModal = DetailModalStyle(DetailModals);
+const DetailModal = WithDirection(isoDetailModal);
 const { login } = authActions;
+const { rowStyle, colStyle, gutter } = basicStyle;
 export default function SignInPage(props) {
   const dispatch = useDispatch();
   const router = useRouter();
-  const handleLogin = e => {
+  const handleLogin = (e) => {
     e.preventDefault();
     localStorage.setItem(
       "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE",
@@ -40,55 +52,82 @@ export default function SignInPage(props) {
   //   };
   //   // jwtLogin(history, userInfo);
   // };
-  const [Email, setEmail] = React.useState('');
-  const [Password, setPassword] = React.useState('');
+  const [Email, setEmail] = React.useState("");
+  const [Password, setPassword] = React.useState("");
   const [counterBtn, setCounterBtn] = React.useState(0);
 
   const apiLogin = `${envConfig.URL_API_REST}login`;
-  function Login(email, pass) {
-   
-    let data = {
-      email: email,
-      password: pass
-    };
-    localStorage.setItem(
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE",
-      "token"
-    );
-    // jwtLogin(history, userInfo);
+
+  //ModalKeyResultDetail
+  const [stateAddMaps, setStateAddMaps] = React.useState({
+    visible: false,
+    message: "",
+  });
+
+  const showModalDetailKR = () => {
+    setStateAddMaps({
+      visible: true,
+      loading: false,
+      message: "Email or Password is wrong",
+    });
   };
 
+  const handleCancelDetailKR = () => {
+    setStateAddMaps({ visible: false });
+  };
+
+  function Login(email, pass) {
+    let data = {
+      email: email,
+      password: pass,
+    };
     fetch(apiLogin, {
-    method: "POST",
-    // headers: {
-    //   "Content-Type": "application/json",
-    // },
-    body: JSON.stringify(data),
-  })
-    .then((res) => res.json())
-    .then((result) => {
-      console.log("login result", result);
-    });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((res) => res.json())
+      .then((result) => {
+        if (result.status == 200) {
+          localStorage.setItem("token", result.data.token);
+          dispatch(login(true));
+          // router.push("/dashboard");
+        } else {
+          showModalDetailKR();
+        }
+      });
   }
-  // useEffect(() => {
-  //   if(Email != '' && Password != ''){
-  //     Login(Email, Password);
-  //     console.log("counter button : ", counterBtn)
-  //   }
-    
-  // }, [counterBtn]);
   return (
-    
-    <SignInStyleWrapper  className="isoSignInPage">
-      
+    <SignInStyleWrapper className="isoSignInPage">
       <Head>
         <title>Login</title>
       </Head>
+      <DetailModal
+        visible={stateAddMaps.visible}
+        title="Error Occured"
+        onOk={handleCancelDetailKR}
+        onCancel={handleCancelDetailKR}
+        width={400}
+        footer={[
+          <ButtonAntd key="back" onClick={handleCancelDetailKR}>
+            Ok
+          </ButtonAntd>,
+        ]}
+      >
+        <Row style={rowStyle} gutter={gutter} justify="start">
+          <Col md={24} sm={24} xs={24} style={colStyle}>
+            <div className="isoSignInForm">
+              <h4 className="label-input">{stateAddMaps.message}</h4>
+            </div>
+          </Col>
+        </Row>
+      </DetailModal>
       <div className="isoLoginContentWrapper">
         <div className="isoLoginContent">
           <div className="isoLogoWrapper">
-            
-            <img src={LogoNunut} alt="Nunut" height={140}/>
+            <img src={LogoNunut} alt="Nunut" height={140} />
           </div>
 
           <div className="isoSignInForm">
@@ -96,8 +135,8 @@ export default function SignInPage(props) {
               <Input
                 id="inputUserName"
                 size="large"
-                placeholder="Username"  
-                style={{borderRadius: '15px', border: '1px solid #efefef'}}
+                placeholder="Username"
+                style={{ borderRadius: "15px", border: "1px solid #efefef" }}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
@@ -108,7 +147,7 @@ export default function SignInPage(props) {
                 size="large"
                 type="password"
                 placeholder="Password"
-                style={{borderRadius: '15px', border: '1px solid #efefef'}}
+                style={{ borderRadius: "15px", border: "1px solid #efefef" }}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
@@ -116,8 +155,8 @@ export default function SignInPage(props) {
             <div className="isoInputWrapper isoCenter">
               <Button
                 style={{
-                  backgroundColor: '#FAD14B',
-                  border:"1px solid #000000",
+                  backgroundColor: "#FAD14B",
+                  border: "1px solid #000000",
                   borderRadius: "5px",
                 }}
                 type="primary"
@@ -127,15 +166,18 @@ export default function SignInPage(props) {
                 }}
                 //onClick={jwtConfig.enabled ? handleJWTLogin : handleLogin}
               >
-                <p style={{
-                  color: '#000000',
-                }}>Login</p>
+                <p
+                  style={{
+                    color: "#000000",
+                  }}
+                >
+                  Login
+                </p>
               </Button>
             </div>
-
           </div>
         </div>
       </div>
     </SignInStyleWrapper>
   );
-
+}

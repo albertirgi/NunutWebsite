@@ -90,11 +90,12 @@ const columns = [
       );
       function UpdatePayout(payout_id_data) {
         const apiUrlPayout = `${envConfig.URL_API_REST}payout/reject`;
+        const token = localStorage.getItem("token");
         const requestOptions = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             reference_no: payout_id_data,
@@ -206,10 +207,11 @@ const columns = [
         formData.append("reference_no", payout_id_data);
         formData.append("status", "approved");
         formData.append("image", image);
+        const token = localStorage.getItem("token");
         const requestOptions = {
           method: "POST",
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE`,
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         };
@@ -387,11 +389,12 @@ const columns = [
 
     function pullPayoutRequest() {
       var number = 1;
+      const token = localStorage.getItem("token");
       fetch(apiUrlPayout, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJCbEw1d1pYcDh3TWtiU0twSUdYbEFuWllLTUozIiwidXNlckVtYWlsIjoic2FzdHJhZ2FudGVuZ0BnbWFpbC5jb20iLCJpYXQiOjE2Nzk4MjcwMzMsImV4cCI6MTcxMTM2MzAzM30.HY79ScmJCe-7hgOA2FjRUY1flHoPkTjePCt4AHUYQeE`,
+          Authorization: `Bearer ${token}`,
         },
       })
         .then((respone) => respone.json())
