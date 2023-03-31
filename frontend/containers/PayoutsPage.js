@@ -77,7 +77,7 @@ const columns = [
     },
   ];
 
-  export default function PayoutsPage() {
+  export default function PayoutsPage() { 
     const [DataRetrivied, setDataRetrivied] = useState();
     const apiUrlPayout = `${envConfig.URL_API_REST}/payout`;
     let NotificationAll;
