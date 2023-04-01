@@ -14,7 +14,7 @@ import { storeRideRequest, getAllRideRequests, getRideRequestByList, getRideRequ
 import { storeRideOrder, getAllRideOrders, getRideOrderById, updateRideOrder, destroyRideOrder } from '../controllers/RideOrder.js';
 import { storeVoucher, getAllVouchers, getVoucherById, updateVoucher, destroyVoucher } from '../controllers/Voucher.js';
 import { storeUserVoucher, getAllUserVouchers, getUserVoucherById, updateUserVoucher, destroyUserVoucher } from '../controllers/UserVoucher.js';
-import { storeReport, getAllReports, getReportById, updateReport, destroyReport } from '../controllers/Report.js';
+import { storeReport, getAllReports, getReportById, updateReport, destroyReport, feedbackReport } from '../controllers/Report.js';
 import { storeNotification, getAllNotifications, getNotificationById, updateNotification, destroyNotification } from '../controllers/Notification.js';
 import { storeParkingSlot, getAllParkingSlots, getParkingSlotById, updateParkingSlot, destroyParkingSlot, updateParkingSlotStatus } from '../controllers/ParkingSlot.js';
 import { storeParkingRequest, getAllParkingRequests, getParkingRequestById, getParkingRequestByRideScheduleId, updateParkingRequest, destroyParkingRequest } from '../controllers/ParkingRequest.js';
@@ -192,6 +192,7 @@ router.post('/report', storeReport);
 router.get('/report', getAllReports);
 router.get('/report/:id', getReportById);
 router.put('/report/:id', updateReport);
+router.post('/report/feedback/:id', feedbackReport);
 router.delete('/report/:id', destroyReport);
 router.post('/notification', upload.single("image"), storeNotification);
 router.get('/notification', getAllNotifications);
