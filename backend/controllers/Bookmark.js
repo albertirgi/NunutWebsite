@@ -138,6 +138,11 @@ export const getAllBookmarks = async (req, res) => {
           bookmarkArray.push(bookmark);
         }
       })
+      if (req.query.user_view !== undefined && req.query.user_view == "true") {
+        bookmarkArray = bookmarkArray.filter((bookmark) => {
+          return bookmark.ride_schedule_id.is_active == true;
+        });
+      }
       res.status(200).json({
         message: 'Bookmark data retrieved successfuly',
         data: bookmarkArray,
