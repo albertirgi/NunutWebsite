@@ -108,6 +108,7 @@ const DetailModal = WithDirection(isoDetailModal);
           .then((data) => {
             console.log(data);
             setIsDataChanged(true);
+            console.log(isDataChanged);
           });
       }
 
@@ -218,7 +219,7 @@ const DetailModal = WithDirection(isoDetailModal);
         fetch(apiUrlPayout, requestOptions)
           .then((response) => response.json())
           .then((data) => {
-            console.log("data", data);
+            //console.log("data", data);
             setIsDataChanged(true);
           });
       }
