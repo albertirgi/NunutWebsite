@@ -11,12 +11,26 @@ let token = null
 export const storeDriver = async (req, res, err) => {
   try {
     const data = req.body
-    if(data.fullname && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0] && req.files.image[0]){
+    if(data.name && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0]){
       //Upload files to firebase storage
       const aggrLetter = req.files.aggrement_letter[0]
       const studentCard = req.files.student_card[0]
       const drivingLicense = req.files.driving_license[0]
-      const image = req.files.image[0]
+      // const image = req.files.image[0]
+      //Get user data
+      const userPromise = new Promise((resolve, reject) => {
+        firestore.collection('users').doc(data.user_id).get()
+        .then(doc => {
+          if(doc.exists){
+            resolve(doc.data())
+          }else{
+            reject("User not found")
+          }
+        })
+        .catch(err => {
+          reject(err)
+        })
+      })
       //Upload aggrement letter
       const aggrLetterPromise = new Promise((resolve, reject) => {
         const fileNameAggrLetter = uuid() + aggrLetter.originalname
@@ -27,7 +41,8 @@ export const storeDriver = async (req, res, err) => {
             reject(aggrLetterMessage)
           }else{
             file.makePublic();
-            resolve(file.publicUrl())
+            const pubUrl = file.publicUrl();
+            resolve(pubUrl)
           }
         })
       })
@@ -41,7 +56,8 @@ export const storeDriver = async (req, res, err) => {
             reject(studentCardMessage)
           }else{
             file.makePublic();
-            resolve(file.publicUrl())
+            const pubUrl = file.publicUrl();
+            resolve(pubUrl);
           }
         })
       })
@@ -56,41 +72,44 @@ export const storeDriver = async (req, res, err) => {
             reject(drivingLicenseMessage)
           }else{
             file.makePublic();
-            resolve(file.publicUrl())
+            const pubUrl = file.publicUrl();
+            resolve(pubUrl);
           }
         })
       })
       
       //Upload image
-      const imagePromise = new Promise((resolve, reject) => {
-        const fileNameImage = uuid() + image.originalname;
-        const file = storage.file(fileNameImage)
-        file.save(image.buffer, {contentType: image.mimetype}, function(err) {
-          if(err){
-            let imageMessage = "Error occured while uploading image: " + err
-            reject(imageMessage)
-          }else{
-            file.makePublic()
-            resolve(file.publicUrl())
-          }
-        })
-      })
-      await Promise.all([aggrLetterPromise, studentCardPromise, drivingLicensePromise, imagePromise]).then(
+      // const imagePromise = new Promise((resolve, reject) => {
+      //   const fileNameImage = uuid() + image.originalname;
+      //   const file = storage.file(fileNameImage)
+      //   file.save(image.buffer, {contentType: image.mimetype}, function(err) {
+      //     if(err){
+      //       let imageMessage = "Error occured while uploading image: " + err
+      //       reject(imageMessage)
+      //     }else{
+      //       file.makePublic()
+      //       const pubUrl = file.publicUrl();
+      //       resolve(pubUrl);
+      //     }
+      //   })
+      // })
+      await Promise.all([aggrLetterPromise, studentCardPromise, drivingLicensePromise, userPromise]).then(
         (values) => {
           // Store driver registration data to firestore
           firestore
             .collection("driver")
             .doc()
             .set({
-              fullname: data.fullname,
+              name: data.name,
               nik: data.nik,
               phone: data.phone,
               student_card: values[1],
               aggrement_letter: values[0],
               driving_license: values[2],
               user_id: data.user_id,
+              email: values[3].email,
               status: "pending",
-              image: values[3],
+              image: data.image,
             })
             .then(() => {
               res.status(200).json({
@@ -115,7 +134,41 @@ export const storeDriver = async (req, res, err) => {
     }
   } catch (error) {
     res.status(400).json({
-      message: "Error occured while storing driver registration data: " + error.message,
+      message: "Error occured while storing driver registration data: " + error.toString(),
+      status: 400,
+    })
+  }
+}
+
+export const updateDriverStatus = async (req, res) => {
+  try {
+    const data = req.body
+    const driver_id = req.params.id
+    if(driver_id && data.status){
+      firestore.collection('driver').doc(driver_id).update({
+        status: data.status
+      }, {merge: true})
+      .then(() => {
+        res.status(200).json({
+          message: "Driver status updated successfuly",
+          status: 200,
+        })
+      })
+      .catch(err => {
+        res.status(400).json({
+          message: "Error occured while updating driver status: " + err.toString(),
+          status: 400,
+        })
+      })
+    }else{
+      res.status(400).json({
+        message: "Please provide driver id and status",
+        status: 400,
+      })
+    }
+  } catch (error) {
+    res.status(400).json({
+      message: "Error occured while updating driver status: " + error.toString(),
       status: 400,
     })
   }
@@ -128,14 +181,14 @@ export const getAllDrivers = async (req, res) => {
       .get();
     const vehicleArray = vehicle.docs.map((doc) => {
       return {
-        id: doc.id,
+        vehicle_id: doc.id,
         ...doc.data(),
       };
     });
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data(),
       };
     });
@@ -143,22 +196,23 @@ export const getAllDrivers = async (req, res) => {
     const driverArray = driver.docs
       .map((doc) => {
         return {
-          id: doc.id,
-          fullname: doc.data().fullname,
+          driver_id: doc.id,
+          name: doc.data().name,
+          email: doc.data().email,
           nik: doc.data().nik,
           phone: doc.data().phone,
-          studentCard: doc.data().student_card,
-          drivingLicense: doc.data().driving_license,
-          aggrementLetter: doc.data().aggrement_letter,
-          user: req.query.user !== undefined ? userArray.filter((user) => {
-            if (doc.data().user_id == user.id) {
+          student_card: doc.data().student_card,
+          driving_license: doc.data().driving_license,
+          aggrement_letter: doc.data().aggrement_letter,
+          user_id: req.query.user !== undefined ? userArray.filter((user) => {
+            if (doc.data().user_id == user.user_id) {
               return user;
             }
           }) : doc.data().user_id,
           status: doc.data().status,
           message: doc.data().message ? doc.data().message : "",
           image: doc.data().image,
-          vehicle: vehicleArray.filter(
+          vehicle_id: vehicleArray.filter(
             (vehicle) => {
               if (doc.id == vehicle.driver_id) {
                 return vehicle;
@@ -181,19 +235,79 @@ export const getAllDrivers = async (req, res) => {
   }
 }
 
+export const getDriverByUserId = async (req, res) => {
+  try{
+    const user_id = req.params.id
+    const vehicle = await firestore.collection("vehicle").get();
+    const vehicleArray = vehicle.docs.map((doc) => {
+      return {
+        vehicle_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    const user = await firestore.collection("users").doc(user_id).get();
+    const userData = {
+      user_id: user.id,
+      ...user.data(),
+    }
+    const data = await firestore
+      .collection("driver")
+      .where("user_id", "==", user_id)
+      .get();
+    const driverData = data.docs[0];
+    if (driverData == undefined) {
+      res.status(404).json({
+        message: `Driver with the given User ID ${user_id} not found`,
+        status: 404,
+      });
+    } else {
+      const driver = {
+        driver_id: driverData.id,
+        name: driverData.data().name,
+        email: driverData.data().email,
+        nik: driverData.data().nik,
+        phone: driverData.data().phone,
+        student_card: driverData.data().student_card,
+        driving_license: driverData.data().driving_license,
+        aggrement_letter: driverData.data().aggrement_letter,
+        user_id: userData,
+        status: driverData.data().status,
+        message: driverData.data().message ? driverData.data().message : "",
+        image: driverData.data().image,
+        vehicle_id: vehicleArray.filter((vehicle) => {
+          if (driverData.id == vehicle.driver_id) {
+            return vehicle;
+          }
+        }),
+      };
+
+      res.status(200).json({
+        message: "Driver data retrieved successfuly",
+        data: driver,
+        status: 200,
+      });
+    }
+  }catch(error){
+    res.status(500).json({
+      message: "Error while fetching data: " + error.toString(),
+      status: 500,
+    })
+  }
+}
+
 export const getDriverById = async (req, res) => {
   try{
     const vehicle = await firestore.collection("vehicle").get();
     const vehicleArray = vehicle.docs.map((doc) => {
       return {
-        id: doc.id,
+        vehicle_id: doc.id,
         ...doc.data(),
       };
     });
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data(),
       };
     });
@@ -206,17 +320,18 @@ export const getDriverById = async (req, res) => {
       })
     }else{
       const driver = {
-        id: data.id,
-        fullname: data.data().fullname,
+        driver_id: id,
+        name: data.data().name,
+        email: data.data().email,
         nik: data.data().nik,
         phone: data.data().phone,
-        studentCard: data.data().student_card,
-        drivingLicense: data.data().driving_license,
-        aggrementLetter: data.data().aggrement_letter,
-        user:
+        student_card: data.data().student_card,
+        driving_license: data.data().driving_license,
+        aggrement_letter: data.data().aggrement_letter,
+        user_id:
           req.query.user !== undefined
             ? userArray.filter((user) => {
-                if (data.data().user_id == user.id) {
+                if (data.data().user_id == user.user_id) {
                   return user;
                 }
               })
@@ -224,8 +339,8 @@ export const getDriverById = async (req, res) => {
         status: data.data().status,
         message: data.data().message ? data.data().message : "",
         image: data.data().image,
-        vehicle: vehicleArray.filter((vehicle) => {
-          if (data.id == vehicle.driver_id) {
+        vehicle_id: vehicleArray.filter((vehicle) => {
+          if (id == vehicle.driver_id) {
             return vehicle;
           }
         }),
@@ -259,7 +374,7 @@ export const updateDriver = async (req, res) => {
     const driverData = driver.data()
     const data = req.body
     if (
-      data.fullname &&
+      data.name &&
       data.nik &&
       data.phone
     ) {
@@ -267,7 +382,7 @@ export const updateDriver = async (req, res) => {
       const aggrLetter = req.files.aggrement_letter[0];
       const studentCard = req.files.student_card[0];
       const drivingLicense = req.files.driving_license[0];
-      const image = req.files.image[0];
+      // const image = req.files.image[0];
       //Upload aggrement letter
       const aggrLetterPromise = new Promise((resolve, reject) => {
         const fileNameAggrLetter = uuid() + aggrLetter.originalname;
@@ -328,35 +443,35 @@ export const updateDriver = async (req, res) => {
       });
 
       //Upload image
-      const imagePromise = new Promise((resolve, reject) => {
-        const fileNameImage = uuid() + image.originalname;
-        const file = storage.file(fileNameImage);
-        file.save(
-          image.buffer,
-          { contentType: image.mimetype },
-          function (err) {
-            if (err) {
-              let imageMessage = "Error occured while uploading image: " + err;
-              reject(imageMessage);
-            } else {
-              file.makePublic();
-              resolve(file.publicUrl());
-            }
-          }
-        );
-      });
+      // const imagePromise = new Promise((resolve, reject) => {
+      //   const fileNameImage = uuid() + image.originalname;
+      //   const file = storage.file(fileNameImage);
+      //   file.save(
+      //     image.buffer,
+      //     { contentType: image.mimetype },
+      //     function (err) {
+      //       if (err) {
+      //         let imageMessage = "Error occured while uploading image: " + err;
+      //         reject(imageMessage);
+      //       } else {
+      //         file.makePublic();
+      //         resolve(file.publicUrl());
+      //       }
+      //     }
+      //   );
+      // });
       await Promise.all([
         aggrLetterPromise,
         studentCardPromise,
         drivingLicensePromise,
-        imagePromise,
       ]).then((values) => {
         // Store driver registration data to firestore
         firestore
           .collection("driver")
           .doc(id)
           .set({
-            fullname: data.fullname ? data.fullname : driverData.fullname,
+            name: data.name ? data.name : driverData.name,
+            email: driverData.email,
             nik: data.nik ? data.nik : driverData.nik,
             phone: data.phone ? data.phone : driverData.phone,
             student_card: studentCard ? values[1] : driverData.student_card,
@@ -364,7 +479,7 @@ export const updateDriver = async (req, res) => {
             driving_license: drivingLicense ? values[2] : driverData.driving_license,
             user_id: data.user_id ? data.user_id : driverData.user_id,
             status: data.status ? data.status : driverData.status,
-            image: image ? values[3] : driverData.image,
+            image: data.image ? data.image : driverData.image,
           })
           .then(() => {
             res.status(200).json({

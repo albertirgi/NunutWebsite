@@ -29,31 +29,42 @@ const DetailModal = WithDirection(isoDetailModal);
 
 const { rowStyle, colStyle, gutter } = basicStyle;
 const columns = [
+    // {
+    //   title: 'Map Id',
+    //   dataIndex: 'map_id',
+    //   key: 'map_id',
+    //   align: 'center',
+    // },
     {
-      title: 'Map Id',
-      dataIndex: 'map_id',
-      key: 'map_id',
+      title: 'No',
+      dataIndex: 'no',
+      key: 'no',
+      align: 'center',
     },
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      align: 'center',
     },
     {
         title:'Latitude',
         dataIndex:'latitude',
         key:'latitude',
+        align: 'center',
       },
     {
       title: 'Longitude',
       dataIndex: 'longitude',
       key: 'longitude',
+      align: 'center',
     },
     
     {
         title:'Action',
         dataIndex:'action',
         key:'action',
+        align: 'center',
     },
   ];
 
@@ -67,8 +78,13 @@ export default function MapsPage() {
   //console.log("Data : ", DataRetrivied);
 
    function DeleteDataMaps(id) {
+    const token = localStorage.getItem("token");
      fetch(`${envConfig.URL_API_REST}/map/${id}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((result) => {
@@ -159,10 +175,12 @@ export default function MapsPage() {
             latitude: LatitudeController,
             longitude: LongitudeController,
         };
+        const token = localStorage.getItem("token");
         fetch(`${envConfig.URL_API_REST}/map`, {
             method: "POST",
             headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify(data),
         })
@@ -297,54 +315,46 @@ export default function MapsPage() {
     );
   }
   
-  //  function  pullMaps (){
-  //    fetch(apiMaps)
-  //     .then((respone) => respone.json())
-  //     .then((responData) => {
-  //       MapsAll = responData.data?.map(function (data) {
-  //         return {
-  //             key: data.map_id,
-  //             map_id: data.map_id,
-  //             name: data.name,
-  //             longitude: data.longitude,
-  //             latitude: data.latitude,
-  //             action:
-  //             <Button onClick={
-  //                 () => {
-  //                     NotificationConfirmDelete(data.map_id);
-  //                 } 
-  //             }>
-  //                 Delete
-  //             </Button>
-
-  //         };
-  //       });
-  //       setDataRetrivied(MapsAll);
-  //     });
-  // }
   let MapsAll;
   useEffect(() => {
-    //console.log("useEffect Get Maps");
-    
-    fetch(apiMaps)
+    const token = localStorage.getItem("token");
+    fetch(apiMaps,{
+      method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+    })
       .then((respone) => respone.json())
       .then((responData) => {
+        var number = 1;
         MapsAll = responData.data?.map(function (data) {
           return {
               key: data.map_id,
-              map_id: data.map_id,
+              //map_id: data.map_id,
+              no : number++,
               name: data.name,
               longitude: data.longitude,
               latitude: data.latitude,
               action:
-              <Button onClick={
-                  () => {
-                      NotificationConfirmDelete(data.map_id);
-                      
-                  } 
-              }>
-                  Delete
-              </Button>
+              <Button
+                  size="small"
+                  style={{
+                    backgroundColor: "none",
+                    border: "none",
+                    color: "#000000",
+                    backgroundColor: " #FAD14B",
+                    fontSize: "16px",
+                    padding: "8px 12px",
+                    height: "36px",
+                    borderRadius: "8px",
+                  }}
+                  onClick={() => {
+                    NotificationConfirmDelete(data.map_id);
+                  }}
+                >
+                  Delete 
+                </Button>
 
           };
         });

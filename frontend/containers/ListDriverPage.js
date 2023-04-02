@@ -1,113 +1,319 @@
 import React, { Component, useEffect, useState } from 'react';
 import LayoutContentWrapper from '@iso/components/utility/layoutWrapper';
 import LayoutContent from '@iso/components/utility/layoutContent';
-import { Row, Col, Table, Button } from "antd";
+import {
+  Button as ButtonAntd,
+  Row,
+  Col,
+  DatePicker,
+  Menu,
+  Tooltip,
+  InputNumber,
+  Spin,
+  Progress,
+  Input,
+  Table,
+  Button,
+  Select,
+  } from "antd";
 import basicStyle from "@iso/assets/styles/constants";
 import envConfig from '../env-config';
 
+import DetailModals from "@iso/components/Feedback/Modal";
+import DetailModalStyle from "@iso/containers/Feedback/Modal/Modal.styles";
+import WithDirection from "@iso/lib/helpers/rtl";
+import { Textarea, InputGroup } from "@iso/components/uielements/input";
+//notification
+import notifications from "@iso/components/Feedback/Notification";
+import NotificationContent from "@iso/containers/Feedback/Notification/Notification.styles";
+const isoDetailModal = DetailModalStyle(DetailModals);
+const DetailModal = WithDirection(isoDetailModal);
+
 const { rowStyle, colStyle, gutter } = basicStyle;
 const columns = [
+  // {
+  //   title: 'Id',
+  //   dataIndex: 'id_driver',
+  //   key: 'id_driver',
+  //   align: 'center',
+  // },
   {
-    title: 'Id',
-    dataIndex: 'id_driver',
-    key: 'id_driver',
+    title: 'No',
+    dataIndex: 'no',
+    key: 'no',
+    align: 'center',
   },
   {
     title:'Full Name',
     dataIndex:'full_name',
     key:'full_name',
+    align: 'center',
   },
   {
-    title: 'NIK',
-    dataIndex: 'nik',
-    key: 'nik',
+    title:'KTP',
+    dataIndex:'KTP',
+    key:'KTP',
+    align: 'center',
   },
   {
-    title: 'Phone Number',
-    dataIndex: 'phone_number',
-    key: 'phone_number',
+    title:'Driving License',
+    dataIndex:'driving_license',
+    key:'driving_license',
+    align: 'center',
   },
   {
-    title:'Driver License',
-    dataIndex:'driver_license',
-    key:'driver_license',
+    title:'Agreement Letter',
+    dataIndex:'agreement_letter',
+    key:'agreement_letter',
+    align: 'center',
   },
   {
-    title:'Agreement',
-    dataIndex:'agreement',
-    key:'agreement',
+    title:'Driver Image',
+    dataIndex:'driver_image',
+    key:'driver_image',
+    align: 'center',
   },
   {
-    title:'Image',
-    dataIndex:'image',
-    key:'image',
+    title:'Driver Status',
+    dataIndex:'driver_status',
+    key:'driver_status',
+    align:'center',
+    textAlign:'center',
   },
   {
     title:'Action',
     dataIndex:'action',
     key:'action',
-},
+    align: 'center',
+  },
   
 
 ];
 
+function getFileNameOnURL(url) {
+  return url?.substring(url.lastIndexOf('/') + 1);
+}
+
 export default function ListDriverPage() {
+  var number = 1;
+  
   const [DataRetrivied, setDataRetrivied] = useState();
   const apiUrlDriver = `${envConfig.URL_API_REST}/driver?user`;
   let DriverAll;
-  function pullDriver(){
-    fetch(apiUrlDriver)
+
+  const [isDataChanged, setIsDataChanged] = useState(false);
+
+  
+
+  function FileGetter(fileName) {
+    var apiFileGetter = `${envConfig.URL_API_REST}/file/`;
+    var filename = fileName;
+    const token = localStorage.getItem('token');
+    fetch(apiFileGetter + filename, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then((response) => response.blob())
+    .then((blob) => {
+      const reader = new FileReader();
+      reader.onload = function() {
+        const htmlBlob = new Blob([reader.result], {type: 'text/html'});
+        const htmlUrl = URL.createObjectURL(htmlBlob);
+        const win = window.open(htmlUrl);
+        // Use responData here, e.g.:
+        // win.document.write(responData);
+      };
+      reader.readAsText(blob);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+  
+  const EditStatusDriver = (driver_id, status) => {
+    const [StatusDriver, setStatusDriver] = useState(status);
+    const handleChange = (value) => {
+      setStatusDriver(value);
+      console.log(`selected ${value}`);
+    };
+    function editStatus(d_id, stat) {
+        let data = {
+          status: stat,
+        };
+        //console.log(`data_id: ${d_id.driver_id} data_status: ${stat}`);
+        const token = localStorage.getItem("token");
+        fetch(`${envConfig.URL_API_REST}driver/status/${d_id.driver_id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(data),
+        })        
+        .then((res) => res.json())
+        .then((result) => {
+         
+          setIsDataChanged(true);
+          
+        });
+    } 
+    const { rowStyle, colStyle, gutter } = basicStyle;
+    //ModalKeyResultDetail
+    const [stateAddMaps, setStateAddMaps] = React.useState({
+      loading: false,
+    });
+    const showModalDetailKR = () => {
+      setStateAddMaps({
+        visible: true,
+      });
+    };
+    const handleOkDetailKR = () => {
+        editStatus(driver_id, StatusDriver);
+        if(!isDataChanged){
+          setIsDataChanged(true);
+        }
+        //console.log(isDataChanged);
+
+        setStateAddMaps({ loading: true });
+        setTimeout(() => {
+            setStateAddMaps({ loading: false, visible: false });
+        }, 2000);
+        
+    };
+
+    const handleCancelDetailKR = () => {
+        setStateAddMaps({ visible: false });
+        
+    };
+    
+    return (
+        <div>
+            <ButtonAntd type="primary" onClick={showModalDetailKR} style={{
+              backgroundColor: "#FAD14B",
+              borderColor: "#000000",
+              marginBottom: "15px",
+              color: "#000000",
+              borderRadius: "8px",
+            }}>
+                Edit Status Driver
+            </ButtonAntd>
+            <DetailModal
+
+                visible={stateAddMaps.visible}
+                title="Edit Status Driver"
+                onOk={handleOkDetailKR}
+                onCancel={handleCancelDetailKR}
+                width={400}
+                footer={[
+                    <ButtonAntd key="back" onClick={handleCancelDetailKR}>
+                        Cancel
+                    </ButtonAntd>,
+                    <ButtonAntd
+                        key="submit"
+                        type="primary"
+                        loading={stateAddMaps.loading}
+                        onClick={handleOkDetailKR}
+                    >
+                        Submit
+                    </ButtonAntd>,
+                ]}
+            >
+                <Row style={rowStyle} gutter={gutter} justify="start">
+                    <Col md={24} sm={24} xs={24} style={colStyle}>
+                        <div className="isoSignInForm">
+                            <h5 className="label-input">Status Driver</h5>
+                            <Select
+                              //defaultValue={status}
+                              style={{
+                                width: "100%",
+                              }}
+                              onChange={handleChange}
+                              options={[
+                                {
+                                  value: 'Pending',
+                                  label: 'Pending',
+                                },
+                                {
+                                  value: 'Rejected',
+                                  label: 'Rejected',
+                                },
+                                {
+                                  value: 'Approved',
+                                  label: 'Approved',
+                                },
+                                
+                              ]}
+                            />
+                           
+                        </div>
+                    </Col>
+                </Row>
+            </DetailModal>
+        </div>
+    );
+  }
+  
+
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    fetch(apiUrlDriver,{
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((respone) => respone.json())
       .then((responData) => {
         DriverAll = responData.data?.map(function (data) {
           return {
-            key: data.id,
-            id_driver: data.id,
-            full_name: data.fullname,
-            nik:data.nik,
-            phone_number: data.phone,
-            driver_license:
-            <a href={data.drivingLicense.toString()} target="_blank">
-              <Button>
+            key: data.driver_id,
+            // id_driver: data.driver_id,
+            no : number++,
+            full_name: data.name,
+            KTP: data.student_card?.toString() !== "null" ? <Button onClick={
+              () => {
+                FileGetter(getFileNameOnURL(data?.student_card?.toString()));
+              }}> 
                 Click to Open
-              </Button>
-
-            </a>,
-            agreement:
-            <a href={data.aggrementLetter.toString()} target="_blank">
-              <Button>
+              </Button> 
+              : "No File" ,
+            driving_license: data.driving_license?.toString() !== "null" ? <Button onClick={
+              () => {
+                FileGetter(getFileNameOnURL(data?.driving_license?.toString()));
+              }}> 
                 Click to Open
-              </Button>
-
-            </a>,
-            image:
-            <a href={data.image.toString()} target="_blank">
-              <Button>
+              </Button> : "No File",
+            agreement_letter: data.agreement_letter?.toString() !== "null" ? <Button onClick={
+              () => {
+                FileGetter(getFileNameOnURL(data?.agreement_letter?.toString()));
+              }}> 
                 Click to Open
-              </Button>
-
-            </a>,
-            action:
-            <a href="">
-                <Button>
-                    Delete
-                </Button>
-
-            </a>
-          ,
+              </Button> : "No File",
+            driver_image: data.driver_image?.toString() !== "null" ? <Button onClick={
+              () => {
+                FileGetter(getFileNameOnURL(data?.driver_image?.toString()));
+              }}> 
+                Click to Open
+              </Button> : "No File",
+            driver_status: data.status,
+            action: <EditStatusDriver driver_id={data.driver_id} status={data.status} />,
 
           };
         });
         setDataRetrivied(DriverAll);
       });
-  }
-  useEffect(() => {
-    
-    pullDriver();
-  }, []);
+      if(isDataChanged == true){
+        setIsDataChanged(false);
+      }
+  }, [isDataChanged == true && DataRetrivied]);
   return (
-    <LayoutContentWrapper style={{ height: '100vh' }}>
-      <LayoutContent style={{maxHeight:"100vh"}}>
+    <LayoutContentWrapper >
+      <LayoutContent >
           <Row style={rowStyle} gutter={gutter} justify="start">
               <Col md={24} sm={24} xs={24} style={colStyle}>
                 <h1 style={{fontWeight:"bold", fontSize:"20px"}}>
@@ -116,14 +322,14 @@ export default function ListDriverPage() {
               </Col>
               {/* <Col md={4} sm={4} xs={4} style={colStyle}>
                 <Button>
-                  Add Notification
+                  
                 </Button>
                 
               </Col> */}
           </Row>
           <Row style={rowStyle} gutter={gutter} justify="start">
               <Col md={24} sm={24} xs={24} style={colStyle}>
-                <Table dataSource={DataRetrivied} columns={columns} />
+                <Table dataSource={DataRetrivied} columns={columns} pagination={false}/>
               
               </Col>
           </Row>   

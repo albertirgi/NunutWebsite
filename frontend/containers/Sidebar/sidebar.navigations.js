@@ -32,17 +32,24 @@ import {
 } from '@iso/config/icon.config';
 
 export default [
-	{
-		key: 'parking',
-		path: '/dashboard/parking',
-		label: 'Parkir',
-		leftIcon: <CarIcon size={19} />,
-	},
+	
+	// {
+	// 	key: 'parking',
+	// 	path: '/dashboard/parking',
+	// 	label: 'Parkir',
+	// 	leftIcon: <CarIcon size={19} />,
+	// },
 	{
 		key: 'maps',
-		path: '/dashboard/maps',
+		path: '/dashboard/',
 		label: 'Maps',
 		leftIcon: <SidebarMapsIcon size={19} />,
+	},
+	{
+		key: 'payout',
+		path: '/dashboard/payout',
+		label: 'Payout',
+		leftIcon: <SidebarInvoiceIcon size={19} />,
 	},
 	// {
 	// 	key: 'dashboard',
@@ -50,18 +57,18 @@ export default [
 	// 	label: 'Dashboard',
 	// 	leftIcon: <DashboardIcon size={19} />,
 	// },
-	// {
-	// 	key: 'voucher',
-	// 	path: '/dashboard/voucher',
-	// 	label: 'Voucher',
-	// 	leftIcon: <VoucherIcon size={19} />,
-	// },
-	// {
-	// 	key: 'notification',
-	// 	path: '/dashboard/nunut_notif',
-	// 	label: 'Notification',
-	// 	leftIcon: <NotificationIcon size={19} />,
-	// },
+	{
+		key: 'voucher',
+		path: '/dashboard/voucher',
+		label: 'Voucher',
+		leftIcon: <VoucherIcon size={19} />,
+	},
+	{
+		key: 'notification',
+		path: '/dashboard/nunut_notif',
+		label: 'Notification',
+		leftIcon: <NotificationIcon size={19} />,
+	},
 	
 	// {
 	// 	key: 'user',
@@ -75,18 +82,18 @@ export default [
 	// 	label: 'List Transaction',
 	// 	leftIcon: <EditIcon size={19} />,
 	// },
-	// {
-	// 	key: 'driver',
-	// 	path: '/dashboard/driver',
-	// 	label: 'List Driver',
-	// 	leftIcon: <SidebarContactsIcon size={19} />,
-	// },
-	// {
-	// 	key: 'emergency',
-	// 	path: '/dashboard/emergency',
-	// 	label: 'Emergency Report',
-	// 	leftIcon: <MailSpamReportIcon size={19} />,
-	// },
+	{
+		key: 'driver',
+		path: '/dashboard/driver',
+		label: 'List Driver Status',
+		leftIcon: <SidebarContactsIcon size={19} />,
+	},
+	{
+		key: 'emergency',
+		path: '/dashboard/emergency',
+		label: 'Emergency Report',
+		leftIcon: <MailSpamReportIcon size={19} />,
+	},
 	
 	{
 		key: 'logout',

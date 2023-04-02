@@ -1,103 +1,305 @@
+import Head from 'next/head';
 import React from 'react';
 import Link from 'next/link';
-import { useDispatch } from 'react-redux';
-import { useRouter } from 'next/router';
-import Input from '@iso/components/uielements/input';
-import Checkbox from '@iso/components/uielements/checkbox';
-import Button from '@iso/components/uielements/button';
-import IntlMessages from '@iso/components/utility/intlMessages';
-import jwtConfig from '@iso/config/jwt.config';
-import FirebaseLogin from '@iso/containers/FirebaseForm/FirebaseForm';
-import Auth0 from '../authentication/Auth0';
-import authActions from '../authentication/actions';
-import SignInStyleWrapper from '../styled/SignIn.styles';
-import IconNunut from '@iso/assets/images/nunut/nunut-icon.png';
-import LogoNunut from '@iso/assets/images/nunut/nunut-logo.png';
-import Head from 'next/head';
+import ComproLayout from '../containers/ComproLayout/ComproLayout';
+import { Row, Col } from "antd";
+const { rowStyle, colStyle, gutter } = basicStyle;
+import basicStyle from "@iso/assets/styles/constants";
+import HomeLayoutHolder from '../styled/HomeHolder.style';
+import apple from '@iso/assets/images/nunut/app.png';
+import google from '@iso/assets/images/nunut/play.png';
+export default () => (
+    <>
+        <Head>
+            <title>Home</title>
+        </Head>
+        <ComproLayout identifier="home" content={
+            <>
+                <div>
+                    <Row style={rowStyle} gutter={gutter} justify="center">
+                        <Col md={24} sm={24} xs={24} style={colStyle}>
+                            <h1 style={{
+                                textAlign: "center",
+                                fontSize: "80px",
+                                fontWeight: "bold",
+                                marginTop: "140px",
+                                marginBottom: "0px",
+                                color: "#FFFFFF"
+                                
+                            }}
+                            className="title-home"
+                            >
+                                Masih sendiri?
+                            </h1>
+                        </Col>
+                        
+                    </Row>
+                    <Row style={rowStyle} gutter={gutter} justify="center">
+                        <Col md={24} sm={24} xs={24} style={colStyle}>
+                            <p style={{
+                                textAlign: "center",
+                                fontSize: "20px",
+                                fontWeight: "bold",
+                                marginTop: "0px",
+                                marginBottom: "100px",
+                                color: "#FFFFFF"
 
-const { login } = authActions;
-export default function SignInPage(props) {
-  const dispatch = useDispatch();
-  const router = useRouter();
-  const handleLogin = e => {
-    e.preventDefault();
-    dispatch(login(true));
-  };
+                            }}
+                            className="subtitle-home"
+                            >
+                                Bareng 
+                                <span style={{
+                                    color: "#FAD14B",
+                                    fontWeight: "bold"
+                                }}> NUNUT</span> 
+                                , kamu ga akan pernah sendirian!
+                            </p>
+                        </Col>
+                    </Row>
+                </div>
 
-  const handleJWTLogin = () => {
-    const { jwtLogin, history } = props;
-    const userInfo = {
-      username:
-        (process.browser && document.getElementById('inputUserName').value) ||
-        '',
-      password:
-        (process.browser && document.getElementById('inpuPassword').value) ||
-        '',
-    };
-    // jwtLogin(history, userInfo);
-  };
+            </>   
+        }>
+            <HomeLayoutHolder>
+                <div className="content-home">
 
-  return (
-    
-    <SignInStyleWrapper  className="isoSignInPage">
-      
-      <Head>
-        <title>Login</title>
-      </Head>
-      <div className="isoLoginContentWrapper">
-        <div className="isoLoginContent">
-          <div className="isoLogoWrapper">
-            {/* <Link href="/dashboard">
-              <a>
-                {/* <IntlMessages id="page.signInTitle" />
-                
-              </a>
-            </Link> */}
-            <img src={LogoNunut} alt="Nunut" height={140}/>
-          </div>
+                </div>
+                <div className="content-down">
+                    <Row style={rowStyle} gutter={gutter} justify="center">
+                        <Col md={24} sm={24} xs={24} style={colStyle}>
+                            <h1 style={{
+                                textAlign: "center",
+                                fontSize: "80px",
+                                fontWeight: "bold",
+                                marginBottom: "0px",
+                                color: "#FFFFFF"
+                            }} className="title-home cta-text">
+                                Jadi, tunggu apa lagi?
+                            </h1>
+                        </Col>
+                    </Row>
+                    <Row style={rowStyle} gutter={gutter} justify="center">
+                        <Col md={24} sm={24} xs={24} style={colStyle}>
+                            <p style={{
+                                textAlign: "center",
+                                fontSize: "20px",
+                                fontWeight: "bold",
+                                marginTop: "0px",
+                                //marginBottom: "100px",
+                                color: "#FFFFFF"
 
-          <div className="isoSignInForm">
-            <div className="isoInputWrapper">
-              <Input
-                id="inputUserName"
-                size="large"
-                placeholder="Username"
-                
-                style={{borderRadius: '15px', border: '1px solid #efefef'}}
-              />
-            </div>
+                            }}>
+                                Download NUNUT sekarang!
+                            </p>
+                        </Col>
+                    </Row>
+                    <Row style={{
+                        ...rowStyle,
+                    }} gutter={gutter} justify="center" align="middle">
+                        <Col md={3} sm={3} xs={0} style={colStyle}>
+                            
+                        </Col>
+                        <Col md={4} sm={4} xs={0} style={colStyle}>
+                            <div style={{
+                                backgroundColor: "#FFFFFF",
+                                borderRadius: "50px",
+                                height: "66px",
+                                width: "100%",
+                                textAlign: "center",
+                                marginRight: "20px !important",
+                                marginLeft: "20px !important",
+                            }} className="directPage">
+                                <Row style={{
+                                    ...rowStyle,
+                                    paddingTop: "8px",
 
-            <div className="isoInputWrapper">
-              <Input
-                id="inpuPassword"
-                size="large"
-                type="password"
-                placeholder="Password"
-                style={{borderRadius: '15px', border: '1px solid #efefef'}}
-              />
-            </div>
+                                }} gutter={gutter} justify="start" align="middle">
+                                    <Col md={4} sm={4} xs={4} style={colStyle}>
+                                       
+                                    </Col>
+                                    <Col md={5} sm={5} xs={5} style={colStyle}>
+                                        <img src={apple} style={{
+                                            height: "28px",
+                                            marginRight: "10px"
+                                        }}/>
+                                    </Col>
+                                    <Col md={11} sm={11} xs={11} style={{
+                                        ...colStyle,
+                                        textAlign: "left",
+                                        paddingTop: "8px",
 
-            <div className="isoInputWrapper isoCenter">
-              
-              <Button
-                style={{
-                  backgroundColor: '#FAD14B',
-                  border:"1px solid #000000",
-                  borderRadius: "5px",
 
-                }}
-                type="primary"
-                onClick={jwtConfig.enabled ? handleJWTLogin : handleLogin}
-              >
-                <p style={{
-                  color: '#000000',
-                }}>Login</p>
-              </Button>
-            </div>
+                                    }}>
+                                        <h2 style={{
+                                            fontSize: "20px",
+                                            fontWeight: "bold",
+                                            textAlign: "left",
+                                            color: "#000000"
 
-          </div>
-        </div>
-      </div>
-    </SignInStyleWrapper>
-  );
-}
+                                        }}>
+                                            AppStore
+                                        </h2>
+                                    </Col>
+                                    <Col md={4} sm={4} xs={4} style={colStyle}>
+                                       
+                                    </Col>
+                                </Row>
+                            </div>
+                        </Col>
+                        <Col md={1} sm={1} xs={0} style={colStyle}>
+                            
+                        </Col>
+                        <Col md={4} sm={4} xs={0} style={colStyle}>
+                            <div style={{
+                                backgroundColor: "#FFFFFF",
+                                borderRadius: "50px",
+                                height: "66px",
+                                width: "100%",
+                                textAlign: "center",
+                                
+                            }} className="directPage">
+                                <Row style={{
+                                    ...rowStyle,
+                                    paddingTop: "8px",
+                                    
+                                }} gutter={gutter} justify="start" align="middle">
+                                    <Col md={4} sm={4} xs={4} style={colStyle}>
+                                       
+                                    </Col>
+                                    <Col md={5} sm={5} xs={5} style={colStyle}>
+                                        <img src={google} style={{
+                                            height: "28px",
+                                            marginRight: "10px"
+                                        }}/>
+                                    </Col>
+                                    <Col md={15} sm={15} xs={15} style={{
+                                        ...colStyle,
+                                        textAlign: "left",
+                                        paddingTop: "8px",
+
+
+                                    }}>
+                                        <h2 style={{
+                                            fontSize: "20px",
+                                            fontWeight: "bold",
+                                            textAlign: "left",
+                                            color: "#000000"
+
+                                        }}>
+                                            Google Play
+                                        </h2>
+                                    </Col>
+                                   
+                                </Row>
+                            </div>
+                        </Col>
+                        <Col md={4} sm={4} xs={0} style={colStyle}>   
+                        </Col>
+                    </Row>
+                    <Row style={{
+                        ...rowStyle,
+                        
+                    }} gutter={gutter} justify="center" align="middle">
+                        <Col md={0} sm={0} xs={24} style={colStyle}>
+                            <div style={{
+                                backgroundColor: "#FFFFFF",
+                                borderRadius: "50px",
+                                height: "66px",
+                                width: "100%",
+                                textAlign: "center",
+                                
+                            }} className="directPage">
+                                <Row style={{
+                                    ...rowStyle,
+                                    paddingTop: "8px",
+
+                                }} gutter={gutter} justify="start" align="middle">
+                                    <Col md={4} sm={4} xs={4} style={colStyle}>
+                                       
+                                    </Col>
+                                    <Col md={5} sm={5} xs={5} style={colStyle}>
+                                        <img src={apple} style={{
+                                            height: "28px",
+                                            marginRight: "10px"
+                                        }}/>
+                                    </Col>
+                                    <Col md={11} sm={11} xs={11} style={{
+                                        ...colStyle,
+                                        textAlign: "left",
+                                        paddingTop: "8px",
+
+
+                                    }}>
+                                        <h2 style={{
+                                            fontSize: "20px",
+                                            fontWeight: "bold",
+                                            textAlign: "left",
+                                            color: "#000000"
+
+                                        }}>
+                                            AppStore
+                                        </h2>
+                                    </Col>
+                                    <Col md={4} sm={4} xs={4} style={colStyle}>
+                                       
+                                    </Col>
+                                </Row>
+                            </div>
+                        </Col>
+                    </Row>
+                    <Row style={{
+                        ...rowStyle,
+                        
+                    }} gutter={gutter} justify="center" align="middle">
+                        <Col md={0} sm={0} xs={24} style={colStyle}>
+                            <div style={{
+                                backgroundColor: "#FFFFFF",
+                                borderRadius: "50px",
+                                height: "66px",
+                                width: "100%",
+                                textAlign: "center",
+                                
+                            }} className="directPage">
+                                <Row style={{
+                                    ...rowStyle,
+                                    paddingTop: "8px",
+                                    
+                                }} gutter={gutter} justify="start" align="middle">
+                                    <Col md={4} sm={4} xs={4} style={colStyle}>
+                                       
+                                    </Col>
+                                    <Col md={5} sm={5} xs={5} style={colStyle}>
+                                        <img src={google} style={{
+                                            height: "28px",
+                                            marginRight: "10px"
+                                        }}/>
+                                    </Col>
+                                    <Col md={15} sm={15} xs={15} style={{
+                                        ...colStyle,
+                                        textAlign: "left",
+                                        paddingTop: "8px",
+
+
+                                    }}>
+                                        <h2 style={{
+                                            fontSize: "20px",
+                                            fontWeight: "bold",
+                                            textAlign: "left",
+                                            color: "#000000"
+
+                                        }}>
+                                            Google Play
+                                        </h2>
+                                    </Col>
+                                   
+                                </Row>
+                            </div>
+                        </Col>
+                    </Row>
+                </div>
+            </HomeLayoutHolder>
+            
+        </ComproLayout>
+
+    </>
+);

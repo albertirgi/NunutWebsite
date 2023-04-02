@@ -7,9 +7,146 @@ const firestore = db.firestore();
 export const storeRideOrder = async (req, res) => {
   try {
     const data = req.body;
-    await firestore.collection('ride_order').doc().set(data);
+    var userVoucher = await firestore.collection('user_voucher').get();
+    if(data.voucher_id != undefined && data.voucher_id != ''){
+      userVoucher = await firestore.collection('user_voucher').where('voucher_id', '==', data.voucher_id).get();
+    }
+    const userVoucherData = userVoucher.docs.map((doc) => {
+      return {
+        user_voucher_id: doc.id,
+        voucher_id: doc.data().voucher_id,
+        user_id: doc.data().user_id
+      }
+    });
+    // Check user wallet
+    const wallet = await firestore
+      .collection("wallet")
+      .where("user_id", "==", data.user_id)
+      .get();
+    if (wallet.empty) {
+      await firestore.collection("wallet").doc().set({
+        user_id: data.user_id,
+        balance: 0,
+      });
+      res.status(400).json({
+        message: "Your wallet is empty, please top up your wallet first",
+        status: 400,
+      });
+      return;
+    }
+    const walletData = wallet.docs[0].data();
+    var price_after = data.price + (data.price * 10 / 100); // 10% tax fee
+    // Check voucher
+    if (
+      data.voucher_id !== undefined &&
+      data.voucher_id !== null &&
+      data.voucher_id !== ""
+    ) {
+      const voucher = await firestore
+        .collection("voucher")
+        .doc(data.voucher_id)
+        .get();
+      if (!voucher.exists) {
+        res.status(400).json({
+          message: "Voucher not found",
+          status: 400,
+        });
+        return;
+      }else{
+        // Check is used 
+        if(userVoucherData.find((userVoucher) => {
+          return userVoucher.user_id == data.user_id && userVoucher.voucher_id == data.voucher_id
+        }).length > 0){
+          res.status(400).json({
+            message: "Voucher is used",
+            status: 400,
+          });
+          return;
+        }
+        // Check voucher expired
+        const voucherData = voucher.data();
+        const voucherExpired = new Date(voucherData.expired_at);
+        const today = new Date();
+        
+        if (today <= voucherExpired) {
+          // Check voucher type
+          if(voucherData.type == 'percentage'){
+            price_after = data.price - (data.price * voucherData.discount / 100);
+          }else{
+            price_after = data.price - voucherData.discount;
+          }
+          if(price_after < 0){
+            price_after = 0;
+          }
+        }
+        // Store User Voucher
+        await firestore.collection("user_voucher").doc().set({
+          user_id: data.user_id,
+          voucher_id: data.voucher_id,
+        });
+      }
+    }
+    if (walletData.balance < price_after) {
+      res.status(400).json({
+        message:
+          "Your wallet balance is not enough, please top up your wallet first",
+        status: 400,
+      });
+      return;
+    }
+    // Check ride request
+    const rideRequest = await firestore
+      .collection("ride_request")
+      .doc(data.ride_request_id)
+      .get();
+    if (!rideRequest.exists) {
+      res.status(400).json({
+        message: "Ride request not found",
+        status: 400,
+      });
+      return;
+    }
+    // Substract wallet balance
+    await firestore
+      .collection("wallet")
+      .doc(wallet.docs[0].id)
+      .update({
+        balance: walletData.balance - price_after,
+      });
+    // Add wallet to driver
+    const driver = await firestore
+      .collection("driver")
+      .doc(data.driver_id)
+      .get();
+    if (!driver.exists) {
+      res.status(400).json({
+        message: "Driver not found",
+        status: 400,
+      });
+      return;
+    }
+    const driverData = driver.data();
+    const driverWallet = await firestore
+      .collection("wallet")
+      .where("user_id", "==", driverData.user_id)
+      .get();
+    if (driverWallet.empty) {
+      await firestore.collection("wallet").doc().set({
+        user_id: driverData.user_id,
+        balance: price_after,
+      });
+    } else {
+      await firestore
+        .collection("wallet")
+        .doc(driverWallet.docs[0].id)
+        .update({
+          balance: driverWallet.docs[0].data().balance + price_after,
+        });
+    }
+    // Add ride order
+    await firestore.collection("ride_order").doc().set(data);
     res.status(200).json({
-      message: 'Ride order data saved successfuly',
+      message: "Ride order data saved successfuly",
       status: 200,
     });
   } catch (error) {
@@ -27,16 +164,16 @@ export const getAllRideOrders = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get();
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const voucher = await firestore.collection('voucher').get();
     const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        voucher_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     if (data.empty) {
       res.status(404).json({
@@ -47,20 +184,15 @@ export const getAllRideOrders = async (req, res) => {
       data.forEach(doc => {
         const rideOrder = new RideOrder(
           doc.id,
-          doc.data().description,
-          doc.data().discount,
-          doc.data().type,
-          doc.data().from,
-          doc.data().to,
-          doc.data().price_after,
-          doc.data().price_before,
+          doc.data().user_id,
+          doc.data().driver_id,
+          doc.data().price,
           req.query.ride_request !== undefined ? rideRequestArray.find((rideRequest) => {
-            return rideRequest.id == doc.data().ride_request_id;
+            return rideRequest.ride_request_id == doc.data().ride_request_id;
             }) : doc.data().ride_request_id,
           req.query.voucher !== undefined ? voucherArray.find((voucher) => {
-            return voucher.id == doc.data().voucher_id;
+            return voucher.voucher_id == doc.data().voucher_id;
           }) : doc.data().voucher_id,
-          doc.data().status_payment,
         );
         rideOrderArray.push(rideOrder);
       });
@@ -85,16 +217,16 @@ export const getRideOrderById = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get();
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     const voucher = await firestore.collection('voucher').get();
     const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        voucher_id: doc.id,
+        ...doc.data(),
+      };
     }) : null;
     if(!data.exists){
       res.status(404).json({
@@ -106,21 +238,16 @@ export const getRideOrderById = async (req, res) => {
       res.status(200).json({
         message: 'Ride order data retrieved successfuly',
         data: {
-          id: data.id,
-          description: data.data().description,
-          discount: data.data().discount,
-          type: data.data().type,
-          from: data.data().from,
-          to: data.data().to,
-          price_after: data.data().price_after,
-          price_before: data.data().price_before,
+          ride_order_id: data.id,
+          user_id: data.data().user_id,
+          driver_id: data.data().driver_id,
+          price: data.data().price,
           ride_request_id: req.query.ride_request !== undefined ? rideRequestArray.find((rideRequest) => {
             return rideRequest.id == data.data().ride_request_id;
           }) : data.data().ride_request_id,
           voucher_id: req.query.voucher !== undefined ? voucherArray.find((voucher) => {
             return voucher.id == data.data().voucher_id;
           }) : data.data().voucher_id,
-          status_payment: data.data().status_payment,
         },
         status: 200
       });

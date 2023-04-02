@@ -18,7 +18,7 @@ import {
   message,
   Select
   } from "antd";
-  import DetailModals from "@iso/components/Feedback/Modal";
+import DetailModals from "@iso/components/Feedback/Modal";
 import DetailModalStyle from "@iso/containers/Feedback/Modal/Modal.styles";
 import basicStyle from "@iso/assets/styles/constants";
 import envConfig from '../env-config';
@@ -125,6 +125,8 @@ const columns = [
 ];
 
 export default function ParkingPage() {
+
+
   const [DataRetrivied, setDataRetrivied] = useState();
   const [DataRetrivied2, setDataRetrivied2] = useState();
   const [DataRetrivied3, setDataRetrivied3] = useState();
@@ -832,7 +834,6 @@ export default function ParkingPage() {
       })
       .then((res) => res.json())
       .then((result) => {
-        console.log("result : ", result);
         setIsDataChanged(true);
       
       });

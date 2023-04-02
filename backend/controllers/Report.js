@@ -1,20 +1,120 @@
 import Report from '../models/reportModel.js'
 import jwt from 'jsonwebtoken'
 import { db } from '../config/db.js'
+import CancellationUser from "../models/cancellationUserModel.js";
+import nodemailer from "nodemailer";
+import { uuid } from "uuidv4";
+
 let token = null
 const firestore = db.firestore()
 
 export const storeReport = async (req, res) => {
   try {
     const data = req.body
-    await firestore.collection('report').doc().set(data)
+    const cancellationUser = new CancellationUser(
+      uuid(),
+      data.user_id,
+      data.ride_request_id,
+      data.title,
+      data.description,
+      "PENDING"
+    );
+    await firestore.collection("report").doc().set({
+      user_id: cancellationUser.user_id,
+      ride_request_id: cancellationUser.ride_request_id,
+      title: cancellationUser.title,
+      description: cancellationUser.description,
+      status: "PENDING",
+    });
+    await firestore
+      .collection("cancellation_user")
+      .doc(cancellationUser.cancellation_user_id)
+      .set({
+        user_id: cancellationUser.user_id,
+        ride_request_id: cancellationUser.ride_request_id,
+        title: cancellationUser.title,
+        description: cancellationUser.description,
+        status: "PENDING",
+      });
+    await firestore.collection("ride_request").doc(data.ride_request_id).update(
+      {
+        status_ride: "CANCELED",
+      },
+      { merge: true }
+    );
     res.status(200).json({
-      message: 'Report data saved successfuly',
-      status: 200
-    })
+      message: "CancellationUser successfully added",
+      data: cancellationUser,
+      status: 200,
+    });
   } catch (error) {
     res.status(500).json({
       message: 'Something went wrong while saving data: ' + error.toString(),
+      status: 500
+    })
+  }
+}
+
+function setupMailer() {
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "psociopreneur@gmail.com",
+      pass: "remnvcsctsuphumg",
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+}
+
+export const feedbackReport = async (req, res) => {
+  try {
+    const id = req.params.id
+    const body = req.body
+    const report = firestore.collection('report').doc(id)
+    const data = await report.get()
+    const user = await firestore.collection('users').doc(data.data().user_id).get()
+    const userData = user.data()
+    await report.update({
+      status: body.status,
+    }).then(async () => {
+      const email = userData.email;
+      const subject = body.title;
+      const html = `<h1>Hi ${userData.name},</h1>
+      <p>Thank you for your feedback report. We will process it as soon as possible.</p>
+      <p>Here is your feedback:</p>
+      <p>${body.description}</p>
+      <p>Status: ${body.status}</p>
+      <p>Best Regards,</p>
+      <p>NUNUT Team</p>
+          `;
+      const mailer = setupMailer();
+      const mailOptions = {
+        from: "psociopreneur@gmail.com",
+        to: email,
+        subject: subject,
+        html: html,
+      };
+      mailer.sendMail(mailOptions, function (err, info) {
+        if (err) {
+          res.status(500).json({
+            message: "Error while sending email: " + err.message,
+            status: 500,
+          });
+        } else {
+          res.status(200).json({
+            message: "Report successfully updated",
+            status: 200,
+          });
+        }
+      });
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Something went wrong while updating data: ' + error.toString(),
       status: 500
     })
   }
@@ -27,16 +127,16 @@ export const getAllReports = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get()
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     const user = await firestore.collection('users').get()
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        user_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     if (data.empty) {
       res.status(404).json({
@@ -49,9 +149,17 @@ export const getAllReports = async (req, res) => {
           doc.id,
           doc.data().title,
           doc.data().description,
-          req.query.ride_request !== undefined ? rideRequestArray.find(rideRequest => rideRequest.id === doc.data().ride_request_id) : doc.data().ride_request_id,
-          req.query.user !== undefined ? userArray.find(user => user.id === doc.data().user_id) : doc.data().user_id,
-        )
+          req.query.ride_request !== undefined
+            ? rideRequestArray.find(
+                (rideRequest) =>
+                  rideRequest.ride_request_id === doc.data().ride_request_id
+              )
+            : doc.data().ride_request_id,
+          req.query.user !== undefined
+            ? userArray.find((user) => user.user_id === doc.data().user_id)
+            : doc.data().user_id,
+          doc.data().status,
+        );
         reportArray.push(report)
       })
       res.status(200).json({
@@ -75,14 +183,14 @@ export const getReportById = async (req, res) => {
     const rideRequest = await firestore.collection('ride_request').get()
     const rideRequestArray = req.query.ride_request !== undefined ? rideRequest.docs.map(doc => {
       return {
-        id: doc.id,
-        ...doc.data()
-      }
+        ride_request_id: doc.id,
+        ...doc.data(),
+      };
     }) : null
     const user = await firestore.collection('users').get()
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data()
       }
     }) : null
@@ -93,16 +201,26 @@ export const getReportById = async (req, res) => {
       })
     } else {
       res.status(200).json({
-        message: 'Report data retrieved successfuly',
+        message: "Report data retrieved successfuly",
         data: {
-          id: data.id,
+          report_id: data.id,
           title: data.data().title,
           description: data.data().description,
-          ride_request: req.query.ride_request !== undefined ? rideRequestArray.find(rideRequest => rideRequest.id === data.data().ride_request_id) : data.data().ride_request_id,
-          user: req.query.user !== undefined ? userArray.find(user => user.id === data.data().user_id) : data.data().user_id,
+          ride_request_id:
+            req.query.ride_request !== undefined
+              ? rideRequestArray.find(
+                  (rideRequest) =>
+                    rideRequest.ride_request_id === data.data().ride_request_id
+                )
+              : data.data().ride_request_id,
+          user_id:
+            req.query.user !== undefined
+              ? userArray.find((user) => user.user_id === data.data().user_id)
+              : data.data().user_id,
+          status: data.data().status,
         },
-        status: 200
-      })
+        status: 200,
+      });
     }
   } catch (error) {
     res.status(500).json({

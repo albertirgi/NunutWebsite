@@ -21,7 +21,7 @@ export const storeUser = async (req, res) => {
 
   // Upload image to storage
   let publicUrl =
-    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/default-avatar.png?alt=media&token=215b4ac9-5b92-4ee1-a923-64941391a78d";
+    "https://firebasestorage.googleapis.com/v0/b/nunut-da274.appspot.com/o/avatar.png?alt=media&token=62dfdb20-7aa0-4ca4-badf-31c282583b1b";
   const image = req.file;
   if (image) {
     let status = true;
@@ -81,13 +81,58 @@ export const storeUser = async (req, res) => {
     });
 }
 
+export const updateUser = async (req, res) => {
+  // Validate request
+  if (!req.body) {
+    return res.status(400).json({
+      message: "Input can not be empty",
+    });
+  }
+
+  // Upload image to storage
+  let publicUrl = req.body.image;
+  const image = req.file;
+  if (image) {
+    const imagePromise = new Promise((resolve, reject) => {
+      const fileNameImage = uuid() + image.originalname;
+      const file = storage.file(fileNameImage);
+      file.save(image.buffer, { contentType: image.mimetype }, function (err) {
+        if (err) {
+          let imageMessage = "Error occured while uploading image: " + err;
+          reject(imageMessage);
+        } else {
+          file.makePublic();
+          const pubUrl = file.publicUrl();
+          resolve(pubUrl);
+        }
+      });
+    });
+    publicUrl = await imagePromise;
+  }
+
+  // Save userModel in the database
+  await firestore.collection("users").doc(req.params.id).set({
+    name: req.body.name,
+    nik: req.body.nik,
+    phone: req.body.phone,
+    image: publicUrl,
+  }, { merge: true });
+  const user = await firestore.collection("users").doc(req.params.id).get();
+  res.status(200).json({
+    message: "User updated successfully",
+    status: 200,
+    data: user.data(),
+  });
+};
+
 // Login a user
 export const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
+    console.log(req.body);
     signInWithEmailAndPassword(getAuth(app), email, password)
     .then(async data => {
-        const userData = await firestore.collection('users').doc(data.user.uid)
+        const userData = firestore.collection('users').doc(data.user.uid)
         const datauser = await userData.get();
         if(!datauser.exists) {
           return res.status(404).json({
@@ -95,15 +140,16 @@ export const login = async (req, res) => {
             status: 404
           });
         }else{
-          token = jwt.sign({
-            userId: data.user.uid,
-            userEmail: data.user.email
-          },
-          "RANDOM-TOKEN",
-          { expiresIn: "24h" });
+          token = jwt.sign(
+            {
+              userId: data.user.uid,
+              userEmail: data.user.email,
+            },
+            "9d891f12a761461d918c8264ad3f0e2e9a49998f008982c0cee73467e657e1f2",
+            { expiresIn: "365d" }
+          );
           const sendData = {
             token: token,
-            email: data.user.email,
           }
           res.status(200).json({
             message: "Login Successful",
@@ -161,7 +207,7 @@ export const getAllUsers = async (req, res) => {
 }
 
 export const getUserById = async (req, res) => {
-    const user = await firestore.collection('users').doc(req.params.id);
+    const user = firestore.collection('users').doc(req.params.id);
     const data = await user.get();
     if(data.empty){
       res.status(404).json({
@@ -171,7 +217,7 @@ export const getUserById = async (req, res) => {
     }else{
       res.status(200).json({
         message: "User retrieved successfully",
-        user: data.data(),
+        data: data.data(),
         status: 200
       });
     }
@@ -218,7 +264,7 @@ export const resetPassword = async (req, res) => {
 
 export const destroyUser = async (req, res) => {
     const uid = req.params.id
-    const user = await firestore.collection('users').doc(uid);
+    const user = firestore.collection('users').doc(uid);
     const data = await user.get();
     if(!data.exists) {
       res.status(404).json({

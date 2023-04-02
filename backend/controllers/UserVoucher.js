@@ -27,14 +27,14 @@ export const getAllUserVouchers = async (req, res) => {
     const user = await firestore.collection('users').get();
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data()
       }
     }) : null;
     const voucher = await firestore.collection('voucher').get();
     const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
       return {
-        id: doc.id,
+        voucher_id: doc.id,
         ...doc.data()
       }
     }) : null;
@@ -73,14 +73,14 @@ export const getUserVoucherById = async (req, res) => {
     const user = await firestore.collection('users').get();
     const userArray = req.query.user !== undefined ? user.docs.map(doc => {
       return {
-        id: doc.id,
+        user_id: doc.id,
         ...doc.data()
       }
     }) : null;
     const voucher = await firestore.collection('voucher').get();
     const voucherArray = req.query.voucher !== undefined ? voucher.docs.map(doc => {
       return {
-        id: doc.id,
+        voucher_id: doc.id,
         ...doc.data()
       }
     }) : null;
@@ -91,13 +91,21 @@ export const getUserVoucherById = async (req, res) => {
       })
     } else {
       res.status(200).json({
-        message: 'User voucher data retrieved successfuly',
+        message: "User voucher data retrieved successfuly",
         data: {
           id: data.id,
-          user: req.query.user !== undefined ? userArray.find(user => user.id === data.data().user_id) : data.data().user_id,
-          voucher: req.query.voucher !== undefined ? voucherArray.find(voucher => voucher.id === data.data().voucher_id) : data.data().voucher_id
+          user:
+            req.query.user !== undefined
+              ? userArray.find((user) => user.user_id === data.data().user_id)
+              : data.data().user_id,
+          voucher:
+            req.query.voucher !== undefined
+              ? voucherArray.find(
+                  (voucher) => voucher.voucher_id === data.data().voucher_id
+                )
+              : data.data().voucher_id,
         },
-        status: 200
+        status: 200,
       });
     }
   } catch (error) {
@@ -112,7 +120,7 @@ export const updateUserVoucher = async (req, res) => {
   try {
     const id = req.params.id;
     const data = req.body;
-    const userVoucher = await firestore.collection('user_voucher').doc(id);
+    const userVoucher = firestore.collection('user_voucher').doc(id);
     await userVoucher.update(data);
     res.status(200).json({
       message: 'User voucher record updated successfuly',
