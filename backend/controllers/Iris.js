@@ -504,7 +504,7 @@ export const storePayout = async (req, res) => {
         status: "pending",
         method: payload.beneficiary_bank,
         order_id: payload.reference_no,
-        transaction_id: payload.reference_no,
+        transaction_id: data.beneficiary_id,
         type: "withdraw",
         wallet_id: walletData.id,
         transaction_time: new Date(),
