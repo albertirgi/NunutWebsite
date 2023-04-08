@@ -82,6 +82,7 @@ export const getAllBookmarks = async (req, res) => {
         if(req.query.user != "" && req.query.user != undefined && doc.data().user_id != req.query.user){
           return
         }
+	if(rideScheduleArray.find((rideSchedule) => rideSchedule.ride_schedule_id === doc.data().ride_schedule_id) == null) return;
         var bookmark = new Bookmark(
           doc.id,
           req.query.ride_schedule !== undefined
