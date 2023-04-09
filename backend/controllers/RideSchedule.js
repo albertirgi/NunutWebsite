@@ -415,7 +415,6 @@ export const getRideScheduleByList = async (req, res) => {
         vehicle_type: doc.data().vehicle_type,
       }
     }) : null
-    console.log(vehicleArray)
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
@@ -550,6 +549,12 @@ return rideScheduleDestination.includes(req.query.destination.toLowerCase());
           });
           return;
         }
+      }
+
+      if (req.query.driver !== undefined && req.query.driver != "") {
+        rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+          return rideSchedule.driver_id.driver_id == req.query.driver;
+        });
       }
 
       res.status(200).json({
