@@ -20,13 +20,13 @@ function setupMailer() {
   });
 }
 
-export const testingEmail = (req, res) => {
+export const sendEmail = (req, res) => {
   const mailer = setupMailer();
   const mailOptions = {
     from: "psociopreneur@gmail.com",
-    to: "mchaelwng@gmail.com",
-    subject: "Testing Email",
-    text: "Testing Email",
+    to: req.body.to,
+    subject: req.body.subject,
+    text: req.body.text,
   };
   mailer.sendMail(mailOptions, (error, info) => {
     if (error) {

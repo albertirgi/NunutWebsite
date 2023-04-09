@@ -36,7 +36,7 @@ import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByLi
 import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
 import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
-import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById, getAllPayouts, testingEmail } from '../controllers/Iris.js';
+import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById, getAllPayouts, sendEmail } from '../controllers/Iris.js';
 import { getFile } from '../controllers/File.js';
 
 //import { getAllDrivers } from '../controllers/Driver2.js'
@@ -124,7 +124,7 @@ const isLoggedIn = (req, res, next) => {
 //     }
 // }
 
-router.get('/testingemail', testingEmail);
+router.post('/sendEmail', sendEmail);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/user', upload.single('image'), storeUser);
