@@ -10,6 +10,7 @@ export const storeRideRequest = async (req, res) => {
     // Check ride request and user id
     const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).get();
     if (!rideRequest.empty) {
+      console.log("You have already requested this ride");
       res.status(400).json({
         message: 'You have already requested this ride',
         status: 400,
@@ -25,7 +26,7 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     const rideScheduleData = rideSchedule.data();
-    const postRideRequest = await firestore.collection("ride_request").add(data);
+    // const postRideRequest = await firestore.collection("ride_request").add(data);
     const wallet = await firestore.collection('wallet').where('user_id', '==', data.user_id).get();
     if (wallet.empty) {
       res.status(404).json({
@@ -52,6 +53,7 @@ export const storeRideRequest = async (req, res) => {
         user_id: data.user_id,
         balance: 0,
       });
+      console.log("Wallet is empty");
       res.status(400).json({
         message: "Your wallet is empty, please top up your wallet first",
         status: 400,
@@ -68,6 +70,7 @@ export const storeRideRequest = async (req, res) => {
         .doc(data.voucher_id)
         .get();
       if (!voucher.exists) {
+        console.log("Voucher not found");
         res.status(400).json({
           message: "Voucher not found",
           status: 400,
@@ -82,6 +85,7 @@ export const storeRideRequest = async (req, res) => {
           );
         });
         if (usedVoucher != undefined) {
+          console.log("Voucher is used");
           res.status(400).json({
             message: "Voucher is used",
             status: 400,
@@ -106,6 +110,7 @@ export const storeRideRequest = async (req, res) => {
             price_after = 0;
           }
         }else {
+          console.log("Voucher is expired");
           res.status(400).json({
             message: "Voucher is expired",
             status: 400,
@@ -120,6 +125,7 @@ export const storeRideRequest = async (req, res) => {
       }
     }
     if (walletData.balance < price_after) {
+      console.log("Wallet balance is not enough");
       res.status(400).json({
         message:
           "Your wallet balance is not enough, please top up your wallet first",
@@ -128,17 +134,18 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     // Check ride request
-    const rideRequestSingle = await firestore
-      .collection("ride_request")
-      .doc(postRideRequest.id)
-      .get();
-    if (!rideRequestSingle.exists) {
-      res.status(400).json({
-        message: "Ride request not found",
-        status: 400,
-      });
-      return;
-    }
+    //const rideRequestSingle = await firestore
+    //  .collection("ride_request")
+    //  .doc(postRideRequest.id)
+    //  .get();
+    //if (!rideRequestSingle.exists) {
+    //  console.log("Ride request not found");
+    //  res.status(400).json({
+    //    message: "Ride request not found",
+    //    status: 400,
+    //  });
+    //  return;
+    //}
     // Substract wallet balance
     await firestore
       .collection("wallet")
@@ -153,6 +160,7 @@ export const storeRideRequest = async (req, res) => {
       .doc(rideScheduleData.driver_id)
       .get();
     if (!driver.exists) {
+      console.log("Driver not found");
       res.status(400).json({
         message: "Driver not found",
         status: 400,
@@ -160,6 +168,7 @@ export const storeRideRequest = async (req, res) => {
       return;
     }
     const driverData = driver.data();
+    var postRideRequest = await firestore.collection("ride_request").add(data);
     // Add ride order
     await firestore
       .collection("ride_order")
@@ -182,7 +191,8 @@ export const storeRideRequest = async (req, res) => {
       status: 200,
     });
   } catch (error) {
-    res.status(500).json({
+	console.log(error); 
+   res.status(500).json({
       message: 'Something went wrong while saving data: ' + error.toString(),
       status: 500,
     })

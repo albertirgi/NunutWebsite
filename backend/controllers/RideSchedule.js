@@ -214,6 +214,13 @@ export const getAllRideSchedules = async (req, res) => {
         })
       }
 
+      if(req.query.status_ride !== undefined && req.query.status_ride !== ""){
+        const active = req.query.status_ride == "active" ? true : false;
+        rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
+	return rideSchedule.is_active == active
+	})  
+      }
+
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray,
@@ -555,6 +562,13 @@ return rideScheduleDestination.includes(req.query.destination.toLowerCase());
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
           return rideSchedule.driver_id.driver_id == req.query.driver;
         });
+      }
+
+	if(req.query.status_ride !== undefined && req.query.status_ride !== ""){
+        const active = req.query.status_ride == "active" ? true : false;
+        rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
+        return rideSchedule.is_active == active
+        })
       }
 
       res.status(200).json({
