@@ -144,7 +144,7 @@ export const storeRideRequest = async (req, res) => {
       .collection("wallet")
       .doc(wallet.docs[0].id)
       .update({
-        balance: Math.ceil(walletData.balance - price_after),
+        balance: Math.round((walletData.balance - price_after)/100)*100,
       });
 
     // Get driver data
@@ -166,10 +166,10 @@ export const storeRideRequest = async (req, res) => {
       .doc()
       .set({
         description: "Ride Order",
-        discount: Math.ceil((rideScheduleData.price) - price_after),
+        discount: Math.round(((rideScheduleData.price) - price_after)/100)*100,
         from: data.user_id,
-        price_after: Math.ceil(price_after),
-        price_before: Math.ceil(rideScheduleData.price),
+        price_after: Math.round(price_after/100)*100,
+        price_before: Math.round(rideScheduleData.price/100)*100,
         ride_request_id: postRideRequest.id,
         status_payment: "paid",
         to: driverData.user_id,
@@ -252,7 +252,7 @@ export const getAllRideRequests = async (req, res) => {
             meeting_point: rideScheduleSingle.meeting_point,
             destination: rideScheduleSingle.destination,
             note: rideScheduleSingle.note,
-            price: Math.ceil(rideScheduleSingle.price),
+            price: Math.round(rideScheduleSingle.price/100)*100,
             driver: req.query.driver !== undefined
               ? driverArray.find((driver) => {
                   return driver.driver_id == rideScheduleSingle.driver_id;
@@ -405,7 +405,7 @@ export const getRideRequestByList = async (req, res) => {
               meeting_point: rideScheduleSingle.meeting_point,
               destination: rideScheduleSingle.destination,
               note: rideScheduleSingle.note,
-              price: Math.ceil(rideScheduleSingle.price),
+              price: Math.round(rideScheduleSingle.price/100)*100,
               driver_id:
                 req.query.driver !== undefined
                   ? driverArray.find((driver) => {
