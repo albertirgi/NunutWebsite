@@ -11,12 +11,11 @@ let token = null
 export const storeDriver = async (req, res, err) => {
   try {
     const data = req.body
-    if(data.name && data.nik && data.phone && data.user_id && req.files.aggrement_letter[0] && req.files.student_card[0] && req.files.driving_license[0]){
+    if(data.name && data.nik && data.phone && data.user_id && req.files.student_card[0] && req.files.driving_license[0]){
       //Upload files to firebase storage
-      const aggrLetter = req.files.aggrement_letter[0]
       const studentCard = req.files.student_card[0]
       const drivingLicense = req.files.driving_license[0]
-      // const image = req.files.image[0]
+      const image = req.files.image[0]
       //Get user data
       const userPromise = new Promise((resolve, reject) => {
         firestore.collection('users').doc(data.user_id).get()
@@ -32,20 +31,20 @@ export const storeDriver = async (req, res, err) => {
         })
       })
       //Upload aggrement letter
-      const aggrLetterPromise = new Promise((resolve, reject) => {
-        const fileNameAggrLetter = uuid() + aggrLetter.originalname
-        const file = storage.file(fileNameAggrLetter)
-        file.save(aggrLetter.buffer, {contentType: aggrLetter.mimetype}, function(err) {
-          if(err){
-            let aggrLetterMessage = "Error occured while uploading image: " + err
-            reject(aggrLetterMessage)
-          }else{
-            file.makePublic();
-            const pubUrl = file.publicUrl();
-            resolve(pubUrl)
-          }
-        })
-      })
+      //const aggrLetterPromise = new Promise((resolve, reject) => {
+      //  const fileNameAggrLetter = uuid() + aggrLetter.originalname
+      //  const file = storage.file(fileNameAggrLetter)
+      //  file.save(aggrLetter.buffer, {contentType: aggrLetter.mimetype}, function(err) {
+      //    if(err){
+      //      let aggrLetterMessage = "Error occured while uploading image: " + err
+      //      reject(aggrLetterMessage)
+      //    }else{
+      //      file.makePublic();
+      //      const pubUrl = file.publicUrl();
+      //      resolve(pubUrl)
+      //    }
+      //  })
+      //})
       //Upload student card
       const studentCardPromise = new Promise((resolve, reject) => {
         const fileNameStudentCard = uuid() + studentCard.originalname;
@@ -79,21 +78,21 @@ export const storeDriver = async (req, res, err) => {
       })
       
       //Upload image
-      // const imagePromise = new Promise((resolve, reject) => {
-      //   const fileNameImage = uuid() + image.originalname;
-      //   const file = storage.file(fileNameImage)
-      //   file.save(image.buffer, {contentType: image.mimetype}, function(err) {
-      //     if(err){
-      //       let imageMessage = "Error occured while uploading image: " + err
-      //       reject(imageMessage)
-      //     }else{
-      //       file.makePublic()
-      //       const pubUrl = file.publicUrl();
-      //       resolve(pubUrl);
-      //     }
-      //   })
-      // })
-      await Promise.all([aggrLetterPromise, studentCardPromise, drivingLicensePromise, userPromise]).then(
+      const imagePromise = new Promise((resolve, reject) => {
+         const fileNameImage = uuid() + image.originalname;
+         const file = storage.file(fileNameImage)
+         file.save(image.buffer, {contentType: image.mimetype}, function(err) {
+           if(err){
+             let imageMessage = "Error occured while uploading image: " + err
+             reject(imageMessage)
+           }else{
+             file.makePublic()
+             const pubUrl = file.publicUrl();
+             resolve(pubUrl);
+           }
+         })
+       })
+      await Promise.all([imagePromise, studentCardPromise, drivingLicensePromise, userPromise]).then(
         (values) => {
           // Store driver registration data to firestore
           firestore
@@ -104,20 +103,23 @@ export const storeDriver = async (req, res, err) => {
               nik: data.nik,
               phone: data.phone,
               student_card: values[1],
-              aggrement_letter: values[0],
               driving_license: values[2],
               user_id: data.user_id,
               email: values[3].email,
               status: "pending",
-              image: data.image,
             })
             .then(() => {
-              res.status(200).json({
-                message: "Driver registration data stored successfuly",
-                status: 200,
-              });
+	      firestore.collection("users").doc(data.user_id).update({
+		image: values[0]
+	      }).then(() => {
+		res.status(200).json({
+		  message: "Driver registration data stored successfully",
+		  status: 200,
+		});
+	      });
             })
             .catch((error) => {
+	      console.log(error);
               res.status(400).json({
                 message:
                   "Error occured while storing driver registration data: " +
@@ -127,12 +129,14 @@ export const storeDriver = async (req, res, err) => {
             });
         })
     }else{
+      console.log("required");
       res.status(400).json({
         message: "Please upload all required files",
         status: 400,
       })
     }
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       message: "Error occured while storing driver registration data: " + error.toString(),
       status: 400,
