@@ -111,7 +111,7 @@ export const storeRideOrder = async (req, res) => {
       .collection("wallet")
       .doc(wallet.docs[0].id)
       .update({
-        balance: Math.round((walletData.balance - price_after)/100)*100,
+        balance: Math.ceil((walletData.balance - price_after)/100)*100,
       });
     // Add wallet to driver
     const driver = await firestore
@@ -133,14 +133,14 @@ export const storeRideOrder = async (req, res) => {
     if (driverWallet.empty) {
       await firestore.collection("wallet").doc().set({
         user_id: driverData.user_id,
-        balance: Math.round(price_after/100)*100,
+        balance: Math.ceil(price_after/100)*100,
       });
     } else {
       await firestore
         .collection("wallet")
         .doc(driverWallet.docs[0].id)
         .update({
-          balance: Math.round((driverWallet.docs[0].data().balance + price_after)/100)*100,
+          balance: Math.ceil((driverWallet.docs[0].data().balance + price_after)/100)*100,
         });
     }
     // Add ride order
@@ -241,7 +241,7 @@ export const getRideOrderById = async (req, res) => {
           ride_order_id: data.id,
           user_id: data.data().user_id,
           driver_id: data.data().driver_id,
-          price: Math.round(data.data().price/100)*100,
+          price: Math.ceil(data.data().price/100)*100,
           ride_request_id: req.query.ride_request !== undefined ? rideRequestArray.find((rideRequest) => {
             return rideRequest.id == data.data().ride_request_id;
           }) : data.data().ride_request_id,
