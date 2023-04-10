@@ -185,6 +185,16 @@ export const storeRideRequest = async (req, res) => {
         type: "nominal",
         voucher_id: data.voucher_id != undefined ? data.voucher_id : "",
       });
+    await firestore.collection("transaction").doc().set({
+        amount: Math.ceil(price_after/100)*100,
+        method: "PAYRIDE",
+        order_id: postRideRequest.id,
+        status: "success",
+        transaction_id: "PAYRIDE-" + postRideRequest.id,
+        transaction_time: new Date(),
+        type: "WALLET",
+        wallet_id: wallet.id
+    });
     // ==========================
     res.status(200).json({
       message: 'Ride request data saved successfuly',
