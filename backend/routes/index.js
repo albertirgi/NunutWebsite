@@ -32,7 +32,7 @@ import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, u
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
 import { topup, handleTopup, topup2, getTransaction, getTransactionByWallet, getWalletBalance } from '../controllers/Midtrans.js';
-import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByList, getMapUKP } from '../controllers/Map.js';
+import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByList, getMapUKP, readMap } from '../controllers/Map.js';
 import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
 import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
@@ -277,5 +277,6 @@ router.post('/payout/approve', upload.single('image'), approvePayout);
 router.post('/payout/reject', rejectPayout);
 router.get('/payout/:referenceno', getPayoutById);
 router.get('/file/:filename', getFile);
+router.post('/read-map', upload.single('file'), readMap);
 
 export default router;

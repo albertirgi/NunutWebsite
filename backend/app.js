@@ -36,7 +36,7 @@ app.use(cors());
 app.use(compression());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-//app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to check if user is logged in
 const isLoggedIn = (req, res, next) => {
   if(req.query.bryanganteng !== undefined){
