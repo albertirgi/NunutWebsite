@@ -590,6 +590,7 @@ return rideScheduleDestination.includes(req.query.destination.toLowerCase());
   }
 }
 
+
 export const rideScheduleDone = async (req, res) => {
   try{
     const id = req.params.id
