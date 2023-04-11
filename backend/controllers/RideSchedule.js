@@ -507,7 +507,12 @@ export const getRideScheduleByList = async (req, res) => {
               return rideRequest.user_id.user_id == req.query.user
             }) == undefined
           })
-        }
+          const singleDriver = driverArray.find((driver) => {
+            return driver.user_id == req.query.user;
+          });
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            return rideSchedule.driver_id.driver_id == singleDriver.driver_id;
+          }
       }
 
       if (req.query.time !== undefined && req.query.time != "") {
