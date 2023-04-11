@@ -106,16 +106,17 @@ export const storeDriver = async (req, res, err) => {
               driving_license: values[2],
               user_id: data.user_id,
               email: values[3].email,
+              image: values[0],
               status: "pending",
             })
             .then(() => {
 	      firestore.collection("users").doc(data.user_id).update({
-		image: values[0]
+		      image: values[0]
 	      }).then(() => {
-		res.status(200).json({
-		  message: "Driver registration data stored successfully",
-		  status: 200,
-		});
+          res.status(200).json({
+            message: "Driver registration data stored successfully",
+            status: 200,
+          });
 	      });
             })
             .catch((error) => {

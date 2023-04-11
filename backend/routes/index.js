@@ -136,7 +136,6 @@ router.delete('/user/:id', destroyUser);
 router.post('/driver', upload.fields([
   {name: 'student_card', maxCount: 1},
   {name: 'driving_license', maxCount: 1},
-  {name: 'aggrement_letter', maxCount: 1},
   {name: 'image', maxCount: 1},
 ]), storeDriver);
 router.get('/driver', getAllDrivers);

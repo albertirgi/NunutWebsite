@@ -510,9 +510,11 @@ export const getRideScheduleByList = async (req, res) => {
           const getSingleDriver = driverArray.find((driver) => {
             return driver.user_id == req.query.user;
           });
-          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-            return rideSchedule.driver_id.driver_id != getSingleDriver.driver_id;
-          });
+          if(getSingleDriver != undefined){
+            rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+              return rideSchedule.driver_id.driver_id != getSingleDriver.driver_id;
+            });
+          }
         }
       }
 
