@@ -15,7 +15,13 @@ export const storeDriver = async (req, res, err) => {
       //Upload files to firebase storage
       const studentCard = req.files.student_card[0]
       const drivingLicense = req.files.driving_license[0]
-      const image = req.files.image[0]
+	var image = "";
+	if(req.files.image != null){
+      image = req.files.image[0];
+	}else {
+	image = data.image;
+	}
+
       //Get user data
       const userPromise = new Promise((resolve, reject) => {
         firestore.collection('users').doc(data.user_id).get()
@@ -79,6 +85,7 @@ export const storeDriver = async (req, res, err) => {
       
       //Upload image
       const imagePromise = new Promise((resolve, reject) => {
+	if(req.files.image == null){resolve(data.image)}
          const fileNameImage = uuid() + image.originalname;
          const file = storage.file(fileNameImage)
          file.save(image.buffer, {contentType: image.mimetype}, function(err) {
