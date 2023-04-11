@@ -193,7 +193,7 @@ export const storeRideRequest = async (req, res) => {
         transaction_id: "PAYRIDE-" + postRideRequest.id,
         transaction_time: new Date(),
         type: "WALLET",
-        wallet_id: wallet.id
+        wallet_id: wallet.docs[0].id
     });
     // ==========================
     res.status(200).json({
