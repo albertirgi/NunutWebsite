@@ -227,7 +227,17 @@ export default function VoucherPage() {
       });
     };
     const handleOkAddVoucher = () => {
-        StoreVoucher();
+
+        var discountValueInt = parseInt(voucherDiscount);
+        var minimumValueInt = parseInt(minimum);
+        if(voucherType=="percentage" && discountValueInt <= minimumValueInt){
+          StoreVoucher();
+        }
+        else{
+          alert("Discount value must be lower than minimum purchase value");
+          
+        }
+        
         if(isDataChanged == false){
             setIsDataChanged(true);
         }
