@@ -31,7 +31,7 @@ export const storeRideSchedule = async (req, res) => {
       note: "Nunut Ride",
       time: data.time,
       vehicle_id: data.vehicle_id,
-      price: Math.round(price),
+      price: Math.ceil(price/100)*100,
     })
     res.status(200).json({
       message: 'Ride schedule data saved successfuly',
@@ -181,9 +181,9 @@ export const getAllRideSchedules = async (req, res) => {
 
       if(req.query.meeting_point !== undefined && req.query.meeting_point != ""){
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-	  const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g,'');
-	  const queryMeetingPoint = req.query.meeting_point.toLowerCase();
-	  return rideScheduleMeetingPoint.includes(queryMeetingPoint)
+	        const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g,'');
+	        const queryMeetingPoint = req.query.meeting_point.toLowerCase();
+	        return rideScheduleMeetingPoint.includes(queryMeetingPoint)
         })
         if(rideScheduleArray.length == 0){
           res.status(404).json({
@@ -212,6 +212,13 @@ export const getAllRideSchedules = async (req, res) => {
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
           return rideSchedule.driver_id.driver_id == req.query.driver
         })
+      }
+
+      if(req.query.status_ride !== undefined && req.query.status_ride !== ""){
+        const active = req.query.status_ride == "active" ? true : false;
+        rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
+	      return rideSchedule.is_active == active
+	      })  
       }
 
       res.status(200).json({
@@ -415,7 +422,6 @@ export const getRideScheduleByList = async (req, res) => {
         vehicle_type: doc.data().vehicle_type,
       }
     }) : null
-    console.log(vehicleArray)
     const user = await firestore.collection("users").get();
     const userArray = user.docs.map((doc) => {
       return {
@@ -501,6 +507,14 @@ export const getRideScheduleByList = async (req, res) => {
               return rideRequest.user_id.user_id == req.query.user
             }) == undefined
           })
+          const getSingleDriver = driverArray.find((driver) => {
+            return driver.user_id == req.query.user;
+          });
+          if(getSingleDriver != undefined){
+            rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+              return rideSchedule.driver_id.driver_id != getSingleDriver.driver_id;
+            });
+          }
         }
       }
 
@@ -526,7 +540,7 @@ export const getRideScheduleByList = async (req, res) => {
         req.query.meeting_point != ""
       ) {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-	  const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g, '');
+	        const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g, '');
           return rideScheduleMeetingPoint.includes(req.query.meeting_point.toLowerCase());
         });
         if (rideScheduleArray.length == 0) {
@@ -540,8 +554,8 @@ export const getRideScheduleByList = async (req, res) => {
 
       if (req.query.destination !== undefined && req.query.destination != "") {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-	    const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
-return rideScheduleDestination.includes(req.query.destination.toLowerCase());
+	        const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
+          return rideScheduleDestination.includes(req.query.destination.toLowerCase());
         });
         if (rideScheduleArray.length == 0) {
           res.status(404).json({
@@ -550,6 +564,19 @@ return rideScheduleDestination.includes(req.query.destination.toLowerCase());
           });
           return;
         }
+      }
+
+      if (req.query.driver !== undefined && req.query.driver != "") {
+        rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+          return rideSchedule.driver_id.driver_id == req.query.driver;
+        });
+      }
+
+	    if(req.query.status_ride !== undefined && req.query.status_ride !== ""){
+        const active = req.query.status_ride == "active" ? true : false;
+        rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
+          return rideSchedule.is_active == active
+        })
       }
 
       res.status(200).json({

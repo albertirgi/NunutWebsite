@@ -54,7 +54,8 @@ export const storeCancellationUser = async (req, res) => {
       data.user_id,
       data.ride_request_id,
       data.title,
-      data.description
+      data.description,
+      "PENDING"
     );
     await firestore
       .collection("cancellation_user")
@@ -63,6 +64,23 @@ export const storeCancellationUser = async (req, res) => {
     await firestore.collection("ride_request").doc(data.ride_request_id).set({
       status_ride: "CANCELED",
     }, { merge: true });
+    await firestore.collection("ride_order").where("ride_request_id", "==", data.ride_request_id).get().then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        if(doc.data().from == data.user_id){
+          firestore.collection("ride_order").doc(doc.id).set({
+            status_payment: "REFUND",
+          }, { merge: true }).then(() => {
+            firestore.collection("wallet").where("user_id", "==", data.user_id).get().then((querySnapshotWallet) => {
+              querySnapshotWallet.forEach((walletDoc) => {
+                firestore.collection("wallet").doc(walletDoc.id).set({
+                  balance: walletDoc.data().balance + doc.data().price_after,
+                }, { merge: true });
+              });
+            });
+          });
+        }
+      });
+    });
     res.status(200).json({
       message: "CancellationUser successfully added",
       data: cancellationUser,

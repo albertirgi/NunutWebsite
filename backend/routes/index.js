@@ -32,11 +32,11 @@ import { storeParkingBuilding, getAllParkingBuildings, getParkingBuildingById, u
 import { storeWallet, getAllWallets, getWalletById, updateWallet, destroyWallet } from '../controllers/Wallet.js';
 import { storeTransaction, getAllTransactions, getTransactionById, updateTransaction, destroyTransaction } from '../controllers/Transaction.js';
 import { topup, handleTopup, topup2, getTransaction, getTransactionByWallet, getWalletBalance } from '../controllers/Midtrans.js';
-import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByList, getMapUKP } from '../controllers/Map.js';
+import { storeMap, getAllMaps, getMapById, updateMap, destroyMap, getAllMapsByList, getMapUKP, readMap } from '../controllers/Map.js';
 import { storeCancellationUser, updateCancellationUser, deleteCancellationUser, getCancellationUser, getAllCancellationUsers } from '../controllers/CancellationUser.js';
 import { storeCancellationDriver, updateCancellationDriver, deleteCancellationDriver, getCancellationDriver, getAllCancellationDrivers } from '../controllers/CancellationDriver.js';
 import { storeVehicleType, updateVehicleType, deleteVehicleType, getVehicleType, getAllVehicleTypes } from '../controllers/VehicleType.js';
-import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById, getAllPayouts, testingEmail } from '../controllers/Iris.js';
+import { storeBeneficiary, updateBeneficiary, getAllBeneficiaries, storePayout, approvePayout, rejectPayout, getPayoutById, getAllPayouts, sendEmail } from '../controllers/Iris.js';
 import { getFile } from '../controllers/File.js';
 
 //import { getAllDrivers } from '../controllers/Driver2.js'
@@ -124,7 +124,7 @@ const isLoggedIn = (req, res, next) => {
 //     }
 // }
 
-router.get('/testingemail', testingEmail);
+router.post('/sendEmail', sendEmail);
 router.post('/login', login);
 router.post('/logout', logout);
 router.post('/user', upload.single('image'), storeUser);
@@ -136,7 +136,6 @@ router.delete('/user/:id', destroyUser);
 router.post('/driver', upload.fields([
   {name: 'student_card', maxCount: 1},
   {name: 'driving_license', maxCount: 1},
-  {name: 'aggrement_letter', maxCount: 1},
   {name: 'image', maxCount: 1},
 ]), storeDriver);
 router.get('/driver', getAllDrivers);
@@ -277,5 +276,6 @@ router.post('/payout/approve', upload.single('image'), approvePayout);
 router.post('/payout/reject', rejectPayout);
 router.get('/payout/:referenceno', getPayoutById);
 router.get('/file/:filename', getFile);
+router.post('/read-map', upload.single('file'), readMap);
 
 export default router;

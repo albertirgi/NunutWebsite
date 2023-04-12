@@ -1,6 +1,8 @@
 import Map from '../models/mapModel.js'
 import { db } from '../config/db.js'
 import { uuid } from 'uuidv4'
+import fs from "fs"
+import { parse } from "csv-parse"
 const firestore = db.firestore()
 
 export const storeMap = async (req, res) => {
@@ -212,6 +214,35 @@ export const getMapById = async (req, res) => {
         status: 200
       })
     }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Error retrieving map',
+      data: error.toString(),
+      status: 500
+    })
+  }
+}
+
+export const readMap = async (req, res) => {
+  try{
+    var csvData = [];
+    fs.createReadStream('./data.csv')
+      .pipe(parse({ delimiter: "," }))
+      .on("data", async function (csvrow) {
+        const map = new Map(uuid(), csvrow[0], csvrow[1], csvrow[2]);
+        await firestore.collection('map').doc(map.map_id).set({
+          name: map.name,
+          latitude: map.latitude,
+          longitude: map.longitude
+        })
+        // console.log(csvrow[0]);
+        //do something with csvrow
+        // csvData.push(csvrow);
+      })
+      .on("end", function () {
+        //do something with csvData
+        // console.log(csvData);
+      });
   } catch (error) {
     res.status(500).json({
       message: 'Error retrieving map',
