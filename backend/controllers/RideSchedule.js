@@ -490,7 +490,7 @@ export const getRideScheduleByList = async (req, res) => {
             ...rideSchedule,
             ride_request_id: rideRequestArray.filter((rideRequest) => {
               return (
-                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id && rideRequest.status_ride != "CANCELLED"
               );
             }),
           };
@@ -498,8 +498,14 @@ export const getRideScheduleByList = async (req, res) => {
         });
         if(req.query.user_view !== undefined && req.query.user_view == "true"){
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideRequestActive = rideRequestArray.filter((rideRequest) => {
+              return (
+                rideRequest.status_ride != "CANCELLED" &&
+                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+              );
+            });
             const rideScheduleCapacity = rideSchedule.capacity
-            const rideRequestCapactity = rideSchedule.ride_request_id.length
+            const rideRequestCapactity = rideRequestActive.length
             return rideScheduleCapacity > rideRequestCapactity
           })
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {

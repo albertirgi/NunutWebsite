@@ -33,7 +33,7 @@ export const storeVoucher = async (req, res) => {
       tnc: data.tnc,
       image: imageUrl,
       type: data.type,
-      discount: data.discount
+      discount: parseInt(data.discount)
     })
     res.status(200).json({
       message: 'Voucher created successfully',
@@ -172,7 +172,7 @@ export const updateVoucher = async (req, res) => {
         tnc: data.tnc ? data.tnc : voucherData.data().tnc,
         image: image ? imageUrl : voucherData.data().image,
         type: data.type ? data.type : voucherData.data().type,
-        discount: data.discount ? data.discount : voucherData.data().discount,
+        discount: data.discount ? parseInt(data.discount) : voucherData.data().discount,
       });
     res.status(200).json({
       message: "Voucher updated successfully",
