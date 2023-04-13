@@ -96,15 +96,23 @@ export const storeRideRequest = async (req, res) => {
         const voucherData = voucher.data();
         const voucherExpired = new Date(voucherData.expired_at);
         const today = new Date();
+        const discount = parseInt(voucherData.discount);
+        const maximum_discount = parseInt(voucherData.maximum_discount);
 
         if (today <= voucherExpired) {
           // Check voucher type
           if (voucherData.type == "percentage") {
-            price_after =
-              rideScheduleData.price -
-              (rideScheduleData.price * (voucherData.discount / 100));
+            const totalDiscount = (discount / 100) * rideScheduleData.price;
+            if (totalDiscount > maximum_discount) {
+              price_after = rideScheduleData.price - maximum_discount;
+            } else {
+              price_after = rideScheduleData.price - totalDiscount;
+            }
+            // price_after =
+            //   rideScheduleData.price -
+            //   (rideScheduleData.price * (discount / 100));
           } else {
-            price_after = rideScheduleData.price - voucherData.discount;
+            price_after = rideScheduleData.price - discount;
           }
           if (price_after < 0) {
             price_after = 0;
