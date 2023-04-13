@@ -26,6 +26,8 @@ import { Textarea, InputGroup } from "@iso/components/uielements/input";
 //notification
 import notifications from "@iso/components/Feedback/Notification";
 import NotificationContent from "@iso/containers/Feedback/Notification/Notification.styles";
+
+
 const isoDetailModal = DetailModalStyle(DetailModals);
 const DetailModal = WithDirection(isoDetailModal);
 
@@ -94,6 +96,40 @@ function getFileNameOnURL(url) {
   return url?.substring(url.lastIndexOf('/') + 1);
 }
 
+// function setupMailer() {
+//   return nodemailer.createTransport({
+//     host: "smtp.gmail.com",
+//     port: 465,
+//     secure: true,
+//     auth: {
+//       user: "psociopreneur@gmail.com",
+//       pass: "remnvcsctsuphumg",
+//     },
+//     tls: {
+//       rejectUnauthorized: false,
+//     },
+//   });
+// }
+
+// export const sendEmail = (email,subject,text) => {
+//   const mailer = setupMailer();
+//   const mailOptions = {
+//     from: "psociopreneur@gmail.com",
+//     to: email,
+//     subject: subject,
+//     text: text,
+//   };
+//   mailer.sendMail(mailOptions, (error, info) => {
+//     if (error) {
+//       console.log("Error sending email: " + error);
+//       return false;
+//     } else {
+//      return true;
+//     }
+//   });
+// }
+
+
 export default function ListDriverPage() {
   var number = 1;
   
@@ -102,6 +138,26 @@ export default function ListDriverPage() {
   let DriverAll;
 
   const [isDataChanged, setIsDataChanged] = useState(false);
+
+
+  function SendEmail(email, subject, text) {
+    var apiEmail = `https://ayonunut.com/api/v1/sendEmail?bryanganteng`
+    fetch(apiEmail, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: email,
+        subject: subject,
+        text: text,
+      }),
+    })
+    .then((response) => response.json())
+    .then((responseJson) => {
+      console.log("responseJson", responseJson);
+    })
+  }
 
   
 
@@ -133,7 +189,7 @@ export default function ListDriverPage() {
     });
   }
   
-  const EditStatusDriver = (driver_id, status) => {
+  const EditStatusDriver = (email,driver_id, status) => {
     const [StatusDriver, setStatusDriver] = useState(status);
     const handleChange = (value) => {
       setStatusDriver(value);
@@ -145,7 +201,7 @@ export default function ListDriverPage() {
         };
         //console.log(`data_id: ${d_id.driver_id} data_status: ${stat}`);
         const token = localStorage.getItem("token");
-        fetch(`${envConfig.URL_API_REST}driver/status/${d_id.driver_id}`, {
+        fetch(`${envConfig.URL_API_REST}driver/status/${email.driver_id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -155,8 +211,15 @@ export default function ListDriverPage() {
         })        
         .then((res) => res.json())
         .then((result) => {
-         
+          console.log("d_id: ", email.driver_id);
+          console.log("email to : ", email.email);
+          if(stat == "Approved"){
+            SendEmail(email.email, "Driver Status", "Your Driver Status has been Approved");
+          }else if(stat == "Rejected"){
+            SendEmail(email.email, "Driver Status", "Your Driver Status has been Rejected");
+          }
           setIsDataChanged(true);
+          
           
         });
     } 
@@ -275,6 +338,7 @@ export default function ListDriverPage() {
             // id_driver: data.driver_id,
             no : number++,
             full_name: data.name,
+            email: data.email,
             KTP: data.student_card?.toString() !== "null" ? <Button onClick={
               () => {
                 FileGetter(getFileNameOnURL(data?.student_card?.toString()));
@@ -301,7 +365,7 @@ export default function ListDriverPage() {
                 Click to Open
               </Button> : "No File",
             driver_status: data.status,
-            action: <EditStatusDriver driver_id={data.driver_id} status={data.status} />,
+            action: <EditStatusDriver email= {data.email} driver_id={data.driver_id} status={data.status} />,
 
           };
         });
