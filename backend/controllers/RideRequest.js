@@ -443,7 +443,7 @@ export const getRideRequestByList = async (req, res) => {
               meeting_point: rideScheduleSingle.meeting_point,
               destination: rideScheduleSingle.destination,
               note: rideScheduleSingle.note,
-              price: Math.ceil(rideScheduleSingle.price/100)*100,
+              price: rideScheduleSingle.price,
               price_after: rideOrderArray.find((rideOrder) => {
                 return rideOrder.ride_request_id == rideRequestSingle.ride_request_id;
               }).price_after,
