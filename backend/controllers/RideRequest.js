@@ -351,7 +351,7 @@ export const getAllRideRequests = async (req, res) => {
 
 export const getRideRequestByList = async (req, res) => {
   try {
-    const rideRequest = await firestore.collection('ride_request').get();
+    const rideRequest = await firestore.collection('ride_request').where('status_ride', 'not-in', ['CANCELED', 'DRIVER_CANCELLED']).get();
     const DataRideRequestArray = rideRequest.docs.map(doc => {
       return {
         ride_request_id: doc.id,
@@ -413,6 +413,7 @@ export const getRideRequestByList = async (req, res) => {
         : null;
     const data = await firestore
       .collection("ride_request")
+      .where('status_ride', 'not-in', ['CANCELED', 'DRIVER_CANCELLED'])
       .get();
     var rideRequestArray = [];
     if (data.empty) {
@@ -431,13 +432,13 @@ export const getRideRequestByList = async (req, res) => {
               return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
             });
             const capacity = DataRideRequestArray.filter((rideRequest) => {
-              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && (rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "CANCELLED" && rideRequest.status_ride != "DRIVER_CANCELLED");
             }).length;
             const rideRequestSingle = DataRideRequestArray.find((rideRequest) => {
               return (
                 rideRequest.user_id == doc.data().user_id &&
                 rideRequest.ride_schedule_id ==
-                  rideScheduleSingle.ride_schedule_id
+                  rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED"
               );
             });
             const single = {
@@ -469,7 +470,7 @@ export const getRideRequestByList = async (req, res) => {
               is_active: rideScheduleSingle.is_active,
               status_ride: doc.data().status_ride,
               ride_request: DataRideRequestArray.find((rideRequest) => {
-                return rideRequest.user_id == req.query.ride_schedule_only && rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+                return rideRequest.user_id == req.query.ride_schedule_only && rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
               }),
             };
             rideRequestArray.push(single);
@@ -544,6 +545,7 @@ export const getRideRequestByList = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error.toString());
     res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500,
