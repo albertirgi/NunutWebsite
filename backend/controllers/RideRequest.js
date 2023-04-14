@@ -358,6 +358,13 @@ export const getRideRequestByList = async (req, res) => {
         ...doc.data(),
       };
     });
+    const rideOrder = await firestore.collection('ride_order').get();
+    const rideOrderArray = rideOrder.docs.map(doc => {
+      return {
+        ride_order_id: doc.id,
+        ...doc.data(),
+      };
+    });
     const num = req.params.num;
     const rideSchedule = await firestore.collection("ride_schedule").get();
     const rideScheduleArray =
@@ -426,6 +433,9 @@ export const getRideRequestByList = async (req, res) => {
             const capacity = DataRideRequestArray.filter((rideRequest) => {
               return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
             }).length;
+            const rideRequestSingle = DataRideRequestArray.find((rideRequest) => {
+              return rideRequest.user_id == doc.data().user_id;
+            });
             const single = {
               ride_schedule_id: rideScheduleSingle.ride_schedule_id,
               date: rideScheduleSingle.date,
@@ -434,6 +444,9 @@ export const getRideRequestByList = async (req, res) => {
               destination: rideScheduleSingle.destination,
               note: rideScheduleSingle.note,
               price: Math.ceil(rideScheduleSingle.price/100)*100,
+              price_after: rideOrderArray.find((rideOrder) => {
+                return rideOrder.ride_request_id == rideRequestSingle.ride_request_id;
+              }).price_after,
               driver_id:
                 req.query.driver !== undefined
                   ? driverArray.find((driver) => {
