@@ -119,7 +119,7 @@ export const storeCancellationDriver = async (req, res) => {
                       order_id: doc.id,
                       status: "SUCCESS",
                       transaction_id: doc.id,
-                      transaction_time: Date(),
+                      transaction_time: new Date(),
                       type: "WALLET",
                       wallet_id: walletDoc.id
                     });
