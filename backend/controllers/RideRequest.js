@@ -434,7 +434,11 @@ export const getRideRequestByList = async (req, res) => {
               return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
             }).length;
             const rideRequestSingle = DataRideRequestArray.find((rideRequest) => {
-              return rideRequest.user_id == doc.data().user_id;
+              return (
+                rideRequest.user_id == doc.data().user_id &&
+                rideRequest.ride_schedule_id ==
+                  rideScheduleSingle.ride_schedule_id
+              );
             });
             const single = {
               ride_schedule_id: rideScheduleSingle.ride_schedule_id,
