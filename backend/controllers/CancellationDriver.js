@@ -112,7 +112,18 @@ export const storeCancellationDriver = async (req, res) => {
                 firestore.collection("wallet").doc(doc.data().from).get().then((wallet) => {
                   firestore.collection("wallet").doc(doc.data().from).set({
                     balance: wallet.data().balance + doc.data().price_after,
-                  }, { merge: true }).catch((error) => {
+                  }, { merge: true }).then((val) => {
+                    firestore.collection("transaction").doc().set({
+                      amount: doc.data().price_after,
+                      method: "REFUND",
+                      order_id: doc.id,
+                      status: "SUCCESS",
+                      transaction_id: doc.id,
+                      transaction_time: Date(),
+                      type: "WALLET",
+                      wallet_id: walletDoc.id
+                    });
+                  }).catch((error) => {
                     status = false;
                     message = error.toString();
                   });

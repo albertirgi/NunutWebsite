@@ -26,24 +26,8 @@ export const storeReport = async (req, res) => {
       description: cancellationUser.description,
       status: "PENDING",
     });
-    await firestore
-      .collection("cancellation_user")
-      .doc(cancellationUser.cancellation_user_id)
-      .set({
-        user_id: cancellationUser.user_id,
-        ride_request_id: cancellationUser.ride_request_id,
-        title: cancellationUser.title,
-        description: cancellationUser.description,
-        status: "PENDING",
-      });
-    await firestore.collection("ride_request").doc(data.ride_request_id).update(
-      {
-        status_ride: "CANCELED",
-      },
-      { merge: true }
-    );
     res.status(200).json({
-      message: "CancellationUser successfully added",
+      message: "Report successfully added",
       data: cancellationUser,
       status: 200,
     });
