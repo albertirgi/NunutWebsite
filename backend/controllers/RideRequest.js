@@ -8,7 +8,7 @@ export const storeRideRequest = async (req, res) => {
   try {
     const data = req.body;
     // Check ride request and user id
-    const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).get();
+    const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).where('status_ride', '!=', 'CANCELLED').where('status_ride', '!=', 'CANCELED').where('status_ride', '!=', 'DRIVER_CANCELLED').get();
     if (!rideRequest.empty) {
       console.log("You have already requested this ride");
       res.status(400).json({
