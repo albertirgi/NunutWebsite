@@ -657,6 +657,35 @@ export const rideScheduleDone = async (req, res) => {
             status_ride: "DONE",
           });
         } else if (data.status_ride == "REGISTERED") {
+          const petrol = rideScheduleData.price / 2.8;
+          const commision = rideScheduleData.price - petrol;
+          const driverShare = Math.floor(petrol + (commision * 0.55));
+          const driver = await firestore
+            .collection("driver")
+            .doc(rideScheduleData.driver_id)
+            .get();
+          const driverData = driver.data();
+          const wallet = await firestore
+            .collection("wallet")
+            .where("user_id", "==", driverData.user_id)
+            .get();
+          const walletData = wallet.docs[0].data();
+          await firestore
+            .collection("wallet")
+            .doc(wallet.docs[0].id)
+            .update({
+              balance: walletData.balance + driverShare,
+            });
+          await firestore.collection("transaction").add({
+            amount: driverShare,
+            method: "NUNUTRIDE",
+            order_id: doc.id,
+            status: "SUCCESS",
+            transaction_id: doc.id,
+            transaction_time: new Date(),
+            type: "WALLET",
+            wallet_id: wallet.docs[0].id,
+          });
           await firestore.collection("ride_request").doc(doc.id).update({
             status_ride: "CANCELED",
           });
