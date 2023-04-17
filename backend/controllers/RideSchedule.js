@@ -161,6 +161,10 @@ export const getAllRideSchedules = async (req, res) => {
               }) == undefined
             );
           });
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7");
+            return rideScheduleTime >= Date.now();
+          });
         }
       }
 
@@ -220,6 +224,13 @@ export const getAllRideSchedules = async (req, res) => {
 	      return rideSchedule.is_active == active
 	      })  
       }
+
+      // Order by datetime
+      rideScheduleArray = rideScheduleArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
 
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
@@ -527,6 +538,10 @@ export const getRideScheduleByList = async (req, res) => {
               return rideSchedule.driver_id.driver_id != getSingleDriver.driver_id;
             });
           }
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7");
+            return rideScheduleTime >= Date.now();
+          });
         }
       }
 
@@ -590,6 +605,12 @@ export const getRideScheduleByList = async (req, res) => {
           return rideSchedule.is_active == active
         })
       }
+
+      rideScheduleArray = rideScheduleArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
 
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',

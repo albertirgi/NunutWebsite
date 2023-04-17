@@ -335,6 +335,13 @@ export const getAllRideRequests = async (req, res) => {
           });
         }
       }
+
+      rideRequestArray = rideRequestArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
+
       res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: rideRequestArray,
@@ -535,6 +542,13 @@ export const getRideRequestByList = async (req, res) => {
           });
         }
       }
+
+      rideRequestArray = rideRequestArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
+
       res.status(200).json({
         message: "Ride request data retrieved successfuly",
         data: rideRequestArray.slice(
