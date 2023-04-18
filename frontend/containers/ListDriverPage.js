@@ -63,12 +63,12 @@ const columns = [
     key:'driving_license',
     align: 'center',
   },
-  {
-    title:'Agreement Letter',
-    dataIndex:'agreement_letter',
-    key:'agreement_letter',
-    align: 'center',
-  },
+  // {
+  //   title:'Agreement Letter',
+  //   dataIndex:'agreement_letter',
+  //   key:'agreement_letter',
+  //   align: 'center',
+  // },
   {
     title:'Driver Image',
     dataIndex:'driver_image',
@@ -358,9 +358,9 @@ export default function ListDriverPage() {
               }}> 
                 Click to Open
               </Button> : "No File",
-            driver_image: data.driver_image?.toString() !== "null" ? <Button onClick={
+            driver_image: data.image?.toString() !== "null" ? <Button onClick={
               () => {
-                FileGetter(getFileNameOnURL(data?.driver_image?.toString()));
+                FileGetter(getFileNameOnURL(data?.image?.toString()));
               }}> 
                 Click to Open
               </Button> : "No File",
