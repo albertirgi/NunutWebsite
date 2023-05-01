@@ -68,6 +68,57 @@ export const getAllTransactions = async (req, res) => {
   }
 }
 
+export const getAllTransactionsByList = async (req, res) => {
+  try {
+    const data = await firestore.collection('transaction').get();
+    const transactionArray = [];
+    const num = req.params.num;
+    const wallet = await firestore.collection('wallet').get();
+    const walletArray =
+      req.query.wallet !== undefined
+        ? wallet.docs.map(doc => {
+            return {
+              wallet_id: doc.id,
+              ...doc.data(),
+            };
+          })
+        : null;
+    if (data.empty) {
+      res.status(404).json({
+        message: 'No transaction record found',
+        status: 404,
+      })
+    } else {
+      data.forEach(doc => {
+        const transaction = new Transaction(
+          doc.id,
+          req.query.wallet !== undefined ? walletArray.find(wallet => wallet.id === doc.data().wallet_id) : doc.data().wallet_id,
+          doc.data().order_id,
+          doc.data().token,
+          doc.data().amount,
+          doc.data().method,
+          doc.data().status,
+          doc.data().type
+        );
+        transactionArray.push(transaction);
+      });
+      res.status(200).json({
+        message: 'Transaction data retrieved successfuly',
+        data: transactionArray.slice(
+          0 + (num - 1) * 10,
+          num * 10
+        ),
+        status: 200
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Something went wrong while fetching data: ' + error.toString(),
+      status: 500
+    });
+  }
+}
+
 export const getTransactionById = async (req, res) => {
   try {
     const id = req.params.id;
