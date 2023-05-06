@@ -360,6 +360,26 @@ export const getAllBeneficiaries = async (req, res) => {
 export const storePayout = async (req, res) => {
   try {
     const data = req.body;
+    const user = await firestore
+      .collection("user")
+      .doc(data.user_id)
+      .get();
+    if (user.empty) {
+      res.status(400).json({
+        message: "User not found",
+        status: 400,
+      });
+      return;
+    }
+    const userData = user.data();
+    const driver = await firestore
+      .collection("driver")
+      .where("user_id", "==", data.user_id)
+      .get();
+    var emailStatus = "Driver";
+    if (driver.empty) {
+      emailStatus = "User";
+    }
     const wallet = await firestore
       .collection("wallet")
       .where("user_id", "==", data.user_id)
@@ -510,9 +530,55 @@ export const storePayout = async (req, res) => {
         transaction_time: new Date(),
       })
       .then(() => {
-        res.status(200).json({
-          message: "Payout data saved successfuly",
-          status: 200,
+        const email = "d12200009@john.petra.ac.id";
+        const subject = "Withdrawal Request";
+        const html = `
+          <h1><b>NUNUT REQUEST!</b></h1>
+          <br>
+          <p>Dear nunut management</p>
+          <br>
+          <p>Terjadi permintaan WITHDRAW saldo NUNUT PAY oleh</p>
+          <p>Nama: ${userData.name}</p>
+          <p>Status: ${emailStatus}</p>
+          <p>Bank: ${payload.beneficiary_bank}</p>
+          <p>Nomor Rekening: ${payload.beneficiary_account}</p>
+          <p>Nominal Withdraw: Rp. ${payload.amount}</p>
+          <br>
+          <p>Harap segera ditransfer dan lakukan konfirmasi melalui link berikut ini https://ayonunut.com/dashboard/payout</p>
+          <p>Terima kasih</p>
+          `;
+        const mailer = setupMailer();
+        const mailOptions = {
+          from: "psociopreneur@gmail.com",
+          to: email,
+          subject: subject,
+          html: html,
+        };
+        mailer.sendMail(mailOptions, function (err, info) {
+          if (err) {
+          } else {
+            mailer.sendMail(
+              {
+                from: "psociopreneur@gmail.com",
+                to: "psociopreneur@gmail.com",
+                subject: subject,
+                html: html,
+              },
+              function (err, info) {
+                if (err) {
+                  res.status(500).json({
+                    message: "Error while sending email: " + err.message,
+                    status: 500,
+                  });
+                } else {
+                  res.status(200).json({
+                    message: "Payout data saved successfuly",
+                    status: 200,
+                  });
+                }
+              }
+            );
+          }
         });
       })
       .catch((error) => {

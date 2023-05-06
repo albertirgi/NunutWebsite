@@ -8,7 +8,7 @@ export const storeRideRequest = async (req, res) => {
   try {
     const data = req.body;
     // Check ride request and user id
-    const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).get();
+    const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', data.ride_schedule_id).where('user_id', '==', data.user_id).where('status_ride', 'not-in', ['CANCELLED', 'CANCELED', 'DRIVER_CANCELLED']).get();
     if (!rideRequest.empty) {
       console.log("You have already requested this ride");
       res.status(400).json({
@@ -96,15 +96,23 @@ export const storeRideRequest = async (req, res) => {
         const voucherData = voucher.data();
         const voucherExpired = new Date(voucherData.expired_at);
         const today = new Date();
+        const discount = parseInt(voucherData.discount);
+        const maximum_discount = parseInt(voucherData.maximum_discount);
 
         if (today <= voucherExpired) {
           // Check voucher type
           if (voucherData.type == "percentage") {
-            price_after =
-              rideScheduleData.price -
-              (rideScheduleData.price * (voucherData.discount / 100));
+            const totalDiscount = (discount / 100) * rideScheduleData.price;
+            if (totalDiscount > maximum_discount) {
+              price_after = rideScheduleData.price - maximum_discount;
+            } else {
+              price_after = rideScheduleData.price - totalDiscount;
+            }
+            // price_after =
+            //   rideScheduleData.price -
+            //   (rideScheduleData.price * (discount / 100));
           } else {
-            price_after = rideScheduleData.price - voucherData.discount;
+            price_after = rideScheduleData.price - discount;
           }
           if (price_after < 0) {
             price_after = 0;
@@ -327,6 +335,13 @@ export const getAllRideRequests = async (req, res) => {
           });
         }
       }
+
+      rideRequestArray = rideRequestArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
+
       res.status(200).json({
         message: 'Ride request data retrieved successfuly',
         data: rideRequestArray,
@@ -343,10 +358,17 @@ export const getAllRideRequests = async (req, res) => {
 
 export const getRideRequestByList = async (req, res) => {
   try {
-    const rideRequest = await firestore.collection('ride_request').get();
+    const rideRequest = await firestore.collection('ride_request').where('status_ride', 'not-in', ['CANCELED', 'DRIVER_CANCELLED']).get();
     const DataRideRequestArray = rideRequest.docs.map(doc => {
       return {
         ride_request_id: doc.id,
+        ...doc.data(),
+      };
+    });
+    const rideOrder = await firestore.collection('ride_order').get();
+    const rideOrderArray = rideOrder.docs.map(doc => {
+      return {
+        ride_order_id: doc.id,
         ...doc.data(),
       };
     });
@@ -398,6 +420,7 @@ export const getRideRequestByList = async (req, res) => {
         : null;
     const data = await firestore
       .collection("ride_request")
+      .where('status_ride', 'not-in', ['CANCELED', 'DRIVER_CANCELLED'])
       .get();
     var rideRequestArray = [];
     if (data.empty) {
@@ -416,8 +439,15 @@ export const getRideRequestByList = async (req, res) => {
               return rideSchedule.ride_schedule_id == doc.data().ride_schedule_id;
             });
             const capacity = DataRideRequestArray.filter((rideRequest) => {
-              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && (rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "CANCELLED" && rideRequest.status_ride != "DRIVER_CANCELLED");
             }).length;
+            const rideRequestSingle = DataRideRequestArray.find((rideRequest) => {
+              return (
+                rideRequest.user_id == doc.data().user_id &&
+                rideRequest.ride_schedule_id ==
+                  rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED"
+              );
+            });
             const single = {
               ride_schedule_id: rideScheduleSingle.ride_schedule_id,
               date: rideScheduleSingle.date,
@@ -425,7 +455,10 @@ export const getRideRequestByList = async (req, res) => {
               meeting_point: rideScheduleSingle.meeting_point,
               destination: rideScheduleSingle.destination,
               note: rideScheduleSingle.note,
-              price: Math.ceil(rideScheduleSingle.price/100)*100,
+              price: rideScheduleSingle.price,
+              price_after: rideOrderArray.find((rideOrder) => {
+                return rideOrder.ride_request_id == rideRequestSingle.ride_request_id;
+              }).price_after,
               driver_id:
                 req.query.driver !== undefined
                   ? driverArray.find((driver) => {
@@ -444,7 +477,7 @@ export const getRideRequestByList = async (req, res) => {
               is_active: rideScheduleSingle.is_active,
               status_ride: doc.data().status_ride,
               ride_request: DataRideRequestArray.find((rideRequest) => {
-                return rideRequest.user_id == req.query.ride_schedule_only && rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+                return rideRequest.user_id == req.query.ride_schedule_only && rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
               }),
             };
             rideRequestArray.push(single);
@@ -509,6 +542,13 @@ export const getRideRequestByList = async (req, res) => {
           });
         }
       }
+
+      rideRequestArray = rideRequestArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
+
       res.status(200).json({
         message: "Ride request data retrieved successfuly",
         data: rideRequestArray.slice(
@@ -519,6 +559,7 @@ export const getRideRequestByList = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error.toString());
     res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500,

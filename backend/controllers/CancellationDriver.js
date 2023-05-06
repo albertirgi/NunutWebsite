@@ -56,6 +56,8 @@ export const storeCancellationDriver = async (req, res) => {
       data.title,
       data.description
     )
+    var status = true;
+    var message = "";
     await firestore
       .collection("cancellation_driver")
       .doc(cancellationDriver.cancellation_driver_id)
@@ -71,11 +73,83 @@ export const storeCancellationDriver = async (req, res) => {
       .set({
         is_active: false,
       }, { merge: true })
-    res.status(200).json({
-      message: "Cancellation successfully added",
-      data: cancellationDriver,
-      status: 200,
-    })
+    const rideRequest = await firestore.collection("ride_request").where("ride_schedule_id", "==", cancellationDriver.ride_schedule_id).get();
+    const rideRequestArray = rideRequest.docs.map((doc) => {
+      return {
+        ride_request_id: doc.id,
+        ...doc.data()
+      }
+    });
+    rideRequestArray.forEach((rideRequestSingle) => {
+      if(rideRequestSingle.status_ride != "CANCELLED"){
+        firestore
+          .collection("ride_request")
+          .doc(rideRequestSingle.ride_request_id)
+          .set({
+            status_ride: "DRIVER_CANCELLED",
+          }, { merge: true }).then(() => {
+            
+          }).catch((error) => {
+            status = false;
+            message = error.toString();
+          });
+      }
+    });
+    rideRequestArray.forEach((rideRequestSingle) => {
+      if(rideRequestSingle.status_ride != "CANCELLED"){
+        firestore.collection("ride_order").where("ride_request_id", "==", rideRequestSingle.ride_request_id).get().then((rideOrder) => {
+          rideOrder.forEach((doc) => {
+            firestore
+              .collection("ride_order")
+              .doc(doc.id)
+              .set(
+                {
+                  status_payment: "REFUND",
+                },
+                { merge: true }
+              )
+              .then(() => {
+                firestore.collection("wallet").doc(doc.data().from).get().then((wallet) => {
+                  firestore.collection("wallet").doc(doc.data().from).set({
+                    balance: wallet.data().balance + doc.data().price_after,
+                  }, { merge: true }).then((val) => {
+                    firestore.collection("transaction").doc().set({
+                      amount: doc.data().price_after,
+                      method: "REFUND",
+                      order_id: doc.id,
+                      status: "SUCCESS",
+                      transaction_id: doc.id,
+                      transaction_time: new Date(),
+                      type: "WALLET",
+                      wallet_id: walletDoc.id
+                    });
+                  }).catch((error) => {
+                    status = false;
+                    message = error.toString();
+                  });
+                })
+              });
+          });
+        }).catch((error) => {
+          status = false;
+          message = error.toString();
+        });
+      }
+    });
+
+    if (status) {
+      res.status(200).json({
+        message: "Cancellation successfully added",
+        data: cancellationDriver,
+        status: 200,
+      })
+    } else {
+      res.status(500).json({
+        message: "Error adding cancellation",
+        data: message,
+        status: 500,
+      })
+    }
   } catch (error) {
     res.status(500).json({
       message: "Error adding cancellation",

@@ -161,6 +161,10 @@ export const getAllRideSchedules = async (req, res) => {
               }) == undefined
             );
           });
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7");
+            return rideScheduleTime >= Date.now();
+          });
         }
       }
 
@@ -221,6 +225,13 @@ export const getAllRideSchedules = async (req, res) => {
 	      })  
       }
 
+      // Order by datetime
+      rideScheduleArray = rideScheduleArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
+
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray,
@@ -274,7 +285,14 @@ export const getRideScheduleById = async (req, res) => {
       const vehicleArray = req.query.vehicle !== undefined ? vehicle.docs.map(doc => {
         return {
           vehicle_id: doc.id,
-          ...doc.data()
+          color: doc.data().color,
+          driver_id: doc.data().driver_id,
+          expired_at: doc.data().expired_at,
+          is_main: doc.data().is_main,
+          license_plate: doc.data().license_plate,
+          note: doc.data().note,
+          transportation_type: doc.data().transportation_type,
+          vehicle_type: doc.data().vehicle_type,
         }
       }) : null
       const user = await firestore.collection('users').get()
@@ -490,7 +508,10 @@ export const getRideScheduleByList = async (req, res) => {
             ...rideSchedule,
             ride_request_id: rideRequestArray.filter((rideRequest) => {
               return (
-                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id && rideRequest.status_ride != "CANCELLED" &&
+                rideRequest.status_ride != "CANCELED" &&
+                rideRequest.status_ride != "DRIVER_CANCELLED" &&
+                rideRequest.status_ride != "DRIVER_CANCELED"
               );
             }),
           };
@@ -498,8 +519,17 @@ export const getRideScheduleByList = async (req, res) => {
         });
         if(req.query.user_view !== undefined && req.query.user_view == "true"){
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideRequestActive = rideRequestArray.filter((rideRequest) => {
+              return (
+                rideRequest.status_ride != "CANCELLED" &&
+                rideRequest.status_ride != "CANCELED" &&
+                rideRequest.status_ride != "DRIVER_CANCELLED" &&
+                rideRequest.status_ride != "DRIVER_CANCELED" &&
+                rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+              );
+            });
             const rideScheduleCapacity = rideSchedule.capacity
-            const rideRequestCapactity = rideSchedule.ride_request_id.length
+            const rideRequestCapactity = rideRequestActive.length
             return rideScheduleCapacity > rideRequestCapactity
           })
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
@@ -515,6 +545,10 @@ export const getRideScheduleByList = async (req, res) => {
               return rideSchedule.driver_id.driver_id != getSingleDriver.driver_id;
             });
           }
+          rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
+            const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7");
+            return rideScheduleTime >= Date.now();
+          });
         }
       }
 
@@ -579,6 +613,12 @@ export const getRideScheduleByList = async (req, res) => {
         })
       }
 
+      rideScheduleArray = rideScheduleArray.sort(function(a, b){
+        const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
+        const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
+        return rideScheduleTimeB - rideScheduleTimeA;
+      }); 
+
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray.slice(0+((num-1)*10), (num*10)),
@@ -613,7 +653,8 @@ export const rideScheduleDone = async (req, res) => {
           // const rideOrderData = rideOrder.docs[0].data()
           const petrol = rideScheduleData.price / 2.8;
           const commision = rideScheduleData.price - petrol;
-          const driverShare = Math.floor(petrol + (commision * 0.55));
+          const driverShare =
+            Math.ceil((rideScheduleData.price * 0.55) / 100) * 100;
           const driver = await firestore
             .collection("driver")
             .doc(rideScheduleData.driver_id)
@@ -645,6 +686,36 @@ export const rideScheduleDone = async (req, res) => {
             status_ride: "DONE",
           });
         } else if (data.status_ride == "REGISTERED") {
+          const petrol = rideScheduleData.price / 2.8;
+          const commision = rideScheduleData.price - petrol;
+          const driverShare =
+            Math.ceil((rideScheduleData.price * 0.55) / 100) * 100;
+          const driver = await firestore
+            .collection("driver")
+            .doc(rideScheduleData.driver_id)
+            .get();
+          const driverData = driver.data();
+          const wallet = await firestore
+            .collection("wallet")
+            .where("user_id", "==", driverData.user_id)
+            .get();
+          const walletData = wallet.docs[0].data();
+          await firestore
+            .collection("wallet")
+            .doc(wallet.docs[0].id)
+            .update({
+              balance: walletData.balance + driverShare,
+            });
+          await firestore.collection("transaction").add({
+            amount: driverShare,
+            method: "NUNUTRIDE",
+            order_id: doc.id,
+            status: "SUCCESS",
+            transaction_id: doc.id,
+            transaction_time: new Date(),
+            type: "WALLET",
+            wallet_id: wallet.docs[0].id,
+          });
           await firestore.collection("ride_request").doc(doc.id).update({
             status_ride: "CANCELED",
           });

@@ -230,13 +230,17 @@ export default function VoucherPage() {
 
         var discountValueInt = parseInt(voucherDiscount);
         var minimumValueInt = parseInt(minimum);
-        if(voucherType=="percentage" && discountValueInt <= minimumValueInt){
+        if(voucherType=="nominal" && discountValueInt <= minimumValueInt){
+          StoreVoucher();
+        }
+        else if(voucherType=="percentage" && discountValueInt <= 100){
           StoreVoucher();
         }
         else{
-          alert("Discount value must be lower than minimum purchase value");
+          alert("Error : Discount value must be less than minimum value");
           
         }
+
         
         if(isDataChanged == false){
             setIsDataChanged(true);
