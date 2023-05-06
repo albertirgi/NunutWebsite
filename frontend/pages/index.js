@@ -96,7 +96,7 @@ export default () => (
                     <Row style={{
                         ...rowStyle,
                     }} gutter={gutter} justify="center" align="middle">
-                        <Col md={3} sm={3} xs={0} style={colStyle}>
+                        {/* <Col md={3} sm={3} xs={0} style={colStyle}>
                             
                         </Col>
                         <Col md={4} sm={4} xs={0} style={colStyle}>
@@ -148,13 +148,17 @@ export default () => (
                         </Col>
                         <Col md={1} sm={1} xs={0} style={colStyle}>
                             
-                        </Col>
-                        <Col md={4} sm={4} xs={0} style={colStyle}>
+                        </Col> */}
+                        <Col md={1} sm={1} xs={0} style={colStyle}>
+                            
+                            </Col>
+                        <Col md={6} sm={6} xs={0} style={colStyle}>
+                            <Link href={"https://play.google.com/store/apps/details?id=com.ayonunut.nunut_application"}>
                             <div style={{
                                 backgroundColor: "#FFFFFF",
                                 borderRadius: "50px",
                                 height: "66px",
-                                width: "100%",
+                                width: "300px",
                                 textAlign: "center",
                                 
                             }} className="directPage">
@@ -192,11 +196,12 @@ export default () => (
                                    
                                 </Row>
                             </div>
+                            </Link>
                         </Col>
-                        <Col md={4} sm={4} xs={0} style={colStyle}>   
-                        </Col>
+                        {/* <Col md={4} sm={4} xs={0} style={colStyle}>   
+                        </Col> */}
                     </Row>
-                    <Row style={{
+                    {/* <Row style={{
                         ...rowStyle,
                         
                     }} gutter={gutter} justify="center" align="middle">
@@ -246,7 +251,7 @@ export default () => (
                                 </Row>
                             </div>
                         </Col>
-                    </Row>
+                    </Row> */}
                     <Row style={{
                         ...rowStyle,
                         
