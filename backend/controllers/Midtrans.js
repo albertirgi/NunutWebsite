@@ -196,8 +196,8 @@ export const topup = async (req, res) => {
             });
     
     let snap = new midtransClient.Snap({
-      isProduction: false,
-      serverKey: "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR",
+      isProduction: true,
+      serverKey: "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     });
     const order_id = uuid();
 
@@ -234,7 +234,7 @@ export const topup = async (req, res) => {
           status: 200,
           token: transactionToken,
           redirect_url:
-            "https://app.sandbox.midtrans.com/snap/v2/vtweb/" + transactionToken,
+            "https://app.midtrans.com/snap/v2/vtweb/" + transactionToken,
         });
       }).catch((error) => {
         res.status(500).json({

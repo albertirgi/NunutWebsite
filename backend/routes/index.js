@@ -242,6 +242,7 @@ router.get('/transaction/:id', getTransactionById);
 router.put('/transaction/:id', updateTransaction);
 router.delete('/transaction/:id', destroyTransaction);
 router.post('/topup', topup2);
+router.post('/topup2', topup);
 router.post('/handle-topup', handleTopup);
 router.get('/map', getAllMaps);
 router.get('/map/list/:num', getAllMapsByList);
