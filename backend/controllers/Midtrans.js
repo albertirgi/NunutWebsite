@@ -220,28 +220,34 @@ export const topup = async (req, res) => {
     snap.createTransaction(parameter).then((transaction) => {
       // transaction token
       let transactionToken = transaction.token;
-      firestore.collection("transaction").doc(order_id).set({
-        amount: data.gross_amount,
-        method: "",
-        order_id: order_id,
-        status: "pending",
-        token: transactionToken,
-        type: "topup",
-        wallet_id: walletData.id,
-      }).then(() => {
-        res.status(200).json({
-          message: "Snap token generated successfuly",
-          status: 200,
-          token: transactionToken,
-          redirect_url:
-            "https://app.midtrans.com/snap/v2/vtweb/" + transactionToken,
+      firestore
+        .collection("transaction")
+        .doc(order_id)
+        .set({
+          amount: data.gross_amount,
+          method: "-",
+          order_id: order_id,
+          status: "pending",
+          transaction_id: transactionToken,
+          transaction_time: new Date(),
+          type: "topup",
+          wallet_id: walletData.id,
+        })
+        .then(() => {
+          res.status(200).json({
+            message: "Snap token generated successfuly",
+            status: 200,
+            token: transactionToken,
+            redirect_url:
+              "https://app.midtrans.com/snap/v2/vtweb/" + transactionToken,
+          });
+        })
+        .catch((error) => {
+          res.status(500).json({
+            message: `Error while save transaction: ${error.toString()}`,
+            status: 500,
+          });
         });
-      }).catch((error) => {
-        res.status(500).json({
-          message: `Error while save transaction: ${error.toString()}`,
-          status: 500,
-        });
-      })
     });
   } catch (error) {
     res.status(500).json({
