@@ -30,7 +30,7 @@ export const topup2 = async(req, res) => {
               });
               return null;
             });
-    const url = "https://api.sandbox.midtrans.com/v2/charge"
+    const url = "https://api.midtrans.com/v2/charge"
     var payload;
     if(data.payment_type == "gopay"){
       payload = {
@@ -89,13 +89,14 @@ export const topup2 = async(req, res) => {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": "Basic " + Buffer.from("SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:", "utf8").toString("base64"),
+        "Authorization": "Basic " + Buffer.from("Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T:", "utf8").toString("base64"),
       },
       timeout: 10000,
     };
     const post = new Promise ((resolve, reject) => {
       const request = https.request(url, options, (res) => {
         if(res.statusCode < 200 || res.statusCode > 299){
+	  console.log(res);
           return reject(new Error('HTTP status code' + res.statusCode))
         }
         const body = []
@@ -118,6 +119,7 @@ export const topup2 = async(req, res) => {
     post.then(
       function(value){
         if(JSON.parse(value).status_code != "201"){
+	  console.log(JSON.parse(value));
           res.status(500).json({
             message: "Transaction failed: " + JSON.parse(value).status_message,
             status: 400
@@ -145,6 +147,7 @@ export const topup2 = async(req, res) => {
             });
           })
           .catch((error) => {
+	    console.log(error);
             res.status(500).json({
               message: "Transaction failed: " + error.toString(),
               status: 400,
@@ -152,6 +155,7 @@ export const topup2 = async(req, res) => {
           });
       },
       function(error){
+	console.log(error);
         res.status(500).json({
           message: "Transaction failed: " + error.toString(),
           status: 400
@@ -159,6 +163,7 @@ export const topup2 = async(req, res) => {
       }
     )
   } catch(err) {
+    console.log(err);
     res.status(500).json({
       message: "Error while creating transaction: " + err.toString(),
       status: 500

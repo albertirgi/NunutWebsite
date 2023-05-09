@@ -54,7 +54,7 @@ export const storeBeneficiary = async (req, res) => {
         Authorization:
           "Basic " +
           Buffer.from(
-            "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+            "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
             "utf8"
           ).toString("base64"),
         "X-Idempotency-Key": uuid(),
@@ -169,7 +169,7 @@ export const updateBeneficiary = async (req, res) => {
     //     Authorization:
     //       "Basic " +
     //       Buffer.from(
-    //         "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+    //         "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     //         "utf8"
     //       ).toString("base64"),
     //     "X-Idempotency-Key": uuid(),
@@ -279,7 +279,7 @@ export const getAllBeneficiaries = async (req, res) => {
     //     Authorization:
     //       "Basic " +
     //       Buffer.from(
-    //         "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+    //         "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     //         "utf8"
     //       ).toString("base64"),
     //     "X-Idempotency-Key": uuid(),
@@ -423,7 +423,7 @@ export const storePayout = async (req, res) => {
     //     Authorization:
     //       "Basic " +
     //       Buffer.from(
-    //         "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+    //         "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     //         "utf8"
     //       ).toString("base64"),
     //     "X-Idempotency-Key": uuid(),
@@ -643,7 +643,7 @@ export const approvePayout = async (req, res) => {
     //     Authorization:
     //       "Basic " +
     //       Buffer.from(
-    //         "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+    //         "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     //         "utf8"
     //       ).toString("base64"),
     //     "X-Idempotency-Key": uuid(),
@@ -794,7 +794,7 @@ export const rejectPayout = async (req, res) => {
     //     Authorization:
     //       "Basic " +
     //       Buffer.from(
-    //         "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+    //         "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     //         "utf8"
     //       ).toString("base64"),
     //     "X-Idempotency-Key": uuid(),
@@ -1024,7 +1024,7 @@ export const getPayoutById = async (req, res) => {
     //     Authorization:
     //       "Basic " +
     //       Buffer.from(
-    //         "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:",
+    //         "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     //         "utf8"
     //       ).toString("base64"),
     //   },

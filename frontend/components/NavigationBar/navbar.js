@@ -46,7 +46,7 @@ export default function NavigationBar ({logo, data, backgroundImage, content}){
                     }} className="nav-download">
                         {/* DownloadButton */}
                         <Button className="DownloadButton">
-                            <a href="https://play.google.com/store/apps/details?id=com.nunut.app" target="_blank">
+                            <a href="https://play.google.com/store/apps/details?id=com.ayonunut.nunut_application" target="_blank">
                                 Download Now !
                             </a>
                         </Button>
