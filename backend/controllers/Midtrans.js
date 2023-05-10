@@ -370,7 +370,7 @@ export const getTransactionByWalletByList = async (req, res) => {
   try {
     const num = req.params.num;
     const data = req.body;
-    const transaction = await firestore.collection("transaction").where("wallet_id", "==", data.wallet_id).get();
+    var transaction = await firestore.collection("transaction").where("wallet_id", "==", data.wallet_id).get();
     if (transaction.empty) {
       res.status(404).json({
         message: "No transaction record found",
@@ -378,14 +378,14 @@ export const getTransactionByWalletByList = async (req, res) => {
       })
       return
     }
+    var transactionData = transaction.docs.map((doc) => doc.data());
+    transactionData = transactionData.sort((a, b) => b.transaction_time - a.transaction_time);
+
     res.status(200).json({
       message: "Transaction record found",
       status: 200,
-      data: transaction.docs.map((doc) => doc.data()).slice(
-          0 + (num - 1) * 10,
-          num * 10
-        ),
-    })
+      data: transactionData.slice(0 + (num - 1) * 10, num * 10),
+    });
   } catch (error) {
     res.status(500).json({
       message: `Error while get transaction: ${error.toString()}`,
