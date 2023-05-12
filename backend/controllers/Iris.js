@@ -361,7 +361,7 @@ export const storePayout = async (req, res) => {
   try {
     const data = req.body;
     const user = await firestore
-      .collection("user")
+      .collection("users")
       .doc(data.user_id)
       .get();
     if (user.empty) {
@@ -401,6 +401,7 @@ export const storePayout = async (req, res) => {
               return wallet;
             })
             .catch((error) => {
+	      console.log(error.toString());
               res.status(500).json({
                 message: `Error while create wallet: ${error.toString()}`,
                 status: 500,
@@ -438,6 +439,7 @@ export const storePayout = async (req, res) => {
       return;
     }
     const beneficiaryData = beneficiary.data();
+    console.log(beneficiaryData);
     const payload = {
       reference_no: uuid(),
       beneficiary_name: beneficiaryData.name,
@@ -515,7 +517,7 @@ export const storePayout = async (req, res) => {
     //     });
     //   }
     // );
-
+    console.log(userData);
     firestore
       .collection("transaction")
       .doc(payload.reference_no)
@@ -582,6 +584,7 @@ export const storePayout = async (req, res) => {
         });
       })
       .catch((error) => {
+	console.log(error.toString());
         res.status(500).json({
           message:
             "Something went wrong while saving data: " + error.toString(),
@@ -589,6 +592,7 @@ export const storePayout = async (req, res) => {
         });
       });
   } catch (error) {
+    console.log(error.toString());
     res.status(500).json({
       message: "Something went wrong while updating data: " + error.toString(),
       status: 500,
