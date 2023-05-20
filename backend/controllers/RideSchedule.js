@@ -5,6 +5,21 @@ import { doc } from 'firebase/firestore'
 let token = null
 const firestore = db.firestore()
 
+function setupMailer() {
+  return nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+      user: "psociopreneur@gmail.com",
+      pass: "remnvcsctsuphumg",
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+}
+
 export const storeRideSchedule = async (req, res) => {
   try {
     const data = req.body
@@ -646,15 +661,20 @@ export const rideScheduleDone = async (req, res) => {
     }else{
       const rideScheduleData = rideSchedule.data()
       const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
+      const rideRequestLength = rideRequest.docs.where('status_ride', 'in', ["REGISTERED", "ONGOING"]).length
+      var rate = 2.8
+      if (rideRequestLength > 1) {
+        rate = 2 + rideRequestLength
+      }
+
       rideRequest.forEach(async doc => {
         const data = doc.data()
         if(data.status_ride == "ONGOING"){
-          // const rideOrder = await firestore.collection('ride_order').where('ride_request_id', '==', doc.id).get()
-          // const rideOrderData = rideOrder.docs[0].data()
           const petrol = rideScheduleData.price / 2.8;
-          const commision = rideScheduleData.price - petrol;
-          const driverShare =
-            Math.ceil((rideScheduleData.price * 0.55) / 100) * 100;
+          var totalPrice = (petrol * rate) / rideRequestLength;
+          var refundPrice = rideScheduleData.price - totalPrice;
+          const driverShare = Math.ceil((totalPrice * 0.55) / 100) * 100;
+
           const driver = await firestore
             .collection("driver")
             .doc(rideScheduleData.driver_id)
@@ -671,6 +691,85 @@ export const rideScheduleDone = async (req, res) => {
             .update({
               balance: walletData.balance + driverShare,
             });
+
+          await firestore.collection("transaction").add({
+            amount: driverShare,
+            method: "NUNUTRIDE",
+            order_id: doc.id,
+            status: "SUCCESS",
+            transaction_id: doc.id,
+            transaction_time: new Date(),
+            type: "WALLET",
+            wallet_id: wallet.docs[0].id,
+          }); 
+          const user = await firestore.collection("user").doc(data.user_id).get();
+          const userData = user.data();
+          const userWallet = await firestore.collection("wallet").where("user_id", "==", data.user_id).get();
+          const userWalletData = userWallet.docs[0].data();
+          await firestore.collection("wallet").doc(userWallet.docs[0].id).update({
+            balance: userWalletData.balance + refundPrice,
+          });
+
+          await firestore.collection("transaction").add({
+            amount: refundPrice,
+            method: "NUNUTRIDE",
+            order_id: doc.id,
+            status: "SUCCESS",
+            transaction_id: doc.id,
+            transaction_time: new Date(),
+            type: "WALLET",
+            wallet_id: userWallet.docs[0].id,
+          });
+
+          await firestore.collection("ride_request").doc(doc.id).update({
+            status_ride: "DONE",
+          });
+
+          const email = userData.email;
+          const subject = "Konfirmasi Harga Final Nunut";
+          const html = `
+          <br>
+          <p>Dear ${userData.name}</p>
+          <br>
+          <p>Kami dengan senang hati menginformasikan bahwa transaksi Anda telah berhasil dilakukan. Terima kasih telah menggunakan layanan kami!</p>
+          <p>Berikut ini adalah rincian transaksi:</p>
+          <p>Tanggal Transaksi: ${new Date()}</p>
+          <p>Jumlah Pembayaran: Rp. ${totalPrice}</p>
+          <br>
+          <p>Terima kasih</p>
+          `;
+          const mailer = setupMailer();
+          const mailOptions = {
+            from: "psociopreneur@gmail.com",
+            to: email,
+            subject: subject,
+            html: html,
+          };
+          mailer.sendMail(mailOptions);
+          
+        } else if (data.status_ride == "REGISTERED") {
+          const petrol = rideScheduleData.price / 2.8;
+          var totalPrice = (petrol * rate) / rideRequestLength;
+          var refundPrice = rideScheduleData.price - totalPrice;
+          const driverShare = Math.ceil((totalPrice * 0.55) / 100) * 100;
+
+          const driver = await firestore
+            .collection("driver")
+            .doc(rideScheduleData.driver_id)
+            .get();
+          const driverData = driver.data();
+          const wallet = await firestore
+            .collection("wallet")
+            .where("user_id", "==", driverData.user_id)
+            .get();
+          const walletData = wallet.docs[0].data();
+          await firestore
+            .collection("wallet")
+            .doc(wallet.docs[0].id)
+            .update({
+              balance: walletData.balance + driverShare,
+            });
+
           await firestore.collection("transaction").add({
             amount: driverShare,
             method: "NUNUTRIDE",
@@ -682,45 +781,62 @@ export const rideScheduleDone = async (req, res) => {
             wallet_id: wallet.docs[0].id,
           });
 
-          await firestore.collection("ride_request").doc(doc.id).update({
-            status_ride: "DONE",
-          });
-        } else if (data.status_ride == "REGISTERED") {
-          const petrol = rideScheduleData.price / 2.8;
-          const commision = rideScheduleData.price - petrol;
-          const driverShare =
-            Math.ceil((rideScheduleData.price * 0.55) / 100) * 100;
-          const driver = await firestore
-            .collection("driver")
-            .doc(rideScheduleData.driver_id)
+          const user = await firestore
+            .collection("user")
+            .doc(data.user_id)
             .get();
-          const driverData = driver.data();
-          const wallet = await firestore
+          const userData = user.data();
+          const userWallet = await firestore
             .collection("wallet")
-            .where("user_id", "==", driverData.user_id)
+            .where("user_id", "==", data.user_id)
             .get();
-          const walletData = wallet.docs[0].data();
+          const userWalletData = userWallet.docs[0].data();
           await firestore
             .collection("wallet")
-            .doc(wallet.docs[0].id)
+            .doc(userWallet.docs[0].id)
             .update({
-              balance: walletData.balance + driverShare,
+              balance: userWalletData.balance + refundPrice,
             });
+
           await firestore.collection("transaction").add({
-            amount: driverShare,
+            amount: refundPrice,
             method: "NUNUTRIDE",
             order_id: doc.id,
             status: "SUCCESS",
             transaction_id: doc.id,
             transaction_time: new Date(),
             type: "WALLET",
-            wallet_id: wallet.docs[0].id,
+            wallet_id: userWallet.docs[0].id,
           });
+
           await firestore.collection("ride_request").doc(doc.id).update({
             status_ride: "CANCELED",
           });
+
+          const email = userData.email;
+          const subject = "Konfirmasi Harga Final Nunut";
+          const html = `
+          <br>
+          <p>Dear ${userData.name}</p>
+          <br>
+          <p>Kami dengan senang hati menginformasikan bahwa transaksi Anda telah berhasil dilakukan. Terima kasih telah menggunakan layanan kami!</p>
+          <p>Berikut ini adalah rincian transaksi:</p>
+          <p>Tanggal Transaksi: ${new Date()}</p>
+          <p>Jumlah Pembayaran: Rp. ${totalPrice}</p>
+          <br>
+          <p>Terima kasih</p>
+          `;
+          const mailer = setupMailer();
+          const mailOptions = {
+            from: "psociopreneur@gmail.com",
+            to: email,
+            subject: subject,
+            html: html,
+          };
+          mailer.sendMail(mailOptions);
         }
       })
+      
       await firestore.collection('ride_schedule').doc(id).update({
         is_active: false
       })
