@@ -196,7 +196,7 @@ export const topup = async (req, res) => {
             });
     
     let snap = new midtransClient.Snap({
-      isProduction: true,
+      isProduction: false,
       serverKey: "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR",
     });
     const order_id = uuid();
