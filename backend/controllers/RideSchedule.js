@@ -177,8 +177,12 @@ export const getAllRideSchedules = async (req, res) => {
             );
           });
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-            const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7");
-            return rideScheduleTime >= Date.now();
+            const rideScheduleTime = new Date(
+              rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7"
+            );
+            // return 1 hour before ride schedule time
+            return rideScheduleTime >= Date.now() - 3600000;
+            // return rideScheduleTime >= Date.now();
           });
         }
       }
@@ -562,7 +566,8 @@ export const getRideScheduleByList = async (req, res) => {
           }
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
             const rideScheduleTime = new Date(rideSchedule.date + " " + rideSchedule.time + ":00 GMT+7");
-            return rideScheduleTime >= Date.now();
+            // return 1 hour before ride schedule time
+            return rideScheduleTime >= Date.now() - 3600000;
           });
         }
       }
@@ -673,7 +678,7 @@ export const rideScheduleDone = async (req, res) => {
           const petrol = rideScheduleData.price / 2.8;
           var totalPrice = (petrol * rate) / rideRequestLength;
           var refundPrice = rideScheduleData.price - totalPrice;
-          
+
           const driverShare = Math.ceil((totalPrice * 0.55) / 100) * 100;
 
           const driver = await firestore
