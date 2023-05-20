@@ -673,6 +673,7 @@ export const rideScheduleDone = async (req, res) => {
           const petrol = rideScheduleData.price / 2.8;
           var totalPrice = (petrol * rate) / rideRequestLength;
           var refundPrice = rideScheduleData.price - totalPrice;
+          
           const driverShare = Math.ceil((totalPrice * 0.55) / 100) * 100;
 
           const driver = await firestore
