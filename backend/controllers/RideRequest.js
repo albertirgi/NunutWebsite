@@ -479,7 +479,7 @@ export const getRideRequestByList = async (req, res) => {
               ride_request: DataRideRequestArray.find((rideRequest) => {
                 return rideRequest.user_id == req.query.ride_schedule_only && rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
               }),
-              ride_request_id: DataRideRequestArray.where((rideRequest) => {
+              ride_request_id: DataRideRequestArray.filter((rideRequest) => {
                 return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
               })
             };
