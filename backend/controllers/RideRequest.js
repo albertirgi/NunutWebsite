@@ -331,7 +331,7 @@ export const getAllRideRequests = async (req, res) => {
           });
         } else {
           rideRequestArray = rideRequestArray.filter((rideRequest) => {
-            return rideRequest.status_ride == "COMPLETED" || rideRequest.status_ride == "CANCELLED" || rideRequest.status_ride == "REJECTED" || rideRequest.status_ride == "EXPIRED" || rideRequest.status_ride == "FAILED" || rideRequest.status_ride == "DONE";
+            return rideRequest.status_ride == "COMPLETED" || rideRequest.status_ride == "CANCELED" || rideRequest.status_ride == "REJECTED" || rideRequest.status_ride == "EXPIRED" || rideRequest.status_ride == "FAILED" || rideRequest.status_ride == "DONE";
           });
         }
       }
