@@ -30,7 +30,7 @@ export const topup2 = async(req, res) => {
               });
               return null;
             });
-    const url = "https://api.sandbox.midtrans.com/v2/charge/"
+    const url = "https://api.midtrans.com/v2/charge/"
     var payload;
     if(data.payment_type == "gopay"){
       payload = {
@@ -89,7 +89,7 @@ export const topup2 = async(req, res) => {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": "Basic " + Buffer.from("SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:", "utf8").toString("base64"),
+        "Authorization": "Basic " + Buffer.from("Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T:", "utf8").toString("base64"),
       },
       timeout: 10000,
     };
@@ -196,8 +196,8 @@ export const topup = async (req, res) => {
             });
     
     let snap = new midtransClient.Snap({
-      isProduction: false,
-      serverKey: "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR",
+      isProduction: true,
+      serverKey: "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     });
     const order_id = uuid();
 
@@ -239,7 +239,7 @@ export const topup = async (req, res) => {
             status: 200,
             token: transactionToken,
             redirect_url:
-              "https://app.sandbox.midtrans.com/snap/v2/vtweb/" + transactionToken,
+              "https://app.midtrans.com/snap/v2/vtweb/" + transactionToken,
           });
         })
         .catch((error) => {
