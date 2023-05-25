@@ -339,6 +339,9 @@ export const getAllRideRequests = async (req, res) => {
           });
         }
       }
+      rideRequestArray = rideRequestArray.filter((rideRequest) => {
+        return rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "CANCELLED" && rideRequest.status_ride != "DRIVER_CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
+      });
 
       rideRequestArray = rideRequestArray.sort(function(a, b){
         const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
