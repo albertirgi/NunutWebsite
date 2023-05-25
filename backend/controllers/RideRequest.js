@@ -294,7 +294,12 @@ export const getAllRideRequests = async (req, res) => {
             capacity: rideScheduleSingle.capacity,
             is_active: rideScheduleSingle.is_active,
             ride_request: dataRideRequest.filter((rideRequest) => {
-              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+              return (
+                rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELLED" &&
+                rideRequest.status_ride != "CANCELED" &&
+                rideRequest.status_ride != "DRIVER_CANCELLED" &&
+                rideRequest.status_ride != "DRIVER_CANCELED"
+              );
             }),
           };
           rideRequestArray.push(data);
@@ -309,7 +314,6 @@ export const getAllRideRequests = async (req, res) => {
               return user.user_id == doc.data().user_id;
             }) : doc.data().user_id,
           );
-          console.log(rideRequest);
           rideRequestArray.push(rideRequest);
         }
       });

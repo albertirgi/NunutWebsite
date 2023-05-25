@@ -372,7 +372,10 @@ export const getRideScheduleById = async (req, res) => {
           ...rideSchedule,
           ride_request_id: rideRequestArray.filter((rideRequest) => {
             return (
-              rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id
+              rideRequest.ride_schedule_id == rideSchedule.ride_schedule_id && rideRequest.status_ride != "CANCELLED" &&
+              rideRequest.status_ride != "CANCELED" &&
+              rideRequest.status_ride != "DRIVER_CANCELLED" &&
+              rideRequest.status_ride != "DRIVER_CANCELED"
             );
           }),
         };
