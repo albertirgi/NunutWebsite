@@ -668,9 +668,11 @@ export const rideScheduleDone = async (req, res) => {
       })
     } else {
       const rideScheduleData = rideSchedule.data()
-      const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
-      const rideRequestSnapshot = await rideRequest.where('status_ride', 'in', ["REGISTERED", "ONGOING"]).get();
+      // const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
+      // const rideRequestLength = rideRequest.docs.where('status_ride', 'in', ["REGISTERED", "ONGOING"]).length
+      const rideRequestSnapshot = await rideRequestRef.where('ride_schedule_id', '==', id).where('status_ride', 'in', ["REGISTERED", "ONGOING"]).get();
       const rideRequestLength = rideRequestSnapshot.size;
+
       var rate = 2.8
       if (rideRequestLength > 1) {
         rate = 2 + rideRequestLength
