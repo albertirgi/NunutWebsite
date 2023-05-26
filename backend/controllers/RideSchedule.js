@@ -669,7 +669,7 @@ export const rideScheduleDone = async (req, res) => {
     } else {
       const rideScheduleData = rideSchedule.data()
       const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
-      const rideRequestLength = rideRequest.docs.where('status_ride', 'in', ["REGISTERED", "ONGOING"]).length
+      const rideRequestLength = rideRequest.docs.filter('status_ride', 'in', ["REGISTERED", "ONGOING"]).length
       var rate = 2.8
       if (rideRequestLength > 1) {
         rate = 2 + rideRequestLength
