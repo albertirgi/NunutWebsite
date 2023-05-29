@@ -46,7 +46,7 @@ export const storeRideSchedule = async (req, res) => {
       note: "Nunut Ride",
       time: data.time,
       vehicle_id: data.vehicle_id,
-      price: Math.ceil(price/100)*100,
+      price: Math.ceil(price / 100) * 100,
     })
     res.status(200).json({
       message: 'Ride schedule data saved successfuly',
@@ -61,7 +61,7 @@ export const storeRideSchedule = async (req, res) => {
 }
 
 export const getAllRideSchedules = async (req, res) => {
-  try{
+  try {
     const data = await firestore.collection('ride_schedule').get()
     var rideScheduleArray = []
     const bookmark = req.query.user !== undefined ? (req.query.user != "" ? await firestore.collection('bookmark').where('user_id', '==', req.query.user).get() : null) : null
@@ -96,23 +96,23 @@ export const getAllRideSchedules = async (req, res) => {
     const rideRequestArray =
       req.query.ride_request !== undefined
         ? rideRequest.docs.map((doc) => {
-            return {
-              ride_request_id: doc.id,
-              ride_schedule_id: doc.data().ride_schedule_id,
-              status_ride: doc.data().status_ride,
-              user_id: userArray.find((user) => {
-                return user.user_id == doc.data().user_id;
-              }),
-            };
-          })
+          return {
+            ride_request_id: doc.id,
+            ride_schedule_id: doc.data().ride_schedule_id,
+            status_ride: doc.data().status_ride,
+            user_id: userArray.find((user) => {
+              return user.user_id == doc.data().user_id;
+            }),
+          };
+        })
         : null;
 
-    if(data.empty){
+    if (data.empty) {
       res.status(404).json({
         message: 'No ride schedule record found',
         status: 404
       })
-    }else{
+    } else {
       data.forEach(doc => {
         const rideSchedule = new RideSchedule(
           doc.id,
@@ -124,19 +124,19 @@ export const getAllRideSchedules = async (req, res) => {
           doc.data().price,
           req.query.driver !== undefined
             ? driverArray.find((driver) => {
-                return driver.driver_id == doc.data().driver_id;
-              })
+              return driver.driver_id == doc.data().driver_id;
+            })
             : doc.data().driver_id,
           req.query.vehicle !== undefined
             ? vehicleArray.find((vehicle) => {
-                return vehicle.vehicle_id == doc.data().vehicle_id;
-              })
+              return vehicle.vehicle_id == doc.data().vehicle_id;
+            })
             : doc.data().vehicle_id,
           doc.data().capacity,
           doc.data().is_active
         );
 
-        if(bookmark != null){
+        if (bookmark != null) {
           const modifiedRideSchedule = {
             ...rideSchedule,
             is_bookmarked: bookmarkArray.find(bookmark => {
@@ -144,12 +144,12 @@ export const getAllRideSchedules = async (req, res) => {
             }) != undefined ? true : false
           }
           rideScheduleArray.push(modifiedRideSchedule)
-        }else{
+        } else {
           rideScheduleArray.push(rideSchedule)
         }
       });
 
-      if(req.query.ride_request !== undefined) {
+      if (req.query.ride_request !== undefined) {
         rideScheduleArray = rideScheduleArray.map(rideSchedule => {
           const modifiedRideSchedule = {
             ...rideSchedule,
@@ -187,13 +187,13 @@ export const getAllRideSchedules = async (req, res) => {
         }
       }
 
-      if(req.query.time !== undefined && req.query.time != ""){
+      if (req.query.time !== undefined && req.query.time != "") {
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
           const rideScheduleTime = new Date(rideSchedule.date);
           const queryTime = new Date(parseInt(req.query.time));
           return rideScheduleTime.getTime() == queryTime.getTime();
         })
-        if(rideScheduleArray.length == 0){
+        if (rideScheduleArray.length == 0) {
           res.status(404).json({
             message: 'No ride schedule record found: date and time not found',
             status: 404
@@ -202,13 +202,13 @@ export const getAllRideSchedules = async (req, res) => {
         }
       }
 
-      if(req.query.meeting_point !== undefined && req.query.meeting_point != ""){
+      if (req.query.meeting_point !== undefined && req.query.meeting_point != "") {
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-	        const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g,'');
-	        const queryMeetingPoint = req.query.meeting_point.toLowerCase();
-	        return rideScheduleMeetingPoint.includes(queryMeetingPoint)
+          const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g, '');
+          const queryMeetingPoint = req.query.meeting_point.toLowerCase();
+          return rideScheduleMeetingPoint.includes(queryMeetingPoint)
         })
-        if(rideScheduleArray.length == 0){
+        if (rideScheduleArray.length == 0) {
           res.status(404).json({
             message: 'No ride schedule record found: meeting point not found',
             status: 404
@@ -217,12 +217,12 @@ export const getAllRideSchedules = async (req, res) => {
         }
       }
 
-      if(req.query.destination !== undefined && req.query.destination != ""){
+      if (req.query.destination !== undefined && req.query.destination != "") {
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-	  const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
+          const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
           return rideScheduleDestination.includes(req.query.destination.toLowerCase())
         })
-        if(rideScheduleArray.length == 0){
+        if (rideScheduleArray.length == 0) {
           res.status(404).json({
             message: 'No ride schedule record found: destination not found',
             status: 404
@@ -231,33 +231,33 @@ export const getAllRideSchedules = async (req, res) => {
         }
       }
 
-      if(req.query.driver !== undefined && req.query.driver != ""){
+      if (req.query.driver !== undefined && req.query.driver != "") {
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
           return rideSchedule.driver_id.driver_id == req.query.driver
         })
       }
 
-      if(req.query.status_ride !== undefined && req.query.status_ride !== ""){
+      if (req.query.status_ride !== undefined && req.query.status_ride !== "") {
         const active = req.query.status_ride == "active" ? true : false;
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
-	      return rideSchedule.is_active == active
-	      })  
+          return rideSchedule.is_active == active
+        })
       }
 
       // Order by datetime
-      rideScheduleArray = rideScheduleArray.sort(function(a, b){
+      rideScheduleArray = rideScheduleArray.sort(function (a, b) {
         const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
         const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
         return rideScheduleTimeB - rideScheduleTimeA;
-      }); 
+      });
 
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
         data: rideScheduleArray,
-        status: 200 
+        status: 200
       })
     }
-  }catch(error) {
+  } catch (error) {
     res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500
@@ -266,32 +266,32 @@ export const getAllRideSchedules = async (req, res) => {
 }
 
 export const getRideScheduleById = async (req, res) => {
-  try{
+  try {
     const id = req.params.id
     const data = await firestore.collection('ride_schedule').doc(id).get()
-    if(!data.exists){
+    if (!data.exists) {
       res.status(404).json({
         message: 'Ride schedule with the given ID not found',
         status: 404
       })
-    }else{
+    } else {
       const bookmark =
         req.query.user !== undefined
           ? req.query.user != ""
             ? await firestore
-                .collection("bookmark")
-                .where("user_id", "==", req.query.user)
-                .get()
+              .collection("bookmark")
+              .where("user_id", "==", req.query.user)
+              .get()
             : null
           : null;
       const bookmarkArray =
         bookmark != null
           ? bookmark.docs.map((doc) => {
-              return {
-                bookmark_id: doc.id,
-                ...doc.data(),
-              };
-            })
+            return {
+              bookmark_id: doc.id,
+              ...doc.data(),
+            };
+          })
           : null;
       const driver = await firestore.collection('driver').get()
       const driverArray = req.query.driver !== undefined ? driver.docs.map((doc) => {
@@ -342,13 +342,13 @@ export const getRideScheduleById = async (req, res) => {
         data.data().price,
         req.query.driver !== undefined
           ? driverArray.find((driver) => {
-              return driver.driver_id == data.data().driver_id;
-            })
+            return driver.driver_id == data.data().driver_id;
+          })
           : data.data().driver_id,
         req.query.vehicle !== undefined
           ? vehicleArray.find((vehicle) => {
-              return vehicle.vehicle_id == data.data().vehicle_id;
-            })
+            return vehicle.vehicle_id == data.data().vehicle_id;
+          })
           : data.data().vehicle_id,
         data.data().capacity,
         data.data().is_active
@@ -387,7 +387,7 @@ export const getRideScheduleById = async (req, res) => {
         status: 200,
       });
     }
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500
@@ -396,7 +396,7 @@ export const getRideScheduleById = async (req, res) => {
 }
 
 export const updateRideSchedule = async (req, res) => {
-  try{
+  try {
     const id = req.params.id
     const data = req.body
     const rideSchedule = firestore.collection('ride_schedule').doc(id)
@@ -405,7 +405,7 @@ export const updateRideSchedule = async (req, res) => {
       message: 'Ride schedule record updated successfuly',
       status: 200
     })
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Something went wrong while updating data: " + error.toString(),
       status: 500
@@ -414,14 +414,14 @@ export const updateRideSchedule = async (req, res) => {
 }
 
 export const destroyRideSchedule = async (req, res) => {
-  try{
+  try {
     const id = req.params.id
     await firestore.collection('ride_schedule').doc(id).delete()
     res.status(200).json({
       message: 'Ride schedule record deleted successfuly',
       status: 200
     })
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Something went wrong while deleting data: " + error.toString(),
       status: 500
@@ -430,7 +430,7 @@ export const destroyRideSchedule = async (req, res) => {
 }
 
 export const getRideScheduleByList = async (req, res) => {
-  try{
+  try {
     const num = req.params.num
     const data = await firestore.collection('ride_schedule').get()
     var rideScheduleArray = []
@@ -473,22 +473,22 @@ export const getRideScheduleByList = async (req, res) => {
     const rideRequestArray =
       req.query.ride_request !== undefined
         ? rideRequest.docs.map((doc) => {
-            return {
-              ride_request_id: doc.id,
-              ride_schedule_id: doc.data().ride_schedule_id,
-              status_ride: doc.data().status_ride,
-              user_id: userArray.find((user) => {
-                return user.user_id == doc.data().user_id;
-              }),
-            };
-          })
+          return {
+            ride_request_id: doc.id,
+            ride_schedule_id: doc.data().ride_schedule_id,
+            status_ride: doc.data().status_ride,
+            user_id: userArray.find((user) => {
+              return user.user_id == doc.data().user_id;
+            }),
+          };
+        })
         : null;
-    if(data.empty){
+    if (data.empty) {
       res.status(404).json({
         message: 'No ride schedule record found',
         status: 404
       })
-    }else{
+    } else {
       data.forEach(doc => {
         const rideSchedule = new RideSchedule(
           doc.id,
@@ -500,18 +500,18 @@ export const getRideScheduleByList = async (req, res) => {
           doc.data().price,
           req.query.driver !== undefined
             ? driverArray.find((driver) => {
-                return driver.driver_id == doc.data().driver_id;
-              })
+              return driver.driver_id == doc.data().driver_id;
+            })
             : doc.data().driver_id,
           req.query.vehicle !== undefined
             ? vehicleArray.find((vehicle) => {
-                return vehicle.vehicle_id == doc.data().vehicle_id;
-              })
+              return vehicle.vehicle_id == doc.data().vehicle_id;
+            })
             : doc.data().vehicle_id,
           doc.data().capacity,
           doc.data().is_active
         );
-        if(bookmark != null){
+        if (bookmark != null) {
           const modifiedRideSchedule = {
             ...rideSchedule,
             is_bookmarked: bookmarkArray.find(bookmark => {
@@ -519,7 +519,7 @@ export const getRideScheduleByList = async (req, res) => {
             }) != undefined ? true : false
           }
           rideScheduleArray.push(modifiedRideSchedule)
-        }else{
+        } else {
           rideScheduleArray.push(rideSchedule)
         }
       })
@@ -539,7 +539,7 @@ export const getRideScheduleByList = async (req, res) => {
           };
           return modifiedRideSchedule;
         });
-        if(req.query.user_view !== undefined && req.query.user_view == "true"){
+        if (req.query.user_view !== undefined && req.query.user_view == "true") {
           rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
             const rideRequestActive = rideRequestArray.filter((rideRequest) => {
               return (
@@ -562,7 +562,7 @@ export const getRideScheduleByList = async (req, res) => {
           const getSingleDriver = driverArray.find((driver) => {
             return driver.user_id == req.query.user;
           });
-          if(getSingleDriver != undefined){
+          if (getSingleDriver != undefined) {
             rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
               return rideSchedule.driver_id.driver_id != getSingleDriver.driver_id;
             });
@@ -597,7 +597,7 @@ export const getRideScheduleByList = async (req, res) => {
         req.query.meeting_point != ""
       ) {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-	        const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g, '');
+          const rideScheduleMeetingPoint = rideSchedule.meeting_point.name.toLowerCase().replace(/ /g, '');
           return rideScheduleMeetingPoint.includes(req.query.meeting_point.toLowerCase());
         });
         if (rideScheduleArray.length == 0) {
@@ -611,7 +611,7 @@ export const getRideScheduleByList = async (req, res) => {
 
       if (req.query.destination !== undefined && req.query.destination != "") {
         rideScheduleArray = rideScheduleArray.filter((rideSchedule) => {
-	        const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
+          const rideScheduleDestination = rideSchedule.destination.name.toLowerCase().replace(/ /g, '');
           return rideScheduleDestination.includes(req.query.destination.toLowerCase());
         });
         if (rideScheduleArray.length == 0) {
@@ -629,26 +629,26 @@ export const getRideScheduleByList = async (req, res) => {
         });
       }
 
-	    if(req.query.status_ride !== undefined && req.query.status_ride !== ""){
+      if (req.query.status_ride !== undefined && req.query.status_ride !== "") {
         const active = req.query.status_ride == "active" ? true : false;
         rideScheduleArray = rideScheduleArray.filter(rideSchedule => {
           return rideSchedule.is_active == active
         })
       }
 
-      rideScheduleArray = rideScheduleArray.sort(function(a, b){
+      rideScheduleArray = rideScheduleArray.sort(function (a, b) {
         const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
         const rideScheduleTimeB = new Date(b.date + " " + b.time + ":00 GMT+7");
         return rideScheduleTimeB - rideScheduleTimeA;
-      }); 
+      });
 
       res.status(200).json({
         message: 'Ride schedule data retrieved successfuly',
-        data: rideScheduleArray.slice(0+((num-1)*10), (num*10)),
-        status: 200 
+        data: rideScheduleArray.slice(0 + ((num - 1) * 10), (num * 10)),
+        status: 200
       })
     }
-  }catch(error) {
+  } catch (error) {
     res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500
@@ -657,19 +657,22 @@ export const getRideScheduleByList = async (req, res) => {
 }
 
 export const rideScheduleDone = async (req, res) => {
-  try{
+  try {
     const id = req.params.id
     const body = req.body
     const rideSchedule = await firestore.collection('ride_schedule').doc(id).get()
-    if(rideSchedule.empty){
+    if (rideSchedule.empty) {
       res.status(404).json({
         message: 'No ride schedule record found',
         status: 404
       })
-    }else{
+    } else {
       const rideScheduleData = rideSchedule.data()
-      const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).get()
-      const rideRequestLength = rideRequest.docs.where('status_ride', 'in', ["REGISTERED", "ONGOING"]).length
+      // const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).where('status_ride', 'in', ["REGISTERED", "ONGOING"]).get();
+      // const rideRequestLength = rideRequest.docs.where('status_ride', 'in', ["REGISTERED", "ONGOING"]).length;
+      const rideRequest = await firestore.collection('ride_request').where('ride_schedule_id', '==', id).where('status_ride', 'in', ["REGISTERED", "ONGOING"]).get();
+      const rideRequestLength = rideRequest.size;
+
       var rate = 2.8
       if (rideRequestLength > 1) {
         rate = 2 + rideRequestLength
@@ -677,7 +680,7 @@ export const rideScheduleDone = async (req, res) => {
 
       rideRequest.forEach(async doc => {
         const data = doc.data()
-        if(data.status_ride == "ONGOING"){
+        if (data.status_ride == "ONGOING") {
           const petrol = rideScheduleData.price / 2.8;
           var totalPrice = (petrol * rate) / rideRequestLength;
           var refundPrice = rideScheduleData.price - totalPrice;
@@ -710,7 +713,7 @@ export const rideScheduleDone = async (req, res) => {
             transaction_time: new Date(),
             type: "WALLET",
             wallet_id: wallet.docs[0].id,
-          }); 
+          });
           const user = await firestore.collection("user").doc(data.user_id).get();
           const userData = user.data();
           const userWallet = await firestore.collection("wallet").where("user_id", "==", data.user_id).get();
@@ -845,7 +848,7 @@ export const rideScheduleDone = async (req, res) => {
           await mailer.sendMail(mailOptions);
         }
       })
-      
+
       await firestore.collection('ride_schedule').doc(id).update({
         is_active: false
       })
@@ -854,7 +857,8 @@ export const rideScheduleDone = async (req, res) => {
         status: 200
       })
     }
-  }catch(error) {
+  } catch (error) {
+    console.log(error)
     res.status(500).json({
       message: "Something went wrong while fetching data: " + error.toString(),
       status: 500
