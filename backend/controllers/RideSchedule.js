@@ -754,7 +754,7 @@ export const rideScheduleDone = async (req, res) => {
             subject: subject,
             html: html,
           };
-          mailer.sendMail(mailOptions);
+          await mailer.sendMail(mailOptions);
           
         } else if (data.status_ride == "REGISTERED") {
           const petrol = rideScheduleData.price / 2.8;
@@ -842,7 +842,7 @@ export const rideScheduleDone = async (req, res) => {
             subject: subject,
             html: html,
           };
-          mailer.sendMail(mailOptions);
+          await mailer.sendMail(mailOptions);
         }
       })
       
