@@ -6,7 +6,7 @@ dotenv.config();
 const upload = multer({storage: multer.memoryStorage()});
 
 var router = express.Router();
-import { storeUser, updateUser, getAllUsers, login, logout, getUserById, resetPassword, destroyUser } from '../controllers/User.js';
+import { storeUser, checkToken, updateUser, getAllUsers, login, logout, getUserById, resetPassword, destroyUser } from '../controllers/User.js';
 import { storeDriver, getAllDrivers, getDriverById, getDriverByUserId, updateDriver, updateDriverStatus, destroyDriver } from '../controllers/Driver.js';
 import { storeVehicle, getAllVehicles, getVehicleById, updateVehicle, destroyVehicle } from '../controllers/Vehicle.js';
 import { storeRideSchedule, getAllRideSchedules, getRideScheduleById, updateRideSchedule, destroyRideSchedule, getRideScheduleByList, rideScheduleDone } from '../controllers/RideSchedule.js';
@@ -124,6 +124,7 @@ const isLoggedIn = (req, res, next) => {
 //     }
 // }
 
+router.get('/check-token/:token', checkToken);
 router.post('/sendEmail', sendEmail);
 router.post('/login', login);
 router.post('/logout', logout);
@@ -242,6 +243,7 @@ router.get('/transaction/:id', getTransactionById);
 router.put('/transaction/:id', updateTransaction);
 router.delete('/transaction/:id', destroyTransaction);
 router.post('/topup', topup2);
+router.post('/topup2', topup);
 router.post('/handle-topup', handleTopup);
 router.get('/map', getAllMaps);
 router.get('/map/list/:num', getAllMapsByList);

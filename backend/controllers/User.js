@@ -5,10 +5,44 @@ import { db, firebaseConfig } from '../config/db.js'
 import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from "firebase/auth"
 import { doc, getDoc } from "firebase/firestore"
 import { uuid } from 'uuidv4'
+import jwt_decode from "jwt-decode";
 const firestore = db.firestore()
 const storage = db.storage().bucket()
 let token = null
 const app = initializeApp(firebaseConfig)
+
+// Check token exist on database
+export const checkToken = async (req, res) => {
+  const token = req.params.token
+  var decoded = jwt_decode(token);
+  firestore.collection('tokens').where('user_id', '==', decoded.userId).get()
+  .then(async data => {
+    if(data.empty) {
+      firestore
+        .collection("tokens")
+        .doc(token)
+        .set(
+          {
+            user_id: decoded.userId,
+          },
+          { merge: true }
+        )
+        .then(() => {
+          return res.status(200).json({
+            message: "token not found",
+            status: 200,
+            data: false,
+          });
+        });
+    }else{
+      return res.status(200).json({
+        message: "Token is valid",
+        status: 200,
+        data: true,
+      });
+    }
+  });
+}
 
 // Create and Save a new userModel
 export const storeUser = async (req, res) => {

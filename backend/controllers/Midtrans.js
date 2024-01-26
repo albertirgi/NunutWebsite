@@ -30,7 +30,7 @@ export const topup2 = async(req, res) => {
               });
               return null;
             });
-    const url = "https://api.sandbox.midtrans.com/v2/charge"
+    const url = "https://api.midtrans.com/v2/charge/"
     var payload;
     if(data.payment_type == "gopay"){
       payload = {
@@ -89,13 +89,14 @@ export const topup2 = async(req, res) => {
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "Authorization": "Basic " + Buffer.from("SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR:", "utf8").toString("base64"),
+        "Authorization": "Basic " + Buffer.from("Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T:", "utf8").toString("base64"),
       },
       timeout: 10000,
     };
     const post = new Promise ((resolve, reject) => {
       const request = https.request(url, options, (res) => {
         if(res.statusCode < 200 || res.statusCode > 299){
+	  console.log(res);
           return reject(new Error('HTTP status code' + res.statusCode))
         }
         const body = []
@@ -118,6 +119,7 @@ export const topup2 = async(req, res) => {
     post.then(
       function(value){
         if(JSON.parse(value).status_code != "201"){
+	  console.log(JSON.parse(value));
           res.status(500).json({
             message: "Transaction failed: " + JSON.parse(value).status_message,
             status: 400
@@ -145,6 +147,7 @@ export const topup2 = async(req, res) => {
             });
           })
           .catch((error) => {
+	    console.log(error);
             res.status(500).json({
               message: "Transaction failed: " + error.toString(),
               status: 400,
@@ -152,6 +155,7 @@ export const topup2 = async(req, res) => {
           });
       },
       function(error){
+	console.log(error);
         res.status(500).json({
           message: "Transaction failed: " + error.toString(),
           status: 400
@@ -159,6 +163,7 @@ export const topup2 = async(req, res) => {
       }
     )
   } catch(err) {
+    console.log(err);
     res.status(500).json({
       message: "Error while creating transaction: " + err.toString(),
       status: 500
@@ -191,8 +196,8 @@ export const topup = async (req, res) => {
             });
     
     let snap = new midtransClient.Snap({
-      isProduction: false,
-      serverKey: "SB-Mid-server-9QzxKyc37GPcw1gv_tBX77YR",
+      isProduction: true,
+      serverKey: "Mid-server-V7Id9uuEEzMD9ZrUHXhvxB1T",
     });
     const order_id = uuid();
 
@@ -215,28 +220,34 @@ export const topup = async (req, res) => {
     snap.createTransaction(parameter).then((transaction) => {
       // transaction token
       let transactionToken = transaction.token;
-      firestore.collection("transaction").doc(order_id).set({
-        amount: data.gross_amount,
-        method: "",
-        order_id: order_id,
-        status: "pending",
-        token: transactionToken,
-        type: "topup",
-        wallet_id: walletData.id,
-      }).then(() => {
-        res.status(200).json({
-          message: "Snap token generated successfuly",
-          status: 200,
-          token: transactionToken,
-          redirect_url:
-            "https://app.sandbox.midtrans.com/snap/v2/vtweb/" + transactionToken,
+      firestore
+        .collection("transaction")
+        .doc(order_id)
+        .set({
+          amount: data.gross_amount,
+          method: "-",
+          order_id: order_id,
+          status: "pending",
+          transaction_id: transactionToken,
+          transaction_time: new Date(),
+          type: "topup",
+          wallet_id: walletData.id,
+        })
+        .then(() => {
+          res.status(200).json({
+            message: "Snap token generated successfuly",
+            status: 200,
+            token: transactionToken,
+            redirect_url:
+              "https://app.midtrans.com/snap/v2/vtweb/" + transactionToken,
+          });
+        })
+        .catch((error) => {
+          res.status(500).json({
+            message: `Error while save transaction: ${error.toString()}`,
+            status: 500,
+          });
         });
-      }).catch((error) => {
-        res.status(500).json({
-          message: `Error while save transaction: ${error.toString()}`,
-          status: 500,
-        });
-      })
     });
   } catch (error) {
     res.status(500).json({
@@ -277,7 +288,7 @@ export const handleTopup = async (req, res) => {
         return;
       }
       const walletData = wallet.data();
-      const balance = walletData.balance + transaction.data().amount;
+      const balance = walletData.balance + (transaction.data().amount-1000);
       await transaction.ref.update({
         status: "settlement",
         method: data.payment_type,
@@ -359,7 +370,7 @@ export const getTransactionByWalletByList = async (req, res) => {
   try {
     const num = req.params.num;
     const data = req.body;
-    const transaction = await firestore.collection("transaction").where("wallet_id", "==", data.wallet_id).get();
+    var transaction = await firestore.collection("transaction").where("wallet_id", "==", data.wallet_id).get();
     if (transaction.empty) {
       res.status(404).json({
         message: "No transaction record found",
@@ -367,14 +378,14 @@ export const getTransactionByWalletByList = async (req, res) => {
       })
       return
     }
+    var transactionData = transaction.docs.map((doc) => doc.data());
+    transactionData = transactionData.sort((a, b) => b.transaction_time - a.transaction_time);
+
     res.status(200).json({
       message: "Transaction record found",
       status: 200,
-      data: transaction.docs.map((doc) => doc.data()).slice(
-          0 + (num - 1) * 10,
-          num * 10
-        ),
-    })
+      data: transactionData.slice(0 + (num - 1) * 10, num * 10),
+    });
   } catch (error) {
     res.status(500).json({
       message: `Error while get transaction: ${error.toString()}`,

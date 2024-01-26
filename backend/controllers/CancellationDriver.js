@@ -81,7 +81,7 @@ export const storeCancellationDriver = async (req, res) => {
       }
     });
     rideRequestArray.forEach((rideRequestSingle) => {
-      if(rideRequestSingle.status_ride != "CANCELLED"){
+      if(rideRequestSingle.status_ride != "CANCELED"){
         firestore
           .collection("ride_request")
           .doc(rideRequestSingle.ride_request_id)
@@ -96,7 +96,7 @@ export const storeCancellationDriver = async (req, res) => {
       }
     });
     rideRequestArray.forEach((rideRequestSingle) => {
-      if(rideRequestSingle.status_ride != "CANCELLED"){
+      if(rideRequestSingle.status_ride != "CANCELED"){
         firestore.collection("ride_order").where("ride_request_id", "==", rideRequestSingle.ride_request_id).get().then((rideOrder) => {
           rideOrder.forEach((doc) => {
             firestore

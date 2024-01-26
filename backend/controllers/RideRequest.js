@@ -294,7 +294,12 @@ export const getAllRideRequests = async (req, res) => {
             capacity: rideScheduleSingle.capacity,
             is_active: rideScheduleSingle.is_active,
             ride_request: dataRideRequest.filter((rideRequest) => {
-              return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id;
+              return (
+                rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELLED" &&
+                rideRequest.status_ride != "CANCELED" &&
+                rideRequest.status_ride != "DRIVER_CANCELLED" &&
+                rideRequest.status_ride != "DRIVER_CANCELED"
+              );
             }),
           };
           rideRequestArray.push(data);
@@ -309,7 +314,6 @@ export const getAllRideRequests = async (req, res) => {
               return user.user_id == doc.data().user_id;
             }) : doc.data().user_id,
           );
-          console.log(rideRequest);
           rideRequestArray.push(rideRequest);
         }
       });
@@ -331,10 +335,13 @@ export const getAllRideRequests = async (req, res) => {
           });
         } else {
           rideRequestArray = rideRequestArray.filter((rideRequest) => {
-            return rideRequest.status_ride == "COMPLETED" || rideRequest.status_ride == "CANCELLED" || rideRequest.status_ride == "REJECTED" || rideRequest.status_ride == "EXPIRED" || rideRequest.status_ride == "FAILED" || rideRequest.status_ride == "DONE";
+            return rideRequest.status_ride == "COMPLETED" || rideRequest.status_ride == "CANCELED" || rideRequest.status_ride == "REJECTED" || rideRequest.status_ride == "EXPIRED" || rideRequest.status_ride == "FAILED" || rideRequest.status_ride == "DONE";
           });
         }
       }
+      rideRequestArray = rideRequestArray.filter((rideRequest) => {
+        return rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "CANCELLED" && rideRequest.status_ride != "DRIVER_CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
+      });
 
       rideRequestArray = rideRequestArray.sort(function(a, b){
         const rideScheduleTimeA = new Date(a.date + " " + a.time + ":00 GMT+7");
@@ -479,6 +486,9 @@ export const getRideRequestByList = async (req, res) => {
               ride_request: DataRideRequestArray.find((rideRequest) => {
                 return rideRequest.user_id == req.query.ride_schedule_only && rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
               }),
+              ride_request_id: DataRideRequestArray.filter((rideRequest) => {
+                return rideRequest.ride_schedule_id == rideScheduleSingle.ride_schedule_id && rideRequest.status_ride != "CANCELED" && rideRequest.status_ride != "DRIVER_CANCELLED";
+              })
             };
             rideRequestArray.push(single);
           }
